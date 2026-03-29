@@ -115,7 +115,7 @@ const KPI_UNITS: KpiConfig = {
 
 // ─── Tab config ───────────────────────────────────────────────
 
-type DemoTab = 'pivot' | 'charts' | 'kpis' | 'reports' | 'insights' | 'canvas';
+type DemoTab = 'pivot' | 'charts' | 'kpis' | 'reports' | 'insights' | 'canvas' | 'docs';
 
 const TAB_CONFIG: Array<{ id: DemoTab; label: string; icon: string }> = [
   { id: 'pivot',    label: 'Pivot Builder',    icon: '⊞' },
@@ -124,6 +124,7 @@ const TAB_CONFIG: Array<{ id: DemoTab; label: string; icon: string }> = [
   { id: 'reports',  label: 'Report Scheduler', icon: '📄' },
   { id: 'insights', label: 'AI Insights',      icon: '🤖' },
   { id: 'canvas',   label: 'Live Canvas',      icon: '🎨' },
+  { id: 'docs',     label: 'How It Works',     icon: '📖' },
 ];
 
 // ─── Root App ─────────────────────────────────────────────────
@@ -207,6 +208,10 @@ export default function App() {
 
         {activeTab === 'canvas' && (
           <LiveCanvasTab />
+        )}
+
+        {activeTab === 'docs' && (
+          <DocsTab />
         )}
 
       </main>
@@ -901,6 +906,292 @@ function LiveCanvasTab() {
         renderers={CANVAS_RENDERERS}
         className="demo-canvas"
       />
+    </section>
+  );
+}
+
+// ─── Docs tab ─────────────────────────────────────────────────
+
+function DocsTab() {
+  return (
+    <section className="demo-section" aria-labelledby="docs-heading">
+
+      {/* Hero */}
+      <div className="docs-hero">
+        <h2 className="docs-hero-title" id="docs-heading">Analytix — Drag-and-drop analytics builder</h2>
+        <p className="docs-hero-subtitle">No SQL. No BI admin. Embeds in React like a date picker.</p>
+        <div className="docs-hero-badges">
+          <span className="docs-hero-badge">📊 1,200 demo rows loaded</span>
+          <span className="docs-hero-badge">⚡ 6 live features above</span>
+          <span className="docs-hero-badge">🔒 All data stays in your browser</span>
+          <span className="docs-hero-badge">🆓 MIT — $0/developer</span>
+        </div>
+      </div>
+
+      {/* 5-step quick tour */}
+      <h3 className="docs-section-title">5-Step Quick Tour</h3>
+      <div className="docs-steps">
+        {[
+          {
+            icon: '⊞',
+            title: 'Pivot Builder tab — drag fields to build any pivot table',
+            desc: 'The table is pre-loaded with Region → Rows, Category → Columns, Revenue → Values. You can see real aggregated data immediately.',
+            tip: 'Try it: drag "Channel" from the Fields panel on the left into the "Columns" drop zone. The pivot re-computes instantly.',
+          },
+          {
+            icon: '📊',
+            title: 'Chart Builder tab — 26 chart types, zero configuration',
+            desc: 'A Revenue by Region bar chart auto-renders when you open the tab. Change the X/Y fields using the dropdowns, or switch chart types.',
+            tip: 'Try it: switch to Line chart and set X = Quarter, Y = Revenue to see a time-series trend.',
+          },
+          {
+            icon: '📈',
+            title: 'KPI Dashboard — live threshold alerts from 1,200 rows',
+            desc: 'Four metric cards compute from the full dataset. Border colour reflects threshold status: green = on track, yellow = warning, red = critical.',
+            tip: 'These update in real time whenever the dataset changes — no manual refresh needed.',
+          },
+          {
+            icon: '🤖',
+            title: 'AI Insights — no API key, no network call',
+            desc: 'Five detectors run locally in pure TypeScript: Trend (monotonic patterns), Anomaly (Z-score + IQR), Correlation (Pearson r), Segment (dominant groups), and Forecast (linear regression).',
+            tip: 'Try it: click "Run Analysis" — you\'ll get plain-English insights with confidence scores in under 200ms.',
+          },
+          {
+            icon: '🎨',
+            title: 'Live Canvas — freeform dashboard layout with undo/redo',
+            desc: 'Three pre-placed widgets on a freeform canvas. Drag them anywhere, resize from the corners, or lock them in place.',
+            tip: 'Try it: move a widget then click "Undo". The canvas has a 20-step history.',
+          },
+        ].map((step, i) => (
+          <div key={i} className="docs-step">
+            <div className="docs-step-num">{i + 1}</div>
+            <div className="docs-step-body">
+              <p className="docs-step-title">{step.icon} {step.title}</p>
+              <p className="docs-step-desc">{step.desc}</p>
+              <p className="docs-step-tip">💡 {step.tip}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Competitive comparison */}
+      <h3 className="docs-section-title">How Analytix compares</h3>
+      <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
+        <table className="docs-compare-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Analytix</th>
+              <th>Tableau</th>
+              <th>Power BI</th>
+              <th>Metabase</th>
+              <th>Superset</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ['Open source',                   '✅',         '❌',       '❌',       '✅',         '✅'        ],
+              ['Embeds in React (native)',       '✅ native',  '❌',       '⚠️ iframe', '⚠️ iframe', '⚠️ iframe'],
+              ['No SQL required',               '✅',         '❌',       '❌',       '❌',         '❌'        ],
+              ['AI insights (offline)',         '✅ built-in','❌',       '⚠️ paid',  '❌',         '❌'        ],
+              ['WebSocket live data',           '✅',         '❌',       '❌',       '❌',         '❌'        ],
+              ['Freeform canvas layout',        '✅',         '✅',       '✅',       '❌',         '❌'        ],
+              ['Cross-widget filtering',        '✅',         '✅',       '✅',       '⚠️ limited', '⚠️ limited'],
+              ['Zero backend / server',         '✅',         '❌',       '❌',       '❌ server',  '❌ server' ],
+              ['Price (per developer)',         '$0 MIT',    '$999/yr',  '$10/usr/mo','$500/mo',  'self-host' ],
+            ].map(([feature, ...cols]) => (
+              <tr key={feature}>
+                <td>{feature}</td>
+                {cols.map((val, i) => <td key={i}>{val}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="docs-highlights">
+        <div className="docs-highlight docs-highlight--green">
+          <p className="docs-highlight-title">🟢 Zero cost, full control</p>
+          <p className="docs-highlight-desc">MIT licensed. No vendor lock-in, no seat fees, no annual contracts. Self-host on your own infra or deploy to Vercel in &lt;40 seconds.</p>
+        </div>
+        <div className="docs-highlight docs-highlight--yellow">
+          <p className="docs-highlight-title">🟡 No SQL, no backend</p>
+          <p className="docs-highlight-desc">Connect a CSV, WebSocket feed, or REST API — data never leaves the browser. No database credentials, no query editor, no data warehouse.</p>
+        </div>
+        <div className="docs-highlight docs-highlight--blue">
+          <p className="docs-highlight-title">🔵 Built-in AI (ahead of the market)</p>
+          <p className="docs-highlight-desc">Trend, anomaly, correlation, segment, and forecast detectors run locally in TypeScript — no OpenAI key, no Gemini, no third-party API call ever.</p>
+        </div>
+      </div>
+
+      {/* Architecture */}
+      <h3 className="docs-section-title">Package architecture</h3>
+      <div className="docs-arch">
+        <div className="docs-arch-layer">
+          <div className="docs-arch-layer-label">React UI Layer</div>
+          <div className="docs-arch-boxes">
+            {['AnalyticsBuilder', 'PivotBuilder', 'ChartBuilder', 'KpiCard', 'KpiDashboard', 'FieldPanel', 'DropZone', 'DashboardCanvas'].map(c => (
+              <span key={c} className="docs-arch-box">{c}</span>
+            ))}
+          </div>
+        </div>
+        <div className="docs-arch-arrow">↓ &nbsp;@analytix/react</div>
+        <div className="docs-arch-layer">
+          <div className="docs-arch-layer-label">Core Orchestrator</div>
+          <div className="docs-arch-boxes">
+            {['AnalyticsEngine', 'EventBus', 'buildDataset', 'PivotConfig', 'KpiConfig', 'ReportConfig'].map(c => (
+              <span key={c} className="docs-arch-box docs-arch-box--core">{c}</span>
+            ))}
+          </div>
+        </div>
+        <div className="docs-arch-arrow">↓ &nbsp;@analytix/core</div>
+        <div className="docs-arch-layer">
+          <div className="docs-arch-layer-label">Specialized Engines (zero dependencies between them)</div>
+          <div className="docs-arch-boxes">
+            {['pivot-engine', 'chart-engine', 'kpi-engine', 'insight-engine', 'data-connector', 'canvas-layout', 'crossfilter', 'report-builder'].map(c => (
+              <span key={c} className="docs-arch-box docs-arch-box--engine">@analytix/{c}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Code examples */}
+      <h3 className="docs-section-title">Code examples</h3>
+      <div className="docs-code-examples">
+        <details className="docs-code-block">
+          <summary>Minimal setup — 3 lines to embed the full builder</summary>
+          <pre>{`import { AnalyticsEngine } from '@analytix/core';
+import { computePivot }    from '@analytix/pivot-engine';
+import { computeKpi }      from '@analytix/kpi-engine';
+import { parseCsv }        from '@analytix/data-connector';
+import { AnalyticsBuilder } from '@analytix/react';
+
+// 1. Create engine + wire sub-engines
+const engine = new AnalyticsEngine();
+engine.registerPivotEngine(computePivot);
+engine.registerKpiEngine(computeKpi);
+
+// 2. Load your data
+const dataset = await parseCsv(csvText, { id: 'sales', name: 'Sales' });
+engine.addDataset(dataset);
+
+// 3. Embed — pre-populates region/category/revenue by default
+export default function App() {
+  return <AnalyticsBuilder engine={engine} initialDataset={dataset} />;
+}`}</pre>
+        </details>
+
+        <details className="docs-code-block">
+          <summary>Standalone pivot table — use without the full builder UI</summary>
+          <pre>{`import { AnalyticsEngine } from '@analytix/core';
+import { computePivot }    from '@analytix/pivot-engine';
+import { PivotTable }      from '@analytix/react';
+import { usePivot }        from '@analytix/react';
+
+const config = {
+  id: 'revenue-pivot',
+  datasetId: 'sales',
+  rowFields:    ['region'],
+  columnFields: ['quarter'],
+  valueFields:  [
+    { columnId: 'revenue', aggregation: 'sum', label: 'Revenue ($)' },
+  ],
+  showRowTotals:    true,
+  showColumnTotals: true,
+};
+
+function MyPivot({ engine }) {
+  const { result, loading } = usePivot(engine, config);
+  if (loading) return <p>Computing...</p>;
+  return <PivotTable result={result} />;
+}`}</pre>
+        </details>
+
+        <details className="docs-code-block">
+          <summary>AI Insights — zero-dependency analysis, no API key</summary>
+          <pre>{`import { InsightEngine } from '@analytix/insight-engine';
+
+const engine = new InsightEngine();
+
+const result = await engine.analyze(dataset, {
+  detectors:     ['trend', 'anomaly', 'correlation', 'forecast'],
+  maxInsights:   10,
+  minConfidence: 0.5,
+});
+
+// Each insight:
+// {
+//   type:        'trend-up',
+//   title:       'Revenue growing strongly',
+//   description: 'Monthly revenue has increased 23% over 6 periods.',
+//   severity:    'info',
+//   confidence:  0.91,
+//   chartSuggestion: 'line',
+// }
+
+console.log(result.narrative);
+// "Revenue is growing strongly (+23% over 6 periods). CAC shows
+//  an anomalous spike in March (2.4\u03c3 above mean). Revenue and NRR
+//  are strongly correlated (r = 0.87)."
+`}</pre>
+        </details>
+
+        <details className="docs-code-block">
+          <summary>Cross-widget filtering — click a bar to filter all other charts</summary>
+          <pre>{`import { CrossFilterProvider, useCrossFilter } from '@analytix/crossfilter';
+
+// 1. Wrap your dashboard in CrossFilterProvider
+function Dashboard({ dataset }) {
+  return (
+    <CrossFilterProvider>
+      <RevenueBar  datasetId={dataset.id} rows={dataset.rows} />
+      <RegionPie   datasetId={dataset.id} rows={dataset.rows} />
+      <SalesTable  datasetId={dataset.id} rows={dataset.rows} />
+    </CrossFilterProvider>
+  );
+}
+
+// 2. Each widget subscribes — gets all OTHER widgets' filters applied
+function RevenueBar({ datasetId, rows }) {
+  const { filteredRows, setFilter, clearFilter, isFiltered } =
+    useCrossFilter('widget-bar', datasetId, rows);
+
+  return (
+    <BarChart
+      data={filteredRows}        // auto-filtered by other widgets
+      onBarClick={(bar) => setFilter('region', [bar.region])}
+      onBackgroundClick={clearFilter}
+      style={{ opacity: isFiltered ? 1 : 0.75 }}
+    />
+  );
+}`}</pre>
+        </details>
+      </div>
+
+      {/* Roadmap */}
+      <h3 className="docs-section-title">Roadmap — Q3 2026 GA</h3>
+      <div className="docs-roadmap">
+        <div className="docs-roadmap-items">
+          {[
+            'Collaborative editing (CRDT via Yjs)',
+            'SQL connector — DuckDB WASM, query CSV/Parquet with SQL',
+            'Mobile-responsive layout with touch drag-and-drop',
+            'Plugin marketplace — community chart types and connectors',
+            '@analytix/vue and @analytix/svelte adapter packages',
+            'WCAG 2.1 AA accessibility audit and compliance',
+            'Native time-series axis with zoom and pan gestures',
+            'Snapshot alerts — compare KPI values across periods',
+            'PDF report designer with drag-and-drop sections',
+            'Delta Lake / Parquet file connector',
+          ].map((item) => (
+            <div key={item} className="docs-roadmap-item">
+              <div className="docs-roadmap-check" aria-hidden="true" />
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </section>
   );
 }
