@@ -1,0 +1,344 @@
+/* ============================================================
+   Analytix Documentation — syntax.css
+   Custom syntax highlighting — no Prism, no external deps.
+   Tokens styled using span.tok-* classes set by scripts/highlight.js
+   or hand-authored in HTML with data-lang attributes.
+   ============================================================ */
+
+/* ── Base code block reset ─────────────────────────────────── */
+pre,
+.code-block {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code',
+               'Source Code Pro', Consolas, 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.8;
+  tab-size: 2;
+  -moz-tab-size: 2;
+  white-space: pre;
+  overflow-x: auto;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 1.5rem 1.75rem;
+  margin: 0;
+  border-radius: 0;
+}
+
+/* Inline code */
+:not(pre) > code {
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  font-size: 0.875em;
+  background: #f1f5f9;
+  color: #1d4ed8;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+/* ── Token colours ──────────────────────────────────────────── */
+
+/* Keywords: const, let, var, import, export, function, return, if, else … */
+.tok-kw,
+.tok-keyword {
+  color: #c084fc;
+  font-weight: 500;
+}
+
+/* Built-in types / global identifiers */
+.tok-builtin {
+  color: #7dd3fc;
+}
+
+/* Strings (all quote styles) */
+.tok-str,
+.tok-string,
+.tok-template {
+  color: #86efac;
+}
+
+/* Template literal expressions ${…} */
+.tok-interp {
+  color: #fde68a;
+}
+
+/* Numbers, booleans, null, undefined */
+.tok-num,
+.tok-number,
+.tok-bool,
+.tok-null {
+  color: #fb923c;
+}
+
+/* Identifiers / variables */
+.tok-ident,
+.tok-variable {
+  color: #e2e8f0;
+}
+
+/* Function / method names */
+.tok-fn,
+.tok-function {
+  color: #67e8f9;
+}
+
+/* Class / type names */
+.tok-class,
+.tok-type {
+  color: #fbbf24;
+}
+
+/* Interface / type alias */
+.tok-interface {
+  color: #f0abfc;
+}
+
+/* Object property / member */
+.tok-prop,
+.tok-property {
+  color: #93c5fd;
+}
+
+/* Operators: = + - * / % === !== && || ?? ! … */
+.tok-op,
+.tok-operator {
+  color: #94a3b8;
+}
+
+/* Punctuation: ( ) { } [ ] ; , . */
+.tok-punc,
+.tok-punctuation {
+  color: #64748b;
+}
+
+/* Comments */
+.tok-comment {
+  color: #475569;
+  font-style: italic;
+}
+
+/* JSX tags */
+.tok-tag,
+.tok-jsx-tag {
+  color: #f87171;
+}
+
+/* JSX attribute names */
+.tok-attr,
+.tok-jsx-attr {
+  color: #fbbf24;
+}
+
+/* Decorators (@Component, @Injectable, …) */
+.tok-decorator {
+  color: #a78bfa;
+}
+
+/* Regular expressions */
+.tok-regex {
+  color: #6ee7b7;
+}
+
+/* CSS property names */
+.tok-css-prop {
+  color: #93c5fd;
+}
+
+/* CSS values */
+.tok-css-val {
+  color: #86efac;
+}
+
+/* CSS selectors */
+.tok-css-sel {
+  color: #f87171;
+}
+
+/* CSS at-rules */
+.tok-css-at {
+  color: #c084fc;
+}
+
+/* Shell / terminal prompt */
+.tok-shell-prompt {
+  color: #475569;
+  user-select: none;
+}
+
+/* Shell command */
+.tok-shell-cmd {
+  color: #7dd3fc;
+}
+
+/* Shell flags / options */
+.tok-shell-flag {
+  color: #fbbf24;
+}
+
+/* Shell path / file name */
+.tok-shell-path {
+  color: #86efac;
+}
+
+/* JSON keys */
+.tok-json-key {
+  color: #93c5fd;
+}
+
+/* JSON strings */
+.tok-json-str {
+  color: #86efac;
+}
+
+/* JSON numbers */
+.tok-json-num {
+  color: #fb923c;
+}
+
+/* JSON boolean / null */
+.tok-json-kw {
+  color: #c084fc;
+}
+
+/* Diff additions */
+.tok-diff-add {
+  color: #86efac;
+  background: rgba(134, 239, 172, 0.08);
+  display: block;
+  margin: 0 -1.75rem;
+  padding: 0 1.75rem;
+}
+
+/* Diff deletions */
+.tok-diff-del {
+  color: #fca5a5;
+  background: rgba(252, 165, 165, 0.08);
+  display: block;
+  margin: 0 -1.75rem;
+  padding: 0 1.75rem;
+}
+
+/* Highlighted / focused line */
+.tok-line-highlight {
+  background: rgba(37, 99, 235, 0.12);
+  display: block;
+  margin: 0 -1.75rem;
+  padding: 0 1.75rem;
+  border-left: 3px solid #3b82f6;
+}
+
+/* ── Line numbers ───────────────────────────────────────────── */
+pre.line-numbers {
+  padding-left: 3.5rem;
+  position: relative;
+}
+
+.line-num {
+  display: inline-block;
+  width: 2.5rem;
+  margin-left: -3.5rem;
+  margin-right: 1rem;
+  text-align: right;
+  color: #334155;
+  user-select: none;
+  font-size: 0.8em;
+}
+
+/* ── Language label badges ──────────────────────────────────── */
+pre[data-lang]::before {
+  content: attr(data-lang);
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #475569;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 0.5rem;
+}
+
+/* ── Scrollbar styling for code blocks ──────────────────────── */
+pre::-webkit-scrollbar {
+  height: 6px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 0 0 4px 4px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* ── Shell block variant ────────────────────────────────────── */
+.code-block--shell pre {
+  background: #020617;
+}
+
+.code-block--shell pre::before {
+  content: '$ terminal';
+  color: #334155;
+  border-color: #0f172a;
+}
+
+/* ── Output block variant ───────────────────────────────────── */
+.code-block--output pre {
+  background: #0a0a0a;
+  color: #a3e635;
+  font-size: 0.8rem;
+}
+
+.code-block--output pre::before {
+  content: 'output';
+  color: #365314;
+  border-color: #14532d;
+}
+
+/* ── Compact inline snippet ─────────────────────────────────── */
+.code-snippet {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  width: 100%;
+  margin: 0.5rem 0;
+}
+
+.code-snippet code {
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  background: none;
+  border: none;
+  padding: 0;
+  flex: 1;
+}
+
+/* ── Colorised quick-start 3-line snippet ───────────────────── */
+.quickstart-code {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.8;
+  overflow-x: auto;
+}
+
+.quickstart-code .tok-comment { color: #475569; font-style: italic; }
+.quickstart-code .tok-kw      { color: #c084fc; }
+.quickstart-code .tok-ident   { color: #e2e8f0; }
+.quickstart-code .tok-fn      { color: #67e8f9; }
+.quickstart-code .tok-str     { color: #86efac; }
+.quickstart-code .tok-class   { color: #fbbf24; }
+.quickstart-code .tok-punc    { color: #64748b; }
+.quickstart-code .tok-num     { color: #fb923c; }

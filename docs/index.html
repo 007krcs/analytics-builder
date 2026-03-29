@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Analytix — drag-and-drop analytics builder on top of GridStorm. Pivot tables, 20+ charts, KPI dashboards, and scheduled reports. No SQL required." />
+  <title>Analytix — Drag-and-drop analytics on top of GridStorm</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/syntax.css" />
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <a href="index.html" class="header-brand" aria-label="Analytix home">
+        <div class="header-logo">A</div>
+        <span class="header-brand-name">Analytix</span>
+        <span class="header-brand-tag">Beta</span>
+      </a>
+
+      <nav class="header-nav" role="navigation" aria-label="Main navigation">
+        <a href="getting-started.html" class="header-nav-link">Docs</a>
+        <a href="api-reference.html" class="header-nav-link">API</a>
+        <a href="examples.html" class="header-nav-link">Examples</a>
+        <a href="https://github.com/analytix/analytics-builder" class="header-nav-link" target="_blank" rel="noopener">GitHub</a>
+        <a href="getting-started.html" class="header-cta">Get Started →</a>
+      </nav>
+
+      <button class="header-hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="header-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Hero ───────────────────────────────────────────────── -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero-inner animate-fade-in">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Q3 2026 General Availability
+      </div>
+
+      <h1 id="hero-heading" class="hero-title">
+        Drag-and-drop analytics<br/>
+        builder on top of
+        <span class="hero-title-accent">GridStorm</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Build pivot tables, dashboards, and scheduled reports through a
+        visual interface — no SQL, no data engineering, no configuration files.
+      </p>
+
+      <div class="hero-actions">
+        <a href="getting-started.html" class="btn-hero-primary">
+          <span>Get Started</span>
+          <span>→</span>
+        </a>
+        <a href="examples.html" class="btn-hero-secondary">
+          <span>View Examples</span>
+        </a>
+      </div>
+
+      <!-- Quick-start snippet -->
+      <div class="code-block-wrapper" style="text-align:left;max-width:560px;margin:0 auto var(--space-10);">
+        <div class="code-block-header">
+          <span class="code-block-lang">shell</span>
+          <button class="code-copy-btn" aria-label="Copy to clipboard">Copy</button>
+        </div>
+        <pre><span class="tok-shell-prompt"># 1.</span> <span class="tok-shell-cmd">pnpm add</span> <span class="tok-str">@analytix/react @analytix/core</span>
+<span class="tok-shell-prompt"># 2.</span> <span class="tok-shell-cmd">import</span> <span class="tok-punc">{</span> <span class="tok-class">AnalyticsBuilder</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/react'</span>
+<span class="tok-shell-prompt"># 3.</span> <span class="tok-punc">&lt;</span><span class="tok-class">AnalyticsBuilder</span> <span class="tok-attr">engine</span><span class="tok-punc">={</span><span class="tok-ident">engine</span><span class="tok-punc">}</span> <span class="tok-punc">/&gt;</span></pre>
+      </div>
+
+      <!-- Badge row -->
+      <div class="badge-row">
+        <span class="badge"><span class="badge-check">✓</span> Q3 2026 GA</span>
+        <span class="badge"><span class="badge-check">✓</span> 20+ Chart Types</span>
+        <span class="badge"><span class="badge-check">✓</span> No SQL Required</span>
+        <span class="badge"><span class="badge-check">✓</span> GridStorm Powered</span>
+        <span class="badge"><span class="badge-check">✓</span> TypeScript First</span>
+        <span class="badge"><span class="badge-check">✓</span> pnpm Monorepo</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features ───────────────────────────────────────────── -->
+  <section class="features-section" aria-labelledby="features-heading">
+    <p class="section-label">What's included</p>
+    <h2 id="features-heading" class="section-heading">Everything you need for analytics</h2>
+    <p class="section-description">
+      Six focused packages that compose into a complete analytics experience.
+      Open-core with enterprise plugins built on the GridStorm platform.
+    </p>
+
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">⊞</div>
+        <h3 class="feature-title">Pivot Builder</h3>
+        <p class="feature-desc">
+          Drag dimensions into rows and columns. Aggregate with sum, avg, count,
+          median, stdDev, and variance. Grand totals and sub-totals included.
+          Powered by <code>@analytix/pivot-engine</code>.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">20+ Chart Types</h3>
+        <p class="feature-desc">
+          Bar, line, area, scatter, bubble, heatmap, treemap, funnel, waterfall,
+          radar, sankey, candlestick, histogram, violin, and more.
+          All rendered via Recharts 2 through <code>@analytix/chart-engine</code>.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3 class="feature-title">KPI Dashboard</h3>
+        <p class="feature-desc">
+          Threshold-based status (good / warning / critical), period-over-period
+          trend arrows, and auto-refresh on configurable intervals.
+          Managed by <code>@analytix/kpi-engine</code>.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📄</div>
+        <h3 class="feature-title">Scheduled Reports</h3>
+        <p class="feature-desc">
+          Compose reports with a fluent builder API. Schedule via interval,
+          cron expression, or one-time. Export to PDF or Excel.
+          Built with <code>@analytix/report-builder</code>.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3 class="feature-title">No SQL Required</h3>
+        <p class="feature-desc">
+          Load any JSON or CSV dataset and start exploring immediately.
+          Filter, group, aggregate, and chart entirely in the browser
+          using the in-memory <code>AnalyticsEngine</code>.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">GridStorm Powered</h3>
+        <p class="feature-desc">
+          Built on top of GridStorm's headless core engine — virtual scrolling,
+          plugin system, and command bus architecture.
+          Renders hundreds of thousands of rows smoothly.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Quick start ────────────────────────────────────────── -->
+  <section class="quickstart-section" aria-labelledby="quickstart-heading">
+    <div class="quickstart-inner">
+      <p class="section-label">Quick start</p>
+      <h2 id="quickstart-heading" class="section-heading">Up and running in 3 minutes</h2>
+
+      <div class="quickstart-grid">
+        <div class="quickstart-steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3 class="step-title">Install packages</h3>
+              <p class="step-desc">Add the React adapter and core engine to your project.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3 class="step-title">Create an engine</h3>
+              <p class="step-desc">Instantiate <code>AnalyticsEngine</code> and load your dataset.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3 class="step-title">Render the builder</h3>
+              <p class="step-desc">Drop <code>&lt;AnalyticsBuilder&gt;</code> anywhere in your React tree.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h3 class="step-title">Drag and explore</h3>
+              <p class="step-desc">Drag fields into pivot zones, pick chart types, set KPI thresholds.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="code-block-wrapper">
+            <div class="code-block-header">
+              <span class="code-block-lang">tsx</span>
+              <span class="code-block-filename">App.tsx</span>
+              <button class="code-copy-btn" aria-label="Copy">Copy</button>
+            </div>
+            <pre><span class="tok-kw">import</span> <span class="tok-punc">{</span> <span class="tok-class">AnalyticsEngine</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/core'</span><span class="tok-punc">;</span>
+<span class="tok-kw">import</span> <span class="tok-punc">{</span>
+  <span class="tok-class">AnalyticsBuilder</span><span class="tok-punc">,</span>
+  <span class="tok-fn">useAnalyticsEngine</span>
+<span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/react'</span><span class="tok-punc">;</span>
+
+<span class="tok-kw">export default function</span> <span class="tok-fn">App</span><span class="tok-punc">() {</span>
+  <span class="tok-kw">const</span> <span class="tok-punc">{</span> <span class="tok-ident">engine</span><span class="tok-punc">,</span> <span class="tok-ident">loadDataset</span> <span class="tok-punc">}</span> <span class="tok-op">=</span> <span class="tok-fn">useAnalyticsEngine</span><span class="tok-punc">();</span>
+
+  <span class="tok-fn">useEffect</span><span class="tok-punc">(() =&gt; {</span>
+    <span class="tok-fn">loadDataset</span><span class="tok-punc">(</span><span class="tok-str">'sales'</span><span class="tok-punc">,</span> <span class="tok-str">'Sales Data'</span><span class="tok-punc">,</span> <span class="tok-ident">rows</span><span class="tok-punc">);</span>
+  <span class="tok-punc">},</span> <span class="tok-punc">[]);</span>
+
+  <span class="tok-kw">return</span> <span class="tok-punc">&lt;</span><span class="tok-class">AnalyticsBuilder</span> <span class="tok-attr">engine</span><span class="tok-punc">={</span><span class="tok-ident">engine</span><span class="tok-punc">} /&gt;;</span>
+<span class="tok-punc">}</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:var(--space-8);">
+        <a href="getting-started.html" class="btn-hero-primary" style="display:inline-flex;">
+          Read the full guide →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Architecture diagram ───────────────────────────────── -->
+  <section class="arch-section" aria-labelledby="arch-heading">
+    <p class="section-label">Architecture</p>
+    <h2 id="arch-heading" class="section-heading" style="text-align:center;">How it all fits together</h2>
+    <p class="section-description">
+      Six decoupled packages that layer cleanly on top of GridStorm.
+      Each layer only depends on the layers below it.
+    </p>
+
+    <div class="arch-diagram">
+
+      <div class="arch-layer">
+        <div class="arch-layer-label">Your App</div>
+        <div class="arch-boxes">
+          <div class="arch-box arch-box--app">Your React App</div>
+          <div class="arch-box arch-box--app">Custom Dashboards</div>
+          <div class="arch-box arch-box--app">Embedded Reports</div>
+        </div>
+      </div>
+
+      <div class="arch-arrow">↓</div>
+
+      <div class="arch-layer">
+        <div class="arch-layer-label">React</div>
+        <div class="arch-boxes">
+          <div class="arch-box arch-box--react">@analytix/react</div>
+          <div class="arch-box arch-box--react">AnalyticsBuilder</div>
+          <div class="arch-box arch-box--react">KpiCard · PivotTable</div>
+        </div>
+      </div>
+
+      <div class="arch-arrow">↓</div>
+
+      <div class="arch-layer">
+        <div class="arch-layer-label">Engines</div>
+        <div class="arch-boxes">
+          <div class="arch-box arch-box--engine">@analytix/pivot-engine</div>
+          <div class="arch-box arch-box--engine">@analytix/chart-engine</div>
+          <div class="arch-box arch-box--engine">@analytix/kpi-engine</div>
+          <div class="arch-box arch-box--engine">@analytix/report-builder</div>
+        </div>
+      </div>
+
+      <div class="arch-arrow">↓</div>
+
+      <div class="arch-layer">
+        <div class="arch-layer-label">Core</div>
+        <div class="arch-boxes">
+          <div class="arch-box arch-box--grid">@analytix/core — AnalyticsEngine · Types · Store</div>
+        </div>
+      </div>
+
+      <div class="arch-arrow">↓</div>
+
+      <div class="arch-layer">
+        <div class="arch-layer-label">Platform</div>
+        <div class="arch-boxes">
+          <div class="arch-box arch-box--data">GridStorm Platform</div>
+          <div class="arch-box arch-box--data">Virtual Scroll · Plugin Bus</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Footer ─────────────────────────────────────────────── -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand-name">Analytix</div>
+          <p class="footer-brand-desc">
+            A drag-and-drop analytics platform built on top of the GridStorm
+            data grid. No SQL required.
+          </p>
+        </div>
+        <div>
+          <div class="footer-col-title">Documentation</div>
+          <div class="footer-links">
+            <a href="getting-started.html" class="footer-link">Getting Started</a>
+            <a href="api-reference.html" class="footer-link">API Reference</a>
+            <a href="examples.html" class="footer-link">Examples</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col-title">Packages</div>
+          <div class="footer-links">
+            <a href="api-reference.html#core" class="footer-link">@analytix/core</a>
+            <a href="api-reference.html#react" class="footer-link">@analytix/react</a>
+            <a href="api-reference.html#pivot" class="footer-link">@analytix/pivot-engine</a>
+            <a href="api-reference.html#chart" class="footer-link">@analytix/chart-engine</a>
+            <a href="api-reference.html#kpi" class="footer-link">@analytix/kpi-engine</a>
+            <a href="api-reference.html#report" class="footer-link">@analytix/report-builder</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col-title">Resources</div>
+          <div class="footer-links">
+            <a href="https://github.com/analytix/analytics-builder" class="footer-link" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://npmjs.com/org/analytix" class="footer-link" target="_blank" rel="noopener">npm</a>
+            <a href="#" class="footer-link">Changelog</a>
+            <a href="#" class="footer-link">Roadmap</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Analytix. Built on GridStorm.</span>
+        <div class="footer-bottom-links">
+          <a href="#" class="footer-link">License</a>
+          <a href="#" class="footer-link">Privacy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script src="scripts/nav.js"></script>
+<script src="scripts/tabs.js"></script>
+</body>
+</html>

@@ -20,12 +20,24 @@ importers:
 
   examples/demo:
     dependencies:
+      '@analytix/canvas-layout':
+        specifier: workspace:*
+        version: link:../../packages/canvas-layout
       '@analytix/chart-engine':
         specifier: workspace:*
         version: link:../../packages/chart-engine
       '@analytix/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@analytix/crossfilter':
+        specifier: workspace:*
+        version: link:../../packages/crossfilter
+      '@analytix/data-connector':
+        specifier: workspace:*
+        version: link:../../packages/data-connector
+      '@analytix/insight-engine':
+        specifier: workspace:*
+        version: link:../../packages/insight-engine
       '@analytix/kpi-engine':
         specifier: workspace:*
         version: link:../../packages/kpi-engine
@@ -73,6 +85,22 @@ importers:
         specifier: ^5.1.0
         version: 5.4.21(@types/node@20.19.37)
 
+  packages/canvas-layout:
+    dependencies:
+      react:
+        specifier: '>=18.0.0'
+        version: 18.3.1
+    devDependencies:
+      '@types/react':
+        specifier: ^18.2.0
+        version: 18.3.28
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(postcss@8.5.8)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
   packages/chart-engine:
     dependencies:
       '@analytix/core':
@@ -87,6 +115,57 @@ importers:
         version: 5.9.3
 
   packages/core:
+    devDependencies:
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(postcss@8.5.8)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
+  packages/crossfilter:
+    dependencies:
+      '@analytix/core':
+        specifier: workspace:*
+        version: link:../core
+      react:
+        specifier: '>=18.0.0'
+        version: 18.3.1
+    devDependencies:
+      '@types/react':
+        specifier: ^18.2.0
+        version: 18.3.28
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(postcss@8.5.8)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
+  packages/data-connector:
+    dependencies:
+      '@analytix/core':
+        specifier: workspace:*
+        version: link:../core
+      react:
+        specifier: '>=18.0.0'
+        version: 18.3.1
+    devDependencies:
+      '@types/react':
+        specifier: ^18.2.0
+        version: 18.3.28
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(postcss@8.5.8)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
+  packages/insight-engine:
+    dependencies:
+      '@analytix/core':
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       tsup:
         specifier: ^8.0.0

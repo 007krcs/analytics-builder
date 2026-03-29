@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Analytix examples — pivot tables, KPI dashboards, chart gallery, scheduled reports, and complete working demos." />
+  <title>Examples — Analytix Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/syntax.css" />
+</head>
+<body>
+<div class="page-wrapper">
+
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <a href="index.html" class="header-brand" aria-label="Analytix home">
+        <div class="header-logo">A</div>
+        <span class="header-brand-name">Analytix</span>
+        <span class="header-brand-tag">Beta</span>
+      </a>
+      <nav class="header-nav" role="navigation" aria-label="Main navigation">
+        <a href="getting-started.html" class="header-nav-link">Docs</a>
+        <a href="api-reference.html" class="header-nav-link">API</a>
+        <a href="examples.html" class="header-nav-link active">Examples</a>
+        <a href="https://github.com/analytix/analytics-builder" class="header-nav-link" target="_blank" rel="noopener">GitHub</a>
+        <a href="getting-started.html" class="header-cta">Get Started →</a>
+      </nav>
+      <button class="header-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="content-wrapper">
+
+    <aside class="sidebar" role="complementary" aria-label="Navigation">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Navigation</div>
+        <a href="index.html" class="sidebar-link">Home</a>
+        <a href="getting-started.html" class="sidebar-link">Getting Started</a>
+        <a href="api-reference.html" class="sidebar-link">API Reference</a>
+        <a href="examples.html" class="sidebar-link active">Examples</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Categories</div>
+        <a href="#pivot-examples" class="sidebar-sub-link">Pivot Tables</a>
+        <a href="#chart-examples" class="sidebar-sub-link">Charts</a>
+        <a href="#kpi-examples" class="sidebar-sub-link">KPI Dashboards</a>
+        <a href="#report-examples" class="sidebar-sub-link">Scheduled Reports</a>
+        <a href="#full-demos" class="sidebar-sub-link">Full Demos</a>
+      </div>
+    </aside>
+
+    <main class="main-content" id="main-content" role="main">
+
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">Analytix</a>
+        <span class="breadcrumb-sep">›</span>
+        <span>Examples</span>
+      </nav>
+
+      <h1 class="page-title">Examples</h1>
+      <p class="page-intro">
+        A gallery of ready-to-use examples covering pivot tables, chart types,
+        KPI dashboards, and scheduled report configurations. Each example includes
+        complete, copy-pasteable source code.
+      </p>
+
+      <!-- ── Pivot Examples ────────────────────────────────── -->
+      <h2 class="section-title" id="pivot-examples">Pivot Table Examples</h2>
+
+      <div class="examples-grid">
+        <div class="example-card">
+          <div class="example-card-preview">
+            <span class="example-card-icon">⊞</span>
+            <span class="example-card-badge">Pivot</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">Revenue by Region &times; Category</h3>
+            <p class="example-card-desc">Classic sales pivot — rows by region, columns by product category, values as revenue sum and margin average.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">sum</span>
+              <span class="example-tag">avg</span>
+              <span class="example-tag">grand totals</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-card">
+          <div class="example-card-preview">
+            <span class="example-card-icon">📅</span>
+            <span class="example-card-badge">Pivot</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">Monthly Sales Trend</h3>
+            <p class="example-card-desc">Time-series pivot with month as column headers and salesperson as row groups. Shows period-over-period changes.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">date grouping</span>
+              <span class="example-tag">compact mode</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-card">
+          <div class="example-card-preview">
+            <span class="example-card-icon">🌍</span>
+            <span class="example-card-badge">Pivot</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">Multi-level Grouping</h3>
+            <p class="example-card-desc">Two row fields (region → country) with sub-totals at each level. Demonstrates hierarchical pivot with compact mode.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">sub-totals</span>
+              <span class="example-tag">multi-level</span>
+              <span class="example-tag">hierarchy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pivot code example -->
+      <div class="tabs-container" data-tabs-id="pivot-code-tabs">
+        <div class="tabs-header">
+          <button class="tab-btn active" data-tab="pivot-basic">Basic Pivot</button>
+          <button class="tab-btn" data-tab="pivot-multi">Multi-level</button>
+          <button class="tab-btn" data-tab="pivot-filter">With Filters</button>
+        </div>
+        <div class="tab-panel active" data-tab="pivot-basic">
+          <pre><span class="tok-kw">import</span> <span class="tok-kw">type</span> <span class="tok-punc">{</span> <span class="tok-class">PivotConfig</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/core'</span><span class="tok-punc">;</span>
+
+<span class="tok-kw">const</span> <span class="tok-ident">config</span><span class="tok-punc">:</span> <span class="tok-class">PivotConfig</span> <span class="tok-op">=</span> <span class="tok-punc">{</span>
+  <span class="tok-prop">id</span><span class="tok-punc">:</span>           <span class="tok-str">'revenue-pivot'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">datasetId</span><span class="tok-punc">:</span>    <span class="tok-str">'sales'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">rowFields</span><span class="tok-punc">:</span>    <span class="tok-punc">[</span><span class="tok-str">'region'</span><span class="tok-punc">],</span>
+  <span class="tok-prop">columnFields</span><span class="tok-punc">:</span> <span class="tok-punc">[</span><span class="tok-str">'category'</span><span class="tok-punc">],</span>
+  <span class="tok-prop">valueFields</span><span class="tok-punc">:</span>  <span class="tok-punc">[</span>
+    <span class="tok-punc">{</span> <span class="tok-prop">columnId</span><span class="tok-punc">:</span> <span class="tok-str">'revenue'</span><span class="tok-punc">,</span>       <span class="tok-prop">aggregation</span><span class="tok-punc">:</span> <span class="tok-str">'sum'</span><span class="tok-punc">,</span> <span class="tok-prop">format</span><span class="tok-punc">:</span> <span class="tok-str">'currency'</span> <span class="tok-punc">},</span>
+    <span class="tok-punc">{</span> <span class="tok-prop">columnId</span><span class="tok-punc">:</span> <span class="tok-str">'profit_margin'</span><span class="tok-punc">,</span>  <span class="tok-prop">aggregation</span><span class="tok-punc">:</span> <span class="tok-str">'avg'</span><span class="tok-punc">,</span> <span class="tok-prop">format</span><span class="tok-punc">:</span> <span class="tok-str">'percent'</span>  <span class="tok-punc">},</span>
+  <span class="tok-punc">],</span>
+  <span class="tok-prop">filters</span><span class="tok-punc">:</span>          <span class="tok-punc">[],</span>
+  <span class="tok-prop">showRowTotals</span><span class="tok-punc">:</span>     <span class="tok-kw">true</span><span class="tok-punc">,</span>
+  <span class="tok-prop">showColumnTotals</span><span class="tok-punc">:</span>  <span class="tok-kw">true</span><span class="tok-punc">,</span>
+<span class="tok-punc">};</span></pre>
+        </div>
+        <div class="tab-panel" data-tab="pivot-multi">
+          <pre><span class="tok-comment">// Two row fields = region → country hierarchy</span>
+<span class="tok-kw">const</span> <span class="tok-ident">config</span><span class="tok-punc">:</span> <span class="tok-class">PivotConfig</span> <span class="tok-op">=</span> <span class="tok-punc">{</span>
+  <span class="tok-prop">id</span><span class="tok-punc">:</span>           <span class="tok-str">'region-country-pivot'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">datasetId</span><span class="tok-punc">:</span>    <span class="tok-str">'sales'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">rowFields</span><span class="tok-punc">:</span>    <span class="tok-punc">[</span><span class="tok-str">'region'</span><span class="tok-punc">,</span> <span class="tok-str">'country'</span><span class="tok-punc">],</span>
+  <span class="tok-prop">columnFields</span><span class="tok-punc">:</span> <span class="tok-punc">[</span><span class="tok-str">'quarter'</span><span class="tok-punc">],</span>
+  <span class="tok-prop">valueFields</span><span class="tok-punc">:</span>  <span class="tok-punc">[{</span>
+    <span class="tok-prop">columnId</span><span class="tok-punc">:</span>    <span class="tok-str">'revenue'</span><span class="tok-punc">,</span>
+    <span class="tok-prop">aggregation</span><span class="tok-punc">:</span> <span class="tok-str">'sum'</span><span class="tok-punc">,</span>
+    <span class="tok-prop">format</span><span class="tok-punc">:</span>      <span class="tok-str">'currency'</span><span class="tok-punc">,</span>
+  <span class="tok-punc">}],</span>
+  <span class="tok-prop">filters</span><span class="tok-punc">:</span>      <span class="tok-punc">[],</span>
+  <span class="tok-prop">showSubTotals</span><span class="tok-punc">:</span> <span class="tok-kw">true</span><span class="tok-punc">,</span>
+  <span class="tok-prop">compactMode</span><span class="tok-punc">:</span>  <span class="tok-kw">false</span><span class="tok-punc">,</span>
+<span class="tok-punc">};</span></pre>
+        </div>
+        <div class="tab-panel" data-tab="pivot-filter">
+          <pre><span class="tok-comment">// Filter to North America + Software only</span>
+<span class="tok-kw">const</span> <span class="tok-ident">config</span><span class="tok-punc">:</span> <span class="tok-class">PivotConfig</span> <span class="tok-op">=</span> <span class="tok-punc">{</span>
+  <span class="tok-prop">id</span><span class="tok-punc">:</span>           <span class="tok-str">'filtered-pivot'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">datasetId</span><span class="tok-punc">:</span>    <span class="tok-str">'sales'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">rowFields</span><span class="tok-punc">:</span>    <span class="tok-punc">[</span><span class="tok-str">'salesperson'</span><span class="tok-punc">],</span>
+  <span class="tok-prop">columnFields</span><span class="tok-punc">:</span> <span class="tok-punc">[</span><span class="tok-str">'quarter'</span><span class="tok-punc">],</span>
+  <span class="tok-prop">valueFields</span><span class="tok-punc">:</span>  <span class="tok-punc">[{</span> <span class="tok-prop">columnId</span><span class="tok-punc">:</span> <span class="tok-str">'revenue'</span><span class="tok-punc">,</span> <span class="tok-prop">aggregation</span><span class="tok-punc">:</span> <span class="tok-str">'sum'</span> <span class="tok-punc">}],</span>
+  <span class="tok-prop">filters</span><span class="tok-punc">:</span> <span class="tok-punc">[</span>
+    <span class="tok-punc">{</span> <span class="tok-prop">columnId</span><span class="tok-punc">:</span> <span class="tok-str">'region'</span><span class="tok-punc">,</span>   <span class="tok-prop">operator</span><span class="tok-punc">:</span> <span class="tok-str">'eq'</span><span class="tok-punc">,</span> <span class="tok-prop">value</span><span class="tok-punc">:</span> <span class="tok-str">'North America'</span> <span class="tok-punc">},</span>
+    <span class="tok-punc">{</span> <span class="tok-prop">columnId</span><span class="tok-punc">:</span> <span class="tok-str">'category'</span><span class="tok-punc">,</span> <span class="tok-prop">operator</span><span class="tok-punc">:</span> <span class="tok-str">'eq'</span><span class="tok-punc">,</span> <span class="tok-prop">value</span><span class="tok-punc">:</span> <span class="tok-str">'Software'</span>       <span class="tok-punc">},</span>
+  <span class="tok-punc">],</span>
+<span class="tok-punc">};</span></pre>
+        </div>
+      </div>
+
+      <!-- ── Chart Examples ─────────────────────────────────── -->
+      <h2 class="section-title" id="chart-examples">Chart Examples</h2>
+      <div class="prose">
+        <p>Analytix ships with 26 chart types. Here are the most commonly used ones with their configuration snippets.</p>
+      </div>
+
+      <div class="examples-grid">
+        <div class="example-card">
+          <div class="example-card-preview" style="background:linear-gradient(135deg,#dbeafe,#eff6ff);">
+            <span class="example-card-icon">📊</span>
+            <span class="example-card-badge">Chart</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">Grouped Bar Chart</h3>
+            <p class="example-card-desc">Compare revenue across regions by category using side-by-side grouped bars.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">bar-grouped</span>
+              <span class="example-tag">comparison</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-card">
+          <div class="example-card-preview" style="background:linear-gradient(135deg,#d1fae5,#f0fdf4);">
+            <span class="example-card-icon">📈</span>
+            <span class="example-card-badge">Chart</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">Multi-line Trend</h3>
+            <p class="example-card-desc">Monthly revenue trend lines per region with a shared time axis.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">line-multi</span>
+              <span class="example-tag">time series</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-card">
+          <div class="example-card-preview" style="background:linear-gradient(135deg,#fef3c7,#fffbeb);">
+            <span class="example-card-icon">🔥</span>
+            <span class="example-card-badge">Chart</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">Heatmap</h3>
+            <p class="example-card-desc">Sales intensity matrix — salesperson on Y, month on X, revenue as colour intensity.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">heatmap</span>
+              <span class="example-tag">distribution</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-card">
+          <div class="example-card-preview" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);">
+            <span class="example-card-icon">🌳</span>
+            <span class="example-card-badge">Chart</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">Treemap</h3>
+            <p class="example-card-desc">Revenue share visualised as nested rectangles — great for part-of-whole analysis.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">treemap</span>
+              <span class="example-tag">hierarchy</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-card">
+          <div class="example-card-preview" style="background:linear-gradient(135deg,#fce7f3,#fdf2f8);">
+            <span class="example-card-icon">🍩</span>
+            <span class="example-card-badge">Chart</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">Donut Chart</h3>
+            <p class="example-card-desc">Channel breakdown (Online / Direct / Reseller / Partner) as a donut with total in centre.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">donut</span>
+              <span class="example-tag">part-of-whole</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-card">
+          <div class="example-card-preview" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);">
+            <span class="example-card-icon">💧</span>
+            <span class="example-card-badge">Chart</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">Waterfall Chart</h3>
+            <p class="example-card-desc">Revenue, COGS, gross profit, operating costs, and net profit shown as running total waterfall.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">waterfall</span>
+              <span class="example-tag">deviation</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart code example -->
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-lang">tsx</span>
+          <span class="code-block-filename">BarChartExample.tsx</span>
+          <button class="code-copy-btn" aria-label="Copy">Copy</button>
+        </div>
+        <pre><span class="tok-kw">import</span> <span class="tok-punc">{</span> <span class="tok-class">ChartRenderer</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/react'</span><span class="tok-punc">;</span>
+<span class="tok-kw">import</span> <span class="tok-punc">{</span> <span class="tok-class">ChartRegistry</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/chart-engine'</span><span class="tok-punc">;</span>
+
+<span class="tok-kw">const</span> <span class="tok-ident">config</span> <span class="tok-op">=</span> <span class="tok-class">ChartRegistry</span><span class="tok-punc">.</span><span class="tok-fn">buildConfig</span><span class="tok-punc">(</span><span class="tok-str">'bar-grouped'</span><span class="tok-punc">, {</span>
+  <span class="tok-prop">x</span><span class="tok-punc">:</span>     <span class="tok-str">'region'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">y</span><span class="tok-punc">:</span>     <span class="tok-str">'revenue'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">group</span><span class="tok-punc">:</span> <span class="tok-str">'category'</span><span class="tok-punc">,</span>
+<span class="tok-punc">});</span>
+
+<span class="tok-kw">function</span> <span class="tok-fn">RevenueChart</span><span class="tok-punc">({</span> <span class="tok-ident">rows</span> <span class="tok-punc">}) {</span>
+  <span class="tok-kw">return</span> <span class="tok-punc">&lt;</span><span class="tok-class">ChartRenderer</span> <span class="tok-attr">config</span><span class="tok-punc">={</span><span class="tok-ident">config</span><span class="tok-punc">}</span> <span class="tok-attr">data</span><span class="tok-punc">={</span><span class="tok-ident">rows</span><span class="tok-punc">}</span> <span class="tok-attr">height</span><span class="tok-punc">={</span><span class="tok-num">400</span><span class="tok-punc">} /&gt;;</span>
+<span class="tok-punc">}</span></pre>
+      </div>
+
+      <!-- ── KPI Examples ───────────────────────────────────── -->
+      <h2 class="section-title" id="kpi-examples">KPI Dashboard Examples</h2>
+
+      <div class="examples-grid">
+        <div class="example-card">
+          <div class="example-card-preview" style="background:linear-gradient(135deg,#d1fae5,#f0fdf4);">
+            <span class="example-card-icon">💰</span>
+            <span class="example-card-badge">KPI</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">Sales KPI Pack</h3>
+            <p class="example-card-desc">Four KPIs — Total Revenue, Total Profit, Avg Satisfaction, and Units Sold — with threshold-based status.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">sum</span>
+              <span class="example-tag">avg</span>
+              <span class="example-tag">thresholds</span>
+              <span class="example-tag">auto-refresh</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-card">
+          <div class="example-card-preview" style="background:linear-gradient(135deg,#dbeafe,#eff6ff);">
+            <span class="example-card-icon">👥</span>
+            <span class="example-card-badge">KPI</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">HR Metrics Dashboard</h3>
+            <p class="example-card-desc">Headcount, avg salary, performance score, and tenure metrics — built from the employee dataset.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">count</span>
+              <span class="example-tag">avg</span>
+              <span class="example-tag">hr</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Report Examples ────────────────────────────────── -->
+      <h2 class="section-title" id="report-examples">Scheduled Report Examples</h2>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-lang">ts</span>
+          <span class="code-block-filename">weekly-report.ts</span>
+          <button class="code-copy-btn" aria-label="Copy">Copy</button>
+        </div>
+        <pre><span class="tok-kw">import</span> <span class="tok-punc">{</span> <span class="tok-class">ReportBuilder</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/report-builder'</span><span class="tok-punc">;</span>
+
+<span class="tok-kw">const</span> <span class="tok-ident">report</span> <span class="tok-op">=</span> <span class="tok-class">ReportBuilder</span>
+  <span class="tok-punc">.</span><span class="tok-fn">create</span><span class="tok-punc">(</span><span class="tok-str">'Weekly Sales Report'</span><span class="tok-punc">)</span>
+  <span class="tok-punc">.</span><span class="tok-fn">addText</span><span class="tok-punc">(</span>
+    <span class="tok-str">'Executive Summary'</span><span class="tok-punc">,</span>
+    <span class="tok-str">'Weekly performance overview for the sales organisation.'</span>
+  <span class="tok-punc">)</span>
+  <span class="tok-punc">.</span><span class="tok-fn">addKpiSummary</span><span class="tok-punc">([</span><span class="tok-ident">revenueKpi</span><span class="tok-punc">,</span> <span class="tok-ident">profitKpi</span><span class="tok-punc">,</span> <span class="tok-ident">unitsKpi</span><span class="tok-punc">])</span>
+  <span class="tok-punc">.</span><span class="tok-fn">addPivot</span><span class="tok-punc">(</span><span class="tok-ident">pivotConfig</span><span class="tok-punc">)</span>
+  <span class="tok-punc">.</span><span class="tok-fn">addChart</span><span class="tok-punc">(</span><span class="tok-ident">chartConfig</span><span class="tok-punc">)</span>
+  <span class="tok-punc">.</span><span class="tok-fn">schedule</span><span class="tok-punc">({</span>
+    <span class="tok-prop">type</span><span class="tok-punc">:</span>    <span class="tok-str">'cron'</span><span class="tok-punc">,</span>
+    <span class="tok-prop">cron</span><span class="tok-punc">:</span>    <span class="tok-str">'0 8 * * 1'</span><span class="tok-punc">,</span>   <span class="tok-comment">// Every Monday at 8am</span>
+    <span class="tok-prop">formats</span><span class="tok-punc">:</span> <span class="tok-punc">[</span><span class="tok-str">'pdf'</span><span class="tok-punc">,</span> <span class="tok-str">'excel'</span><span class="tok-punc">],</span>
+    <span class="tok-prop">enabled</span><span class="tok-punc">:</span> <span class="tok-kw">true</span><span class="tok-punc">,</span>
+  <span class="tok-punc">})</span>
+  <span class="tok-punc">.</span><span class="tok-fn">build</span><span class="tok-punc">();</span></pre>
+      </div>
+
+      <!-- ── Full Demos ─────────────────────────────────────── -->
+      <h2 class="section-title" id="full-demos">Full Demos</h2>
+
+      <div class="callout callout--info">
+        <span class="callout-icon">ℹ</span>
+        <div class="callout-body">
+          <div class="callout-title">Live Demo</div>
+          <div class="callout-text">
+            The live interactive demo is available in the <code>examples/demo</code> directory.
+            Run <code>pnpm --filter demo dev</code> from the repo root to start it locally.
+          </div>
+        </div>
+      </div>
+
+      <div class="examples-grid">
+        <div class="example-card">
+          <div class="example-card-preview" style="background:linear-gradient(135deg,#0f172a,#1e293b);">
+            <span class="example-card-icon" style="opacity:0.8;">🏭</span>
+            <span class="example-card-badge">Demo</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">Sales Analytics Demo</h3>
+            <p class="example-card-desc">Full analytics canvas with 200 sample sales records, pivot builder, chart builder, 4 KPI cards, and report scheduler.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">pivot</span>
+              <span class="example-tag">charts</span>
+              <span class="example-tag">kpi</span>
+              <span class="example-tag">reports</span>
+              <span class="example-tag">drag-and-drop</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-card">
+          <div class="example-card-preview" style="background:linear-gradient(135deg,#1e1b4b,#312e81);">
+            <span class="example-card-icon" style="opacity:0.8;">📋</span>
+            <span class="example-card-badge">Demo</span>
+          </div>
+          <div class="example-card-body">
+            <h3 class="example-card-title">HR Dashboard Demo</h3>
+            <p class="example-card-desc">Employee dataset explorer — department headcount pivot, salary distribution histogram, performance score KPIs.</p>
+            <div class="example-card-tags">
+              <span class="example-tag">hr</span>
+              <span class="example-tag">histogram</span>
+              <span class="example-tag">pivot</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <nav class="on-page-nav" aria-label="On this page">
+      <div class="on-page-nav-title">On this page</div>
+      <a href="#pivot-examples" class="on-page-nav-link">Pivot Tables</a>
+      <a href="#chart-examples" class="on-page-nav-link">Charts</a>
+      <a href="#kpi-examples" class="on-page-nav-link">KPI Dashboards</a>
+      <a href="#report-examples" class="on-page-nav-link">Reports</a>
+      <a href="#full-demos" class="on-page-nav-link">Full Demos</a>
+    </nav>
+
+  </div><!-- /.content-wrapper -->
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <span>© 2026 Analytix. Built on GridStorm.</span>
+        <div class="footer-bottom-links">
+          <a href="index.html" class="footer-link">Home</a>
+          <a href="getting-started.html" class="footer-link">Getting Started</a>
+          <a href="api-reference.html" class="footer-link">API</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script src="scripts/nav.js"></script>
+<script src="scripts/tabs.js"></script>
+</body>
+</html>

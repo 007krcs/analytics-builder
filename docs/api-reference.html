@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Analytix API reference — AnalyticsEngine, PivotEngine, ChartRegistry, KpiEngine, ReportBuilder, and all React components with props tables." />
+  <title>API Reference — Analytix Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/syntax.css" />
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <a href="index.html" class="header-brand" aria-label="Analytix home">
+        <div class="header-logo">A</div>
+        <span class="header-brand-name">Analytix</span>
+        <span class="header-brand-tag">Beta</span>
+      </a>
+      <nav class="header-nav" role="navigation" aria-label="Main navigation">
+        <a href="getting-started.html" class="header-nav-link">Docs</a>
+        <a href="api-reference.html" class="header-nav-link active">API</a>
+        <a href="examples.html" class="header-nav-link">Examples</a>
+        <a href="https://github.com/analytix/analytics-builder" class="header-nav-link" target="_blank" rel="noopener">GitHub</a>
+        <a href="getting-started.html" class="header-cta">Get Started →</a>
+      </nav>
+      <button class="header-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="content-wrapper">
+
+    <!-- ── Sidebar ──────────────────────────────────────────── -->
+    <aside class="sidebar" role="complementary" aria-label="API navigation">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Navigation</div>
+        <a href="index.html" class="sidebar-link">Home</a>
+        <a href="getting-started.html" class="sidebar-link">Getting Started</a>
+        <a href="api-reference.html" class="sidebar-link active">API Reference</a>
+        <a href="examples.html" class="sidebar-link">Examples</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Packages</div>
+        <a href="#core" class="sidebar-sub-link">@analytix/core</a>
+        <a href="#pivot" class="sidebar-sub-link">@analytix/pivot-engine</a>
+        <a href="#chart" class="sidebar-sub-link">@analytix/chart-engine</a>
+        <a href="#kpi" class="sidebar-sub-link">@analytix/kpi-engine</a>
+        <a href="#report" class="sidebar-sub-link">@analytix/report-builder</a>
+        <a href="#react" class="sidebar-sub-link">@analytix/react</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">React Components</div>
+        <a href="#AnalyticsBuilder" class="sidebar-sub-link">AnalyticsBuilder</a>
+        <a href="#PivotTable" class="sidebar-sub-link">PivotTable</a>
+        <a href="#KpiCard" class="sidebar-sub-link">KpiCard</a>
+        <a href="#ChartRenderer" class="sidebar-sub-link">ChartRenderer</a>
+        <a href="#hooks" class="sidebar-sub-link">Hooks</a>
+      </div>
+    </aside>
+
+    <!-- ── Main content ─────────────────────────────────────── -->
+    <main class="main-content" id="main-content" role="main">
+
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">Analytix</a>
+        <span class="breadcrumb-sep">›</span>
+        <span>API Reference</span>
+      </nav>
+
+      <h1 class="page-title">API Reference</h1>
+      <p class="page-intro">
+        Complete reference for all six Analytix packages — classes, methods,
+        types, and React component props.
+      </p>
+
+      <!-- ── @analytix/core ─────────────────────────────────── -->
+      <div class="api-package-header" id="core">
+        <span class="api-package-name">@analytix/core</span>
+        <span class="api-package-desc">Core engine, types, and dataset management</span>
+      </div>
+      <div class="api-package-body">
+
+        <div class="api-class">
+          <div class="api-class-name">AnalyticsEngine</div>
+          <div class="api-class-desc">
+            Central orchestrator. Manages datasets, computes aggregations, and provides
+            the shared state surface for all other packages. Instantiate directly or
+            via the <code>useAnalyticsEngine()</code> React hook.
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">new AnalyticsEngine(config?: EngineConfig)</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">
+              Creates a new engine instance. All parameters are optional.
+              <code>EngineConfig</code> accepts <code>maxDatasets</code> (default 10) and
+              <code>workerEnabled</code> (default false — browser worker for large aggregations).
+            </div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">engine.loadDataset(id, label, rows)</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">
+              Registers a dataset. <code>id</code> is a unique string key. <code>rows</code>
+              is <code>Row[]</code> (any array of plain objects). Column types are inferred
+              automatically. Throws if <code>id</code> is already registered — use
+              <code>replaceDataset()</code> to overwrite.
+            </div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">engine.getDataset(id): Dataset | undefined</code>
+              <span class="api-method-tag api-method-tag--getter">getter</span>
+            </div>
+            <div class="api-method-body">
+              Returns the registered <code>Dataset</code> object or <code>undefined</code>
+              if not found. <code>Dataset</code> exposes <code>id</code>, <code>label</code>,
+              <code>columns</code>, <code>rows</code>, and <code>rowCount</code>.
+            </div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">engine.replaceDataset(id, label, rows)</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">
+              Replaces an existing dataset in-place, firing all registered change listeners.
+              Safe to call repeatedly for live-data scenarios.
+            </div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">engine.listDatasets(): Dataset[]</code>
+              <span class="api-method-tag api-method-tag--getter">getter</span>
+            </div>
+            <div class="api-method-body">
+              Returns all registered datasets in registration order.
+            </div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">engine.aggregate(datasetId, columnId, fn): number</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">
+              Computes a scalar aggregate over a column. <code>fn</code> is one of:
+              <code>'sum'</code>, <code>'avg'</code>, <code>'count'</code>,
+              <code>'min'</code>, <code>'max'</code>, <code>'median'</code>,
+              <code>'stddev'</code>, <code>'variance'</code>, <code>'countDistinct'</code>.
+            </div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">engine.destroy(): void</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">
+              Cleans up all datasets, listeners, and any background workers.
+              Call in component <code>useEffect</code> cleanup if you create the engine manually.
+            </div>
+          </div>
+        </div>
+
+        <div class="api-class">
+          <div class="api-class-name">Key Types</div>
+          <div class="api-class-desc">Core TypeScript types exported from <code>@analytix/core</code>.</div>
+
+          <div class="props-table-wrapper">
+            <table class="props-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><code class="prop-name">Row</code></td><td>Alias for <code>Record&lt;string, unknown&gt;</code></td></tr>
+                <tr><td><code class="prop-name">Dataset</code></td><td>Registered dataset with <code>id</code>, <code>label</code>, <code>columns</code>, <code>rows</code></td></tr>
+                <tr><td><code class="prop-name">Column</code></td><td>Column metadata: <code>id</code>, <code>label</code>, <code>type</code>, <code>nullable</code></td></tr>
+                <tr><td><code class="prop-name">ColumnType</code></td><td><code>'number' | 'string' | 'date' | 'boolean'</code></td></tr>
+                <tr><td><code class="prop-name">AggregationFn</code></td><td><code>'sum' | 'avg' | 'count' | 'min' | 'max' | 'median' | 'stddev' | 'variance' | 'countDistinct'</code></td></tr>
+                <tr><td><code class="prop-name">FilterOperator</code></td><td><code>'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'notIn' | 'contains' | 'startsWith'</code></td></tr>
+                <tr><td><code class="prop-name">DataFilter</code></td><td>Filter descriptor: <code>{ columnId, operator, value }</code></td></tr>
+                <tr><td><code class="prop-name">PivotConfig</code></td><td>Full pivot table configuration (see @analytix/pivot-engine)</td></tr>
+                <tr><td><code class="prop-name">KpiConfig</code></td><td>KPI card configuration (see @analytix/kpi-engine)</td></tr>
+                <tr><td><code class="prop-name">KpiThreshold</code></td><td>Status thresholds: <code>{ warning, critical, target?, comparisonType }</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── @analytix/pivot-engine ─────────────────────────── -->
+      <div class="api-package-header" id="pivot">
+        <span class="api-package-name">@analytix/pivot-engine</span>
+        <span class="api-package-desc">Pivot table computation — grouping, aggregation, totals</span>
+      </div>
+      <div class="api-package-body">
+
+        <div class="api-class">
+          <div class="api-class-name">computePivot</div>
+          <div class="api-class-desc">
+            Pure function that takes an engine + config and returns a <code>PivotResult</code>.
+            Called internally by <code>usePivot()</code> but available for imperative use.
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">computePivot(engine, config): PivotResult</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">
+              Computes the full pivot matrix. Returns a <code>PivotResult</code> containing
+              <code>rows</code>, <code>columnKeys</code>, <code>grandTotals</code>, and
+              <code>durationMs</code>. Throws if the dataset is not registered.
+            </div>
+          </div>
+        </div>
+
+        <div class="api-class">
+          <div class="api-class-name">PivotConfig</div>
+          <div class="api-class-desc">Configuration object for a pivot table.</div>
+
+          <div class="props-table-wrapper">
+            <table class="props-table">
+              <thead>
+                <tr><th>Property</th><th>Type</th><th>Required</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code class="prop-name">id</code></td><td class="prop-type">string</td><td><span class="prop-required">required</span></td><td>Unique identifier for this pivot configuration</td></tr>
+                <tr><td><code class="prop-name">datasetId</code></td><td class="prop-type">string</td><td><span class="prop-required">required</span></td><td>ID of the dataset registered with the engine</td></tr>
+                <tr><td><code class="prop-name">rowFields</code></td><td class="prop-type">string[]</td><td><span class="prop-required">required</span></td><td>Column IDs to group into rows</td></tr>
+                <tr><td><code class="prop-name">columnFields</code></td><td class="prop-type">string[]</td><td><span class="prop-required">required</span></td><td>Column IDs to group into columns</td></tr>
+                <tr><td><code class="prop-name">valueFields</code></td><td class="prop-type">ValueField[]</td><td><span class="prop-required">required</span></td><td>Aggregation definitions (columnId, aggregation, label, format)</td></tr>
+                <tr><td><code class="prop-name">filters</code></td><td class="prop-type">DataFilter[]</td><td><span class="prop-required">required</span></td><td>Row-level filters applied before aggregation</td></tr>
+                <tr><td><code class="prop-name">showRowTotals</code></td><td class="prop-type">boolean</td><td><span class="prop-optional">optional</span></td><td>Show grand total column (default: false)</td></tr>
+                <tr><td><code class="prop-name">showColumnTotals</code></td><td class="prop-type">boolean</td><td><span class="prop-optional">optional</span></td><td>Show grand total row (default: false)</td></tr>
+                <tr><td><code class="prop-name">showSubTotals</code></td><td class="prop-type">boolean</td><td><span class="prop-optional">optional</span></td><td>Show subtotal rows for each group (default: false)</td></tr>
+                <tr><td><code class="prop-name">compactMode</code></td><td class="prop-type">boolean</td><td><span class="prop-optional">optional</span></td><td>Collapse multiple row fields into a single column (default: false)</td></tr>
+                <tr><td><code class="prop-name">maxRows</code></td><td class="prop-type">number</td><td><span class="prop-optional">optional</span></td><td>Truncate output to this many rows (default: 500)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── @analytix/chart-engine ────────────────────────── -->
+      <div class="api-package-header" id="chart">
+        <span class="api-package-name">@analytix/chart-engine</span>
+        <span class="api-package-desc">26 chart type registry + config serialisation</span>
+      </div>
+      <div class="api-package-body">
+
+        <div class="api-class">
+          <div class="api-class-name">ChartRegistry</div>
+          <div class="api-class-desc">
+            Manages the available chart types. Each chart type has a unique
+            <code>id</code>, a <code>label</code>, an <code>icon</code>, required/optional
+            field roles (x-axis, y-axis, colour, size, etc.), and a renderer function.
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">ChartRegistry.getAll(): ChartTypeDef[]</code>
+              <span class="api-method-tag api-method-tag--getter">getter</span>
+            </div>
+            <div class="api-method-body">Returns all 26 registered chart type definitions.</div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">ChartRegistry.get(id): ChartTypeDef</code>
+              <span class="api-method-tag api-method-tag--getter">getter</span>
+            </div>
+            <div class="api-method-body">Returns a specific chart type definition by ID.</div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">ChartRegistry.buildConfig(typeId, fields): ChartConfig</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">
+              Creates a <code>ChartConfig</code> for the given type and field mappings.
+              Validates required field roles and throws descriptive errors if requirements
+              are not met.
+            </div>
+          </div>
+        </div>
+
+        <div class="api-class">
+          <div class="api-class-name">Supported Chart Types (26)</div>
+          <div class="api-class-desc">All chart types available in <code>@analytix/chart-engine</code>.</div>
+
+          <div class="props-table-wrapper">
+            <table class="props-table">
+              <thead>
+                <tr><th>ID</th><th>Label</th><th>Category</th><th>Required Fields</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code class="prop-name">bar</code></td><td>Bar Chart</td><td>Comparison</td><td>x, y</td></tr>
+                <tr><td><code class="prop-name">bar-stacked</code></td><td>Stacked Bar</td><td>Comparison</td><td>x, y, color</td></tr>
+                <tr><td><code class="prop-name">bar-grouped</code></td><td>Grouped Bar</td><td>Comparison</td><td>x, y, group</td></tr>
+                <tr><td><code class="prop-name">line</code></td><td>Line Chart</td><td>Trend</td><td>x, y</td></tr>
+                <tr><td><code class="prop-name">line-multi</code></td><td>Multi-line</td><td>Trend</td><td>x, y, series</td></tr>
+                <tr><td><code class="prop-name">area</code></td><td>Area Chart</td><td>Trend</td><td>x, y</td></tr>
+                <tr><td><code class="prop-name">area-stacked</code></td><td>Stacked Area</td><td>Trend</td><td>x, y, color</td></tr>
+                <tr><td><code class="prop-name">scatter</code></td><td>Scatter Plot</td><td>Correlation</td><td>x, y</td></tr>
+                <tr><td><code class="prop-name">bubble</code></td><td>Bubble Chart</td><td>Correlation</td><td>x, y, size</td></tr>
+                <tr><td><code class="prop-name">pie</code></td><td>Pie Chart</td><td>Part-of-whole</td><td>label, value</td></tr>
+                <tr><td><code class="prop-name">donut</code></td><td>Donut Chart</td><td>Part-of-whole</td><td>label, value</td></tr>
+                <tr><td><code class="prop-name">heatmap</code></td><td>Heatmap</td><td>Distribution</td><td>x, y, value</td></tr>
+                <tr><td><code class="prop-name">treemap</code></td><td>Treemap</td><td>Hierarchy</td><td>label, value</td></tr>
+                <tr><td><code class="prop-name">funnel</code></td><td>Funnel Chart</td><td>Flow</td><td>label, value</td></tr>
+                <tr><td><code class="prop-name">waterfall</code></td><td>Waterfall</td><td>Deviation</td><td>label, value</td></tr>
+                <tr><td><code class="prop-name">radar</code></td><td>Radar / Spider</td><td>Multivariate</td><td>axes, value</td></tr>
+                <tr><td><code class="prop-name">sankey</code></td><td>Sankey Diagram</td><td>Flow</td><td>source, target, value</td></tr>
+                <tr><td><code class="prop-name">candlestick</code></td><td>Candlestick</td><td>Financial</td><td>date, open, high, low, close</td></tr>
+                <tr><td><code class="prop-name">histogram</code></td><td>Histogram</td><td>Distribution</td><td>x, bins?</td></tr>
+                <tr><td><code class="prop-name">violin</code></td><td>Violin Plot</td><td>Distribution</td><td>category, value</td></tr>
+                <tr><td><code class="prop-name">boxplot</code></td><td>Box Plot</td><td>Distribution</td><td>category, value</td></tr>
+                <tr><td><code class="prop-name">combo</code></td><td>Combo (Bar+Line)</td><td>Comparison</td><td>x, bar-y, line-y</td></tr>
+                <tr><td><code class="prop-name">gauge</code></td><td>Gauge / Radial</td><td>KPI</td><td>value, min, max</td></tr>
+                <tr><td><code class="prop-name">bullet</code></td><td>Bullet Chart</td><td>KPI</td><td>value, target, ranges</td></tr>
+                <tr><td><code class="prop-name">wordcloud</code></td><td>Word Cloud</td><td>Text</td><td>word, count</td></tr>
+                <tr><td><code class="prop-name">geoheat</code></td><td>Geo Heatmap</td><td>Geo</td><td>lat, lon, intensity</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── @analytix/kpi-engine ──────────────────────────── -->
+      <div class="api-package-header" id="kpi">
+        <span class="api-package-name">@analytix/kpi-engine</span>
+        <span class="api-package-desc">KPI computation, thresholds, and auto-refresh scheduling</span>
+      </div>
+      <div class="api-package-body">
+
+        <div class="api-class">
+          <div class="api-class-name">computeKpi</div>
+          <div class="api-class-desc">
+            Pure function. Computes a <code>KpiResult</code> from an engine and a
+            <code>KpiConfig</code>. Used internally by <code>useKpi()</code>.
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">computeKpi(engine, config): KpiResult</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">
+              Returns <code>{ value, status, formattedValue, trend?, progress? }</code>.
+              <code>status</code> is <code>'good' | 'warning' | 'critical' | 'neutral'</code>
+              based on the threshold configuration.
+            </div>
+          </div>
+        </div>
+
+        <div class="api-class">
+          <div class="api-class-name">RefreshScheduler</div>
+          <div class="api-class-desc">
+            Manages periodic re-computation of KPI values. Automatically pauses
+            when the browser tab is hidden (if <code>pauseWhenHidden</code> is true).
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">new RefreshScheduler(engine, config, callback)</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">
+              Creates a scheduler. <code>callback</code> is called with the new
+              <code>KpiResult</code> on every refresh tick.
+            </div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">scheduler.start(): void</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">Begins the refresh interval. Safe to call multiple times — no-ops if already running.</div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">scheduler.stop(): void</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">Stops the refresh interval and clears visibility listeners.</div>
+          </div>
+        </div>
+
+        <div class="api-class">
+          <div class="api-class-name">KpiConfig</div>
+          <div class="api-class-desc">Full configuration type for a KPI card.</div>
+
+          <div class="props-table-wrapper">
+            <table class="props-table">
+              <thead>
+                <tr><th>Property</th><th>Type</th><th>Required</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code class="prop-name">id</code></td><td class="prop-type">string</td><td><span class="prop-required">required</span></td><td>Unique ID</td></tr>
+                <tr><td><code class="prop-name">title</code></td><td class="prop-type">string</td><td><span class="prop-required">required</span></td><td>Display title</td></tr>
+                <tr><td><code class="prop-name">datasetId</code></td><td class="prop-type">string</td><td><span class="prop-required">required</span></td><td>Engine dataset ID</td></tr>
+                <tr><td><code class="prop-name">columnId</code></td><td class="prop-type">string</td><td><span class="prop-required">required</span></td><td>Column to aggregate</td></tr>
+                <tr><td><code class="prop-name">aggregation</code></td><td class="prop-type">AggregationFn</td><td><span class="prop-required">required</span></td><td>Aggregation function</td></tr>
+                <tr><td><code class="prop-name">filters</code></td><td class="prop-type">DataFilter[]</td><td><span class="prop-required">required</span></td><td>Row filters applied before aggregation</td></tr>
+                <tr><td><code class="prop-name">threshold</code></td><td class="prop-type">KpiThreshold</td><td><span class="prop-optional">optional</span></td><td>Status thresholds</td></tr>
+                <tr><td><code class="prop-name">format</code></td><td class="prop-type">'number' | 'currency' | 'percent' | 'compact'</td><td><span class="prop-optional">optional</span></td><td>Value formatting</td></tr>
+                <tr><td><code class="prop-name">prefix</code></td><td class="prop-type">string</td><td><span class="prop-optional">optional</span></td><td>Prefix string (e.g. "$")</td></tr>
+                <tr><td><code class="prop-name">unit</code></td><td class="prop-type">string</td><td><span class="prop-optional">optional</span></td><td>Unit suffix (e.g. "/ 5")</td></tr>
+                <tr><td><code class="prop-name">decimals</code></td><td class="prop-type">number</td><td><span class="prop-optional">optional</span></td><td>Decimal places (default: 2)</td></tr>
+                <tr><td><code class="prop-name">description</code></td><td class="prop-type">string</td><td><span class="prop-optional">optional</span></td><td>Subtitle text below the value</td></tr>
+                <tr><td><code class="prop-name">refreshPolicy</code></td><td class="prop-type">RefreshPolicy</td><td><span class="prop-optional">optional</span></td><td>Auto-refresh configuration</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── @analytix/report-builder ──────────────────────── -->
+      <div class="api-package-header" id="report">
+        <span class="api-package-name">@analytix/report-builder</span>
+        <span class="api-package-desc">Fluent API for composing and scheduling PDF/Excel reports</span>
+      </div>
+      <div class="api-package-body">
+
+        <div class="api-class">
+          <div class="api-class-name">ReportBuilder</div>
+          <div class="api-class-desc">
+            Fluent builder for composing multi-section reports. Chain methods to
+            add pivot tables, KPI summaries, charts, and text sections, then call
+            <code>build()</code> to get a serialisable <code>ReportDefinition</code>.
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">ReportBuilder.create(name): ReportBuilder</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">Static factory. Creates a new builder with the given report name.</div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">.addPivot(config: PivotConfig): this</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">Appends a pivot table section to the report.</div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">.addChart(config: ChartConfig): this</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">Appends a chart section.</div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">.addKpiSummary(configs: KpiConfig[]): this</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">Appends a row of KPI cards as a summary section.</div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">.addText(heading, body): this</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">Appends a free-text section.</div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">.schedule(options: ScheduleOptions): this</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">
+              Attaches a delivery schedule.
+              <code>ScheduleOptions</code> accepts <code>type</code> (<code>'interval' | 'cron' | 'once'</code>),
+              <code>interval</code> (ms for interval type), <code>cron</code> (cron expression string),
+              <code>formats</code> (<code>('pdf' | 'excel')[]</code>), and <code>enabled</code>.
+            </div>
+          </div>
+
+          <div class="api-method">
+            <div class="api-method-header">
+              <code class="api-method-signature">.build(): ReportDefinition</code>
+              <span class="api-method-tag api-method-tag--sync">sync</span>
+            </div>
+            <div class="api-method-body">
+              Finalises and returns the <code>ReportDefinition</code>. Validates that at
+              least one section has been added. The definition is a plain serialisable object.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── @analytix/react ───────────────────────────────── -->
+      <div class="api-package-header" id="react">
+        <span class="api-package-name">@analytix/react</span>
+        <span class="api-package-desc">React components and hooks — the primary integration surface</span>
+      </div>
+      <div class="api-package-body">
+
+        <!-- AnalyticsBuilder -->
+        <div class="api-class" id="AnalyticsBuilder">
+          <div class="api-class-name">AnalyticsBuilder</div>
+          <div class="api-class-desc">
+            Full drag-and-drop analytics canvas. Includes field panel, pivot builder,
+            chart builder, KPI workspace, and report scheduler — all in one component.
+          </div>
+          <div class="props-table-wrapper">
+            <table class="props-table">
+              <thead>
+                <tr><th>Prop</th><th>Type</th><th>Required</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code class="prop-name">engine</code></td><td class="prop-type">AnalyticsEngine</td><td><span class="prop-required">required</span></td><td>Engine instance (from <code>useAnalyticsEngine()</code>)</td></tr>
+                <tr><td><code class="prop-name">initialDataset</code></td><td class="prop-type">Dataset</td><td><span class="prop-optional">optional</span></td><td>Pre-selected dataset on first render</td></tr>
+                <tr><td><code class="prop-name">onExport</code></td><td class="prop-type">(format: 'pdf' | 'excel') =&gt; void</td><td><span class="prop-optional">optional</span></td><td>Called when user clicks the export button</td></tr>
+                <tr><td><code class="prop-name">height</code></td><td class="prop-type">number | string</td><td><span class="prop-optional">optional</span></td><td>Component height (default: 'calc(100vh - 120px)')</td></tr>
+                <tr><td><code class="prop-name">theme</code></td><td class="prop-type">'light' | 'dark'</td><td><span class="prop-optional">optional</span></td><td>Colour scheme override</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PivotTable -->
+        <div class="api-class" id="PivotTable">
+          <div class="api-class-name">PivotTable</div>
+          <div class="api-class-desc">
+            Renders a <code>PivotResult</code> as a scrollable table with sticky headers,
+            alternating row colours, and grand total rows.
+          </div>
+          <div class="props-table-wrapper">
+            <table class="props-table">
+              <thead>
+                <tr><th>Prop</th><th>Type</th><th>Required</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code class="prop-name">result</code></td><td class="prop-type">PivotResult</td><td><span class="prop-required">required</span></td><td>Output of <code>computePivot()</code> or <code>usePivot()</code></td></tr>
+                <tr><td><code class="prop-name">maxHeight</code></td><td class="prop-type">number</td><td><span class="prop-optional">optional</span></td><td>Max table height in pixels (default: 500)</td></tr>
+                <tr><td><code class="prop-name">striped</code></td><td class="prop-type">boolean</td><td><span class="prop-optional">optional</span></td><td>Alternating row colors (default: true)</td></tr>
+                <tr><td><code class="prop-name">hover</code></td><td class="prop-type">boolean</td><td><span class="prop-optional">optional</span></td><td>Row hover highlight (default: true)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- KpiCard -->
+        <div class="api-class" id="KpiCard">
+          <div class="api-class-name">KpiCard</div>
+          <div class="api-class-desc">
+            Displays a single KPI with value, status indicator, trend arrow, and progress bar.
+            Left border colour reflects status (green/yellow/red).
+          </div>
+          <div class="props-table-wrapper">
+            <table class="props-table">
+              <thead>
+                <tr><th>Prop</th><th>Type</th><th>Required</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code class="prop-name">config</code></td><td class="prop-type">KpiConfig</td><td><span class="prop-required">required</span></td><td>KPI configuration</td></tr>
+                <tr><td><code class="prop-name">result</code></td><td class="prop-type">KpiResult | null</td><td><span class="prop-required">required</span></td><td>Computed KPI result (null = loading skeleton)</td></tr>
+                <tr><td><code class="prop-name">size</code></td><td class="prop-type">'small' | 'medium' | 'large'</td><td><span class="prop-optional">optional</span></td><td>Card size (default: 'medium')</td></tr>
+                <tr><td><code class="prop-name">variant</code></td><td class="prop-type">'default' | 'compact' | 'detailed'</td><td><span class="prop-optional">optional</span></td><td>Display variant (default: 'default')</td></tr>
+                <tr><td><code class="prop-name">showProgress</code></td><td class="prop-type">boolean</td><td><span class="prop-optional">optional</span></td><td>Show progress bar toward target (default: true if target set)</td></tr>
+                <tr><td><code class="prop-name">onRefresh</code></td><td class="prop-type">() =&gt; void</td><td><span class="prop-optional">optional</span></td><td>Manual refresh callback — shows refresh icon button</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ChartRenderer -->
+        <div class="api-class" id="ChartRenderer">
+          <div class="api-class-name">ChartRenderer</div>
+          <div class="api-class-desc">
+            Renders any chart type from a <code>ChartConfig</code>. Wraps Recharts
+            under the hood with a unified responsive container and theme.
+          </div>
+          <div class="props-table-wrapper">
+            <table class="props-table">
+              <thead>
+                <tr><th>Prop</th><th>Type</th><th>Required</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code class="prop-name">config</code></td><td class="prop-type">ChartConfig</td><td><span class="prop-required">required</span></td><td>Chart configuration from <code>ChartRegistry.buildConfig()</code></td></tr>
+                <tr><td><code class="prop-name">data</code></td><td class="prop-type">Row[]</td><td><span class="prop-required">required</span></td><td>Dataset rows to render</td></tr>
+                <tr><td><code class="prop-name">height</code></td><td class="prop-type">number</td><td><span class="prop-optional">optional</span></td><td>Chart height in pixels (default: 400)</td></tr>
+                <tr><td><code class="prop-name">legend</code></td><td class="prop-type">boolean</td><td><span class="prop-optional">optional</span></td><td>Show legend (default: true)</td></tr>
+                <tr><td><code class="prop-name">tooltip</code></td><td class="prop-type">boolean</td><td><span class="prop-optional">optional</span></td><td>Show tooltip on hover (default: true)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Hooks -->
+        <div class="api-class" id="hooks">
+          <div class="api-class-name">React Hooks</div>
+          <div class="api-class-desc">All hooks exported from <code>@analytix/react</code>.</div>
+          <div class="props-table-wrapper">
+            <table class="props-table">
+              <thead>
+                <tr><th>Hook</th><th>Returns</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code class="prop-name">useAnalyticsEngine()</code></td>
+                  <td class="prop-type"><code>{ engine, loadDataset, replaceDataset, version }</code></td>
+                  <td>Creates and memoizes an <code>AnalyticsEngine</code> instance for the component tree. Calls <code>engine.destroy()</code> on unmount.</td>
+                </tr>
+                <tr>
+                  <td><code class="prop-name">usePivot(engine, config)</code></td>
+                  <td class="prop-type"><code>{ result, loading, error }</code></td>
+                  <td>Reactively computes a pivot table. Re-computes when <code>config</code> changes (deep equality). Returns <code>loading: true</code> while computing asynchronously.</td>
+                </tr>
+                <tr>
+                  <td><code class="prop-name">useKpi(engine, config)</code></td>
+                  <td class="prop-type"><code>{ result, loading, error, refresh }</code></td>
+                  <td>Computes a KPI value and sets up auto-refresh if <code>refreshPolicy.enabled</code> is true. <code>refresh()</code> triggers an immediate re-computation.</td>
+                </tr>
+                <tr>
+                  <td><code class="prop-name">useDatasets(engine)</code></td>
+                  <td class="prop-type"><code>Dataset[]</code></td>
+                  <td>Returns all registered datasets, updating whenever a dataset is added or replaced.</td>
+                </tr>
+                <tr>
+                  <td><code class="prop-name">useChartTypes()</code></td>
+                  <td class="prop-type"><code>ChartTypeDef[]</code></td>
+                  <td>Returns all available chart types from <code>ChartRegistry</code>. Stable reference — never triggers re-renders.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /.api-package-body -->
+
+    </main>
+
+    <!-- ── On-page nav ─────────────────────────────────────── -->
+    <nav class="on-page-nav" aria-label="On this page">
+      <div class="on-page-nav-title">Packages</div>
+      <a href="#core" class="on-page-nav-link">@analytix/core</a>
+      <a href="#pivot" class="on-page-nav-link">@analytix/pivot-engine</a>
+      <a href="#chart" class="on-page-nav-link">@analytix/chart-engine</a>
+      <a href="#kpi" class="on-page-nav-link">@analytix/kpi-engine</a>
+      <a href="#report" class="on-page-nav-link">@analytix/report-builder</a>
+      <a href="#react" class="on-page-nav-link">@analytix/react</a>
+      <div class="on-page-nav-title" style="margin-top:var(--space-4);">Components</div>
+      <a href="#AnalyticsBuilder" class="on-page-nav-link">AnalyticsBuilder</a>
+      <a href="#PivotTable" class="on-page-nav-link">PivotTable</a>
+      <a href="#KpiCard" class="on-page-nav-link">KpiCard</a>
+      <a href="#ChartRenderer" class="on-page-nav-link">ChartRenderer</a>
+      <a href="#hooks" class="on-page-nav-link">Hooks</a>
+    </nav>
+
+  </div><!-- /.content-wrapper -->
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <span>© 2026 Analytix. Built on GridStorm.</span>
+        <div class="footer-bottom-links">
+          <a href="index.html" class="footer-link">Home</a>
+          <a href="getting-started.html" class="footer-link">Getting Started</a>
+          <a href="examples.html" class="footer-link">Examples</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script src="scripts/nav.js"></script>
+<script src="scripts/tabs.js"></script>
+</body>
+</html>

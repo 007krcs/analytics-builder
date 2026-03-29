@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Get started with Analytix — installation, basic setup, loading datasets, building pivot tables, and creating KPI dashboards." />
+  <title>Getting Started — Analytix Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/syntax.css" />
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <a href="index.html" class="header-brand" aria-label="Analytix home">
+        <div class="header-logo">A</div>
+        <span class="header-brand-name">Analytix</span>
+        <span class="header-brand-tag">Beta</span>
+      </a>
+      <nav class="header-nav" role="navigation" aria-label="Main navigation">
+        <a href="getting-started.html" class="header-nav-link active">Docs</a>
+        <a href="api-reference.html" class="header-nav-link">API</a>
+        <a href="examples.html" class="header-nav-link">Examples</a>
+        <a href="https://github.com/analytix/analytics-builder" class="header-nav-link" target="_blank" rel="noopener">GitHub</a>
+        <a href="getting-started.html" class="header-cta">Get Started →</a>
+      </nav>
+      <button class="header-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="content-wrapper">
+
+    <!-- ── Sidebar ──────────────────────────────────────────── -->
+    <aside class="sidebar" role="complementary" aria-label="Documentation navigation">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Introduction</div>
+        <a href="index.html" class="sidebar-link">Overview</a>
+        <a href="getting-started.html" class="sidebar-link active">Getting Started</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">On this page</div>
+        <a href="#installation" class="sidebar-sub-link">Installation</a>
+        <a href="#basic-setup" class="sidebar-sub-link">Basic Setup</a>
+        <a href="#loading-dataset" class="sidebar-sub-link">Loading a Dataset</a>
+        <a href="#first-pivot" class="sidebar-sub-link">First Pivot Table</a>
+        <a href="#kpi-dashboard" class="sidebar-sub-link">KPI Dashboard</a>
+        <a href="#next-steps" class="sidebar-sub-link">Next Steps</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Reference</div>
+        <a href="api-reference.html" class="sidebar-link">API Reference</a>
+        <a href="examples.html" class="sidebar-link">Examples</a>
+      </div>
+    </aside>
+
+    <!-- ── Main content ─────────────────────────────────────── -->
+    <main class="main-content" id="main-content" role="main">
+
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">Analytix</a>
+        <span class="breadcrumb-sep">›</span>
+        <span>Getting Started</span>
+      </nav>
+
+      <h1 class="page-title">Getting Started</h1>
+      <p class="page-intro">
+        Set up Analytix in your React application in under 5 minutes.
+        This guide covers installation, loading a dataset, building your first
+        pivot table, and creating a KPI dashboard.
+      </p>
+
+      <!-- ── Prerequisites ────────────────────────────────── -->
+      <div class="callout callout--info">
+        <span class="callout-icon">ℹ</span>
+        <div class="callout-body">
+          <div class="callout-title">Prerequisites</div>
+          <div class="callout-text">
+            Analytix requires <strong>React 18+</strong>, <strong>Node.js 18+</strong>,
+            and <strong>TypeScript 5.x</strong>. We use <strong>pnpm</strong> as the package
+            manager in all examples, but npm and yarn work too.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Installation ─────────────────────────────────── -->
+      <h2 class="section-title" id="installation">Installation</h2>
+      <div class="prose">
+        <p>Install the React adapter and core engine. The other packages are peer dependencies
+        that you only need when you want to use specific features.</p>
+      </div>
+
+      <div class="install-block">
+        <code>pnpm add @analytix/react @analytix/core</code>
+        <button class="install-copy-btn" aria-label="Copy install command">Copy</button>
+      </div>
+
+      <div class="prose">
+        <p>To unlock pivot tables, charts, KPI dashboards, and reports, install the
+        full suite:</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-lang">shell</span>
+          <button class="code-copy-btn" aria-label="Copy">Copy</button>
+        </div>
+        <pre><span class="tok-shell-cmd">pnpm add</span> <span class="tok-str">\
+  @analytix/react \
+  @analytix/core \
+  @analytix/pivot-engine \
+  @analytix/chart-engine \
+  @analytix/kpi-engine \
+  @analytix/report-builder</span></pre>
+      </div>
+
+      <div class="prose">
+        <p>Peer dependencies you'll need in your project:</p>
+        <ul>
+          <li><code>react</code> and <code>react-dom</code> — version 18 or higher</li>
+          <li><code>recharts</code> — version 2.x, for chart rendering</li>
+          <li><code>@dnd-kit/core</code> and <code>@dnd-kit/sortable</code> — for drag-and-drop</li>
+        </ul>
+      </div>
+
+      <div class="install-block">
+        <code>pnpm add recharts @dnd-kit/core @dnd-kit/sortable</code>
+        <button class="install-copy-btn" aria-label="Copy">Copy</button>
+      </div>
+
+      <!-- ── TypeScript setup ──────────────────────────────── -->
+      <h3 class="subsection-title">TypeScript configuration</h3>
+      <div class="prose">
+        <p>All Analytix packages ship with TypeScript declarations. No <code>@types</code>
+        packages are needed. Make sure your <code>tsconfig.json</code> targets ES2020 or later:</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-lang">json</span>
+          <span class="code-block-filename">tsconfig.json</span>
+          <button class="code-copy-btn" aria-label="Copy">Copy</button>
+        </div>
+        <pre><span class="tok-punc">{</span>
+  <span class="tok-json-key">"compilerOptions"</span><span class="tok-punc">:</span> <span class="tok-punc">{</span>
+    <span class="tok-json-key">"target"</span><span class="tok-punc">:</span> <span class="tok-json-str">"ES2020"</span><span class="tok-punc">,</span>
+    <span class="tok-json-key">"module"</span><span class="tok-punc">:</span> <span class="tok-json-str">"ESNext"</span><span class="tok-punc">,</span>
+    <span class="tok-json-key">"moduleResolution"</span><span class="tok-punc">:</span> <span class="tok-json-str">"bundler"</span><span class="tok-punc">,</span>
+    <span class="tok-json-key">"strict"</span><span class="tok-punc">:</span> <span class="tok-json-kw">true</span><span class="tok-punc">,</span>
+    <span class="tok-json-key">"jsx"</span><span class="tok-punc">:</span> <span class="tok-json-str">"react-jsx"</span>
+  <span class="tok-punc">}</span>
+<span class="tok-punc">}</span></pre>
+      </div>
+
+      <!-- ── Basic Setup ───────────────────────────────────── -->
+      <h2 class="section-title" id="basic-setup">Basic Setup</h2>
+      <div class="prose">
+        <p>The entry point for Analytix is the <code>AnalyticsEngine</code>, a singleton that manages
+        datasets, computes pivots, evaluates KPIs, and dispatches commands. The
+        <code>useAnalyticsEngine()</code> hook creates and memoizes one for you inside React.</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-lang">tsx</span>
+          <span class="code-block-filename">App.tsx</span>
+          <button class="code-copy-btn" aria-label="Copy">Copy</button>
+        </div>
+        <pre><span class="tok-kw">import</span> <span class="tok-class">React</span><span class="tok-punc">,</span> <span class="tok-punc">{</span> <span class="tok-fn">useEffect</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'react'</span><span class="tok-punc">;</span>
+<span class="tok-kw">import</span> <span class="tok-punc">{</span> <span class="tok-class">AnalyticsBuilder</span><span class="tok-punc">,</span> <span class="tok-fn">useAnalyticsEngine</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/react'</span><span class="tok-punc">;</span>
+<span class="tok-kw">import</span> <span class="tok-punc">{</span> <span class="tok-ident">salesData</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'./data'</span><span class="tok-punc">;</span>
+
+<span class="tok-kw">export default function</span> <span class="tok-fn">App</span><span class="tok-punc">() {</span>
+  <span class="tok-comment">// Creates and memoizes an AnalyticsEngine instance</span>
+  <span class="tok-kw">const</span> <span class="tok-punc">{</span> <span class="tok-ident">engine</span><span class="tok-punc">,</span> <span class="tok-ident">loadDataset</span> <span class="tok-punc">}</span> <span class="tok-op">=</span> <span class="tok-fn">useAnalyticsEngine</span><span class="tok-punc">();</span>
+
+  <span class="tok-fn">useEffect</span><span class="tok-punc">(() =&gt; {</span>
+    <span class="tok-fn">loadDataset</span><span class="tok-punc">(</span><span class="tok-str">'sales'</span><span class="tok-punc">,</span> <span class="tok-str">'Sales Data'</span><span class="tok-punc">,</span> <span class="tok-ident">salesData</span><span class="tok-punc">);</span>
+  <span class="tok-punc">},</span> <span class="tok-punc">[]);</span>
+
+  <span class="tok-kw">return</span> <span class="tok-punc">(</span>
+    <span class="tok-punc">&lt;</span><span class="tok-class">AnalyticsBuilder</span>
+      <span class="tok-attr">engine</span><span class="tok-punc">={</span><span class="tok-ident">engine</span><span class="tok-punc">}</span>
+      <span class="tok-attr">onExport</span><span class="tok-punc">={(</span><span class="tok-ident">fmt</span><span class="tok-punc">) =&gt;</span> <span class="tok-fn">console</span><span class="tok-punc">.</span><span class="tok-fn">log</span><span class="tok-punc">(</span><span class="tok-str">'export'</span><span class="tok-punc">,</span> <span class="tok-ident">fmt</span><span class="tok-punc">)}</span>
+    <span class="tok-punc">/&gt;</span>
+  <span class="tok-punc">);</span>
+<span class="tok-punc">}</span></pre>
+      </div>
+
+      <div class="callout callout--tip">
+        <span class="callout-icon">✓</span>
+        <div class="callout-body">
+          <div class="callout-title">Provider not required</div>
+          <div class="callout-text">
+            Unlike many React libraries, Analytix does not require a context provider at the
+            root of your application. Each <code>useAnalyticsEngine()</code> call creates
+            its own isolated engine instance.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Loading a dataset ─────────────────────────────── -->
+      <h2 class="section-title" id="loading-dataset">Loading a Dataset</h2>
+      <div class="prose">
+        <p>A dataset is an array of plain JavaScript objects (rows). Every object should
+        have consistent keys — these become the column definitions. Analytix infers
+        column types automatically (<code>number</code>, <code>string</code>, <code>date</code>, <code>boolean</code>).</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-lang">ts</span>
+          <span class="code-block-filename">data.ts</span>
+          <button class="code-copy-btn" aria-label="Copy">Copy</button>
+        </div>
+        <pre><span class="tok-comment">// Any array of plain objects works as a dataset.</span>
+<span class="tok-kw">export const</span> <span class="tok-ident">salesData</span> <span class="tok-op">=</span> <span class="tok-punc">[</span>
+  <span class="tok-punc">{</span>
+    <span class="tok-prop">date</span><span class="tok-punc">:</span> <span class="tok-str">'2025-01-15'</span><span class="tok-punc">,</span>
+    <span class="tok-prop">region</span><span class="tok-punc">:</span> <span class="tok-str">'North America'</span><span class="tok-punc">,</span>
+    <span class="tok-prop">category</span><span class="tok-punc">:</span> <span class="tok-str">'Software'</span><span class="tok-punc">,</span>
+    <span class="tok-prop">revenue</span><span class="tok-punc">:</span> <span class="tok-num">48500</span><span class="tok-punc">,</span>
+    <span class="tok-prop">units</span><span class="tok-punc">:</span> <span class="tok-num">97</span><span class="tok-punc">,</span>
+    <span class="tok-prop">profit_margin</span><span class="tok-punc">:</span> <span class="tok-num">0.42</span><span class="tok-punc">,</span>
+  <span class="tok-punc">},</span>
+  <span class="tok-comment">// … more rows</span>
+<span class="tok-punc">];</span></pre>
+      </div>
+
+      <div class="prose">
+        <p>Call <code>loadDataset(id, label, rows)</code> to register a dataset with the engine.
+        You can register multiple datasets and the user can switch between them in
+        the toolbar.</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-lang">ts</span>
+          <button class="code-copy-btn" aria-label="Copy">Copy</button>
+        </div>
+        <pre><span class="tok-comment">// loadDataset(id, label, rows)</span>
+<span class="tok-fn">loadDataset</span><span class="tok-punc">(</span><span class="tok-str">'sales'</span><span class="tok-punc">,</span>     <span class="tok-str">'Sales Data'</span><span class="tok-punc">,</span>    <span class="tok-ident">salesRows</span><span class="tok-punc">);</span>
+<span class="tok-fn">loadDataset</span><span class="tok-punc">(</span><span class="tok-str">'employees'</span><span class="tok-punc">,</span> <span class="tok-str">'Employee Data'</span><span class="tok-punc">,</span> <span class="tok-ident">employeeRows</span><span class="tok-punc">);</span>
+
+<span class="tok-comment">// Or load from an async source:</span>
+<span class="tok-kw">const</span> <span class="tok-ident">rows</span> <span class="tok-op">=</span> <span class="tok-kw">await</span> <span class="tok-fn">fetch</span><span class="tok-punc">(</span><span class="tok-str">'/api/sales'</span><span class="tok-punc">).</span><span class="tok-fn">then</span><span class="tok-punc">(</span><span class="tok-ident">r</span> <span class="tok-op">=&gt;</span> <span class="tok-ident">r</span><span class="tok-punc">.</span><span class="tok-fn">json</span><span class="tok-punc">());</span>
+<span class="tok-fn">loadDataset</span><span class="tok-punc">(</span><span class="tok-str">'api-sales'</span><span class="tok-punc">,</span> <span class="tok-str">'Live Sales'</span><span class="tok-punc">,</span> <span class="tok-ident">rows</span><span class="tok-punc">);</span></pre>
+      </div>
+
+      <div class="callout callout--warning">
+        <span class="callout-icon">⚠</span>
+        <div class="callout-body">
+          <div class="callout-title">Large datasets</div>
+          <div class="callout-text">
+            Analytix processes data in-memory in the browser. For datasets larger than
+            ~500k rows, consider pre-aggregating server-side and loading only the
+            summary data. The engine performs well up to ~100k rows for interactive use.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── First Pivot Table ─────────────────────────────── -->
+      <h2 class="section-title" id="first-pivot">Building Your First Pivot Table</h2>
+      <div class="prose">
+        <p>The simplest way to build a pivot table is through the drag-and-drop
+        <code>AnalyticsBuilder</code> UI. But you can also configure one programmatically
+        using the <code>PivotConfig</code> type and render it with <code>PivotTable</code>.</p>
+      </div>
+
+      <div class="tabs-container" data-tabs-id="pivot-tabs">
+        <div class="tabs-header">
+          <button class="tab-btn active" data-tab="pivot-ui">Via UI</button>
+          <button class="tab-btn" data-tab="pivot-code">Programmatic</button>
+          <button class="tab-btn" data-tab="pivot-hook">usePivot hook</button>
+        </div>
+        <div class="tab-panel active" data-tab="pivot-ui">
+          <pre><span class="tok-comment">// Drop &lt;AnalyticsBuilder /&gt; and use the Pivot tab.
+// Drag region to Rows, category to Columns,
+// and revenue to Values. Done.</span>
+
+<span class="tok-kw">import</span> <span class="tok-punc">{</span> <span class="tok-class">AnalyticsBuilder</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/react'</span><span class="tok-punc">;</span>
+
+<span class="tok-punc">&lt;</span><span class="tok-class">AnalyticsBuilder</span> <span class="tok-attr">engine</span><span class="tok-punc">={</span><span class="tok-ident">engine</span><span class="tok-punc">} /&gt;</span></pre>
+        </div>
+        <div class="tab-panel" data-tab="pivot-code">
+          <pre><span class="tok-kw">import</span> <span class="tok-kw">type</span> <span class="tok-punc">{</span> <span class="tok-class">PivotConfig</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/core'</span><span class="tok-punc">;</span>
+
+<span class="tok-kw">const</span> <span class="tok-ident">pivotConfig</span><span class="tok-punc">:</span> <span class="tok-class">PivotConfig</span> <span class="tok-op">=</span> <span class="tok-punc">{</span>
+  <span class="tok-prop">id</span><span class="tok-punc">:</span>          <span class="tok-str">'revenue-by-region'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">datasetId</span><span class="tok-punc">:</span>   <span class="tok-str">'sales'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">rowFields</span><span class="tok-punc">:</span>   <span class="tok-punc">[</span><span class="tok-str">'region'</span><span class="tok-punc">],</span>
+  <span class="tok-prop">columnFields</span><span class="tok-punc">:</span> <span class="tok-punc">[</span><span class="tok-str">'category'</span><span class="tok-punc">],</span>
+  <span class="tok-prop">valueFields</span><span class="tok-punc">:</span> <span class="tok-punc">[{</span>
+    <span class="tok-prop">columnId</span><span class="tok-punc">:</span>    <span class="tok-str">'revenue'</span><span class="tok-punc">,</span>
+    <span class="tok-prop">aggregation</span><span class="tok-punc">:</span> <span class="tok-str">'sum'</span><span class="tok-punc">,</span>
+    <span class="tok-prop">label</span><span class="tok-punc">:</span>       <span class="tok-str">'Revenue ($)'</span><span class="tok-punc">,</span>
+    <span class="tok-prop">format</span><span class="tok-punc">:</span>      <span class="tok-str">'currency'</span><span class="tok-punc">,</span>
+  <span class="tok-punc">}],</span>
+  <span class="tok-prop">filters</span><span class="tok-punc">:</span>          <span class="tok-punc">[],</span>
+  <span class="tok-prop">showRowTotals</span><span class="tok-punc">:</span>     <span class="tok-kw">true</span><span class="tok-punc">,</span>
+  <span class="tok-prop">showColumnTotals</span><span class="tok-punc">:</span>  <span class="tok-kw">true</span><span class="tok-punc">,</span>
+<span class="tok-punc">};</span></pre>
+        </div>
+        <div class="tab-panel" data-tab="pivot-hook">
+          <pre><span class="tok-kw">import</span> <span class="tok-punc">{</span> <span class="tok-fn">usePivot</span><span class="tok-punc">,</span> <span class="tok-class">PivotTable</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/react'</span><span class="tok-punc">;</span>
+
+<span class="tok-kw">function</span> <span class="tok-fn">MyPivot</span><span class="tok-punc">({</span> <span class="tok-ident">engine</span> <span class="tok-punc">}) {</span>
+  <span class="tok-kw">const</span> <span class="tok-punc">{</span> <span class="tok-ident">result</span><span class="tok-punc">,</span> <span class="tok-ident">loading</span><span class="tok-punc">,</span> <span class="tok-ident">error</span> <span class="tok-punc">}</span> <span class="tok-op">=</span>
+    <span class="tok-fn">usePivot</span><span class="tok-punc">(</span><span class="tok-ident">engine</span><span class="tok-punc">,</span> <span class="tok-ident">pivotConfig</span><span class="tok-punc">);</span>
+
+  <span class="tok-kw">if</span> <span class="tok-punc">(</span><span class="tok-ident">loading</span><span class="tok-punc">)</span> <span class="tok-kw">return</span> <span class="tok-punc">&lt;</span><span class="tok-tag">div</span><span class="tok-punc">&gt;</span>Computing…<span class="tok-punc">&lt;/</span><span class="tok-tag">div</span><span class="tok-punc">&gt;;</span>
+  <span class="tok-kw">if</span> <span class="tok-punc">(</span><span class="tok-ident">error</span><span class="tok-punc">)</span>   <span class="tok-kw">return</span> <span class="tok-punc">&lt;</span><span class="tok-tag">div</span><span class="tok-punc">&gt;</span>Error: <span class="tok-punc">{</span><span class="tok-ident">error</span><span class="tok-punc">.</span><span class="tok-prop">message</span><span class="tok-punc">}&lt;/</span><span class="tok-tag">div</span><span class="tok-punc">&gt;;</span>
+  <span class="tok-kw">if</span> <span class="tok-punc">(!</span><span class="tok-ident">result</span><span class="tok-punc">)</span>  <span class="tok-kw">return</span> <span class="tok-kw">null</span><span class="tok-punc">;</span>
+
+  <span class="tok-kw">return</span> <span class="tok-punc">&lt;</span><span class="tok-class">PivotTable</span> <span class="tok-attr">result</span><span class="tok-punc">={</span><span class="tok-ident">result</span><span class="tok-punc">} /&gt;;</span>
+<span class="tok-punc">}</span></pre>
+        </div>
+      </div>
+
+      <!-- ── KPI Dashboard ─────────────────────────────────── -->
+      <h2 class="section-title" id="kpi-dashboard">Creating a KPI Dashboard</h2>
+      <div class="prose">
+        <p>KPI cards show a single aggregate metric with threshold-based status colouring
+        (good / warning / critical). Configure them with a <code>KpiConfig</code> object
+        and render with <code>KpiCard</code>.</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-lang">tsx</span>
+          <span class="code-block-filename">KpiDashboard.tsx</span>
+          <button class="code-copy-btn" aria-label="Copy">Copy</button>
+        </div>
+        <pre><span class="tok-kw">import</span> <span class="tok-punc">{</span> <span class="tok-class">KpiCard</span><span class="tok-punc">,</span> <span class="tok-fn">useKpi</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/react'</span><span class="tok-punc">;</span>
+<span class="tok-kw">import</span> <span class="tok-kw">type</span> <span class="tok-punc">{</span> <span class="tok-class">KpiConfig</span> <span class="tok-punc">}</span> <span class="tok-kw">from</span> <span class="tok-str">'@analytix/core'</span><span class="tok-punc">;</span>
+
+<span class="tok-kw">const</span> <span class="tok-ident">revenueKpi</span><span class="tok-punc">:</span> <span class="tok-class">KpiConfig</span> <span class="tok-op">=</span> <span class="tok-punc">{</span>
+  <span class="tok-prop">id</span><span class="tok-punc">:</span>          <span class="tok-str">'kpi-revenue'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">title</span><span class="tok-punc">:</span>       <span class="tok-str">'Total Revenue'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">datasetId</span><span class="tok-punc">:</span>   <span class="tok-str">'sales'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">columnId</span><span class="tok-punc">:</span>    <span class="tok-str">'revenue'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">aggregation</span><span class="tok-punc">:</span> <span class="tok-str">'sum'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">format</span><span class="tok-punc">:</span>      <span class="tok-str">'currency'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">prefix</span><span class="tok-punc">:</span>      <span class="tok-str">'$'</span><span class="tok-punc">,</span>
+  <span class="tok-prop">filters</span><span class="tok-punc">:</span>     <span class="tok-punc">[],</span>
+  <span class="tok-prop">threshold</span><span class="tok-punc">:</span> <span class="tok-punc">{</span>
+    <span class="tok-prop">warning</span><span class="tok-punc">:</span>        <span class="tok-num">800_000</span><span class="tok-punc">,</span>   <span class="tok-comment">// yellow below this</span>
+    <span class="tok-prop">critical</span><span class="tok-punc">:</span>       <span class="tok-num">600_000</span><span class="tok-punc">,</span>   <span class="tok-comment">// red below this</span>
+    <span class="tok-prop">target</span><span class="tok-punc">:</span>         <span class="tok-num">1_000_000</span><span class="tok-punc">,</span>  <span class="tok-comment">// shown as target line</span>
+    <span class="tok-prop">comparisonType</span><span class="tok-punc">:</span> <span class="tok-str">'greater_is_better'</span><span class="tok-punc">,</span>
+  <span class="tok-punc">},</span>
+  <span class="tok-prop">refreshPolicy</span><span class="tok-punc">:</span> <span class="tok-punc">{</span>
+    <span class="tok-prop">enabled</span><span class="tok-punc">:</span>          <span class="tok-kw">true</span><span class="tok-punc">,</span>
+    <span class="tok-prop">intervalSeconds</span><span class="tok-punc">:</span>  <span class="tok-num">30</span><span class="tok-punc">,</span>
+    <span class="tok-prop">pauseWhenHidden</span><span class="tok-punc">:</span>  <span class="tok-kw">true</span><span class="tok-punc">,</span>
+  <span class="tok-punc">},</span>
+<span class="tok-punc">};</span>
+
+<span class="tok-kw">function</span> <span class="tok-fn">KpiDashboard</span><span class="tok-punc">({</span> <span class="tok-ident">engine</span> <span class="tok-punc">}) {</span>
+  <span class="tok-kw">const</span> <span class="tok-punc">{</span> <span class="tok-ident">result</span> <span class="tok-punc">}</span> <span class="tok-op">=</span> <span class="tok-fn">useKpi</span><span class="tok-punc">(</span><span class="tok-ident">engine</span><span class="tok-punc">,</span> <span class="tok-ident">revenueKpi</span><span class="tok-punc">);</span>
+
+  <span class="tok-kw">return</span> <span class="tok-punc">(</span>
+    <span class="tok-punc">&lt;</span><span class="tok-tag">div</span> <span class="tok-attr">style</span><span class="tok-punc">={{</span> <span class="tok-prop">display</span><span class="tok-punc">:</span> <span class="tok-str">'grid'</span><span class="tok-punc">,</span> <span class="tok-prop">gridTemplateColumns</span><span class="tok-punc">:</span> <span class="tok-str">'repeat(3, 1fr)'</span> <span class="tok-punc">}}&gt;</span>
+      <span class="tok-punc">&lt;</span><span class="tok-class">KpiCard</span>
+        <span class="tok-attr">config</span><span class="tok-punc">={</span><span class="tok-ident">revenueKpi</span><span class="tok-punc">}</span>
+        <span class="tok-attr">result</span><span class="tok-punc">={</span><span class="tok-ident">result</span><span class="tok-punc">}</span>
+        <span class="tok-attr">size</span><span class="tok-punc">=</span><span class="tok-str">"medium"</span>
+        <span class="tok-attr">variant</span><span class="tok-punc">=</span><span class="tok-str">"default"</span>
+      <span class="tok-punc">/&gt;</span>
+    <span class="tok-punc">&lt;/</span><span class="tok-tag">div</span><span class="tok-punc">&gt;</span>
+  <span class="tok-punc">);</span>
+<span class="tok-punc">}</span></pre>
+      </div>
+
+      <!-- ── Next steps ────────────────────────────────────── -->
+      <h2 class="section-title" id="next-steps">Next Steps</h2>
+      <div class="prose">
+        <ul>
+          <li><a href="api-reference.html#core">Read the full API reference</a> for <code>AnalyticsEngine</code>, <code>PivotEngine</code>, and all React components.</li>
+          <li><a href="api-reference.html#report">Set up scheduled reports</a> with <code>@analytix/report-builder</code> to export PDF and Excel.</li>
+          <li><a href="examples.html">Browse examples</a> for complete working demos of every chart type.</li>
+          <li>Explore the <a href="api-reference.html#chart">ChartRegistry</a> to see all 26 supported chart types and their configuration options.</li>
+        </ul>
+      </div>
+
+    </main>
+
+    <!-- ── On-page nav ─────────────────────────────────────── -->
+    <nav class="on-page-nav" aria-label="On this page">
+      <div class="on-page-nav-title">On this page</div>
+      <a href="#installation" class="on-page-nav-link">Installation</a>
+      <a href="#basic-setup" class="on-page-nav-link">Basic Setup</a>
+      <a href="#loading-dataset" class="on-page-nav-link">Loading a Dataset</a>
+      <a href="#first-pivot" class="on-page-nav-link">First Pivot Table</a>
+      <a href="#kpi-dashboard" class="on-page-nav-link">KPI Dashboard</a>
+      <a href="#next-steps" class="on-page-nav-link">Next Steps</a>
+    </nav>
+
+  </div><!-- /.content-wrapper -->
+
+  <!-- ── Footer ─────────────────────────────────────────────── -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <span>© 2026 Analytix. Built on GridStorm.</span>
+        <div class="footer-bottom-links">
+          <a href="index.html" class="footer-link">Home</a>
+          <a href="api-reference.html" class="footer-link">API</a>
+          <a href="examples.html" class="footer-link">Examples</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script src="scripts/nav.js"></script>
+<script src="scripts/tabs.js"></script>
+</body>
+</html>
