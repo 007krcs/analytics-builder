@@ -1,0 +1,19 @@
+{
+  "name": "analytics-builder",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Drag-and-drop analytics builder powered by GridStorm",
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm --filter demo dev",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc -b",
+    "clean": "pnpm -r --parallel exec rm -rf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^2.1.0",
+    "@types/node": "^20.0.0"
+  }
+}
