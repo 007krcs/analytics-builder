@@ -92,6 +92,20 @@ export class PivotEngine {
     const columnHeaders = buildColumnHeaders(config, colGroupKeys, colDimValues);
     const flatColumns = flattenColumnHeaders(columnHeaders);
 
+    // Expand flatColumns for multi-value fields so cell keys match accumulator keys
+    const expandedFlatColumns: PivotColumnHeader[] = config.valueFields.length > 1
+      ? flatColumns.flatMap((col) =>
+          config.valueFields.map((vf, vIdx) => ({
+            ...col,
+            key: `${col.key}__${vIdx}`,
+            label: config.columnFields.length > 0
+              ? `${col.label} / ${vf.label ?? vf.columnId}`
+              : (vf.label ?? vf.columnId),
+            valueField: vf.columnId,
+          }))
+        )
+      : flatColumns;
+
     // 6. Build pivot rows
     const pivotRows: PivotRow[] = [];
 
@@ -99,32 +113,43 @@ export class PivotEngine {
       const rowDimensions = buildDimensionMap(config.rowFields, splitGroupKey(rowKey));
       const cells: Record<string, PivotCell> = {};
 
-      for (const col of flatColumns) {
-        config.valueFields.forEach((_vf, vIdx) => {
-          const compositeKey = `${rowKey}${GROUP_KEY_DELIMITER}${col.key}${GROUP_KEY_DELIMITER}${vIdx}`;
-          const buckets = accumulator.get(compositeKey);
-          const vf = config.valueFields[vIdx];
-          const cellKey = config.valueFields.length === 1 ? col.key : `${col.key}__${vIdx}`;
+      for (const col of expandedFlatColumns) {
+        // For multi-value fields, col.key is already "baseKey__vIdx"; extract vIdx from suffix.
+        // For single-value fields, col.key is the plain column key and vIdx is always 0.
+        let baseColKey: string;
+        let vIdx: number;
+        if (config.valueFields.length > 1) {
+          const sepIdx = col.key.lastIndexOf('__');
+          baseColKey = col.key.slice(0, sepIdx);
+          vIdx = parseInt(col.key.slice(sepIdx + 2), 10);
+        } else {
+          baseColKey = col.key;
+          vIdx = 0;
+        }
 
-          if (!buckets || buckets[0].values.length === 0) {
-            cells[cellKey] = {
-              value: null,
-              formatted: '—',
-              count: 0,
-              isTotal: false,
-            };
-          } else {
-            const val = aggregate(buckets[0].values, vf.aggregation, {
-              percentile: vf.percentile,
-            });
-            cells[cellKey] = {
-              value: val,
-              formatted: formatValue(val, vf.format),
-              count: buckets[0].count,
-              isTotal: false,
-            };
-          }
-        });
+        const compositeKey = `${rowKey}${GROUP_KEY_DELIMITER}${baseColKey}${GROUP_KEY_DELIMITER}${vIdx}`;
+        const buckets = accumulator.get(compositeKey);
+        const vf = config.valueFields[vIdx];
+        const cellKey = col.key;
+
+        if (!buckets || buckets[0].values.length === 0) {
+          cells[cellKey] = {
+            value: null,
+            formatted: '—',
+            count: 0,
+            isTotal: false,
+          };
+        } else {
+          const val = aggregate(buckets[0].values, vf.aggregation, {
+            percentile: vf.percentile,
+          });
+          cells[cellKey] = {
+            value: val,
+            formatted: formatValue(val, vf.format),
+            count: buckets[0].count,
+            isTotal: false,
+          };
+        }
       }
 
       pivotRows.push({
@@ -139,7 +164,7 @@ export class PivotEngine {
     // 7. Grand total row
     let grandTotalRow: PivotRow | undefined;
     if (config.showRowTotals) {
-      grandTotalRow = computeGrandTotalRow(config, flatColumns, accumulator, rowKeyOrder);
+      grandTotalRow = computeGrandTotalRow(config, expandedFlatColumns, accumulator, rowKeyOrder);
     }
 
     const durationMs = performance.now() - start;
@@ -147,11 +172,11 @@ export class PivotEngine {
     return {
       configId: config.id,
       columnHeaders,
-      flatColumns,
+      flatColumns: expandedFlatColumns,
       rows: pivotRows,
       grandTotalRow,
       rowCount: pivotRows.length,
-      columnCount: flatColumns.length,
+      columnCount: expandedFlatColumns.length,
       computedAt: new Date(),
       durationMs,
     };
@@ -274,33 +299,44 @@ function computeGrandTotalRow(
   const cells: Record<string, PivotCell> = {};
 
   for (const col of flatColumns) {
-    config.valueFields.forEach((_vf, vIdx) => {
-      const cellKey = config.valueFields.length === 1 ? col.key : `${col.key}__${vIdx}`;
-      const vf = config.valueFields[vIdx];
+    // flatColumns passed here is already expandedFlatColumns — each col has a unique key.
+    // Extract baseColKey and vIdx the same way as the main pivot row loop.
+    let baseColKey: string;
+    let vIdx: number;
+    if (config.valueFields.length > 1) {
+      const sepIdx = col.key.lastIndexOf('__');
+      baseColKey = col.key.slice(0, sepIdx);
+      vIdx = parseInt(col.key.slice(sepIdx + 2), 10);
+    } else {
+      baseColKey = col.key;
+      vIdx = 0;
+    }
 
-      // Collect all values for this column across all row keys
-      const allValues: number[] = [];
-      let totalCount = 0;
-      for (const rowKey of rowKeys) {
-        const compositeKey = `${rowKey}${GROUP_KEY_DELIMITER}${col.key}${GROUP_KEY_DELIMITER}${vIdx}`;
-        const buckets: ValueBucket[] | undefined = accumulator.get(compositeKey);
-        if (buckets) {
-          allValues.push(...buckets[0].values);
-          totalCount += buckets[0].count;
-        }
+    const cellKey = col.key;
+    const vf = config.valueFields[vIdx];
+
+    // Collect all values for this column across all row keys
+    const allValues: number[] = [];
+    let totalCount = 0;
+    for (const rowKey of rowKeys) {
+      const compositeKey = `${rowKey}${GROUP_KEY_DELIMITER}${baseColKey}${GROUP_KEY_DELIMITER}${vIdx}`;
+      const buckets: ValueBucket[] | undefined = accumulator.get(compositeKey);
+      if (buckets) {
+        allValues.push(...buckets[0].values);
+        totalCount += buckets[0].count;
       }
+    }
 
-      const val = allValues.length > 0
-        ? aggregate(allValues, vf.aggregation, { percentile: vf.percentile })
-        : null;
+    const val = allValues.length > 0
+      ? aggregate(allValues, vf.aggregation, { percentile: vf.percentile })
+      : null;
 
-      cells[cellKey] = {
-        value: val,
-        formatted: formatValue(val, vf.format),
-        count: totalCount,
-        isTotal: true,
-      };
-    });
+    cells[cellKey] = {
+      value: val,
+      formatted: formatValue(val, vf.format),
+      count: totalCount,
+      isTotal: true,
+    };
   }
 
   return {

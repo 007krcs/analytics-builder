@@ -5,18 +5,27 @@
  *  - FieldPanel (left sidebar with dataset fields)
  *  - Tab-based workspace (Pivot / Charts / KPIs / Reports)
  *  - Dataset selector / upload
+ *
+ * Owns one DndContext that wraps both the FieldPanel sidebar and the
+ * PivotBuilder workspace so drag-and-drop works across the split layout.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
+  DragOverlay,
 } from '@dnd-kit/core';
-import type { AnalyticsEngine, Dataset, PivotConfig, ChartConfig, KpiConfig } from '@analytix/core';
+import { arrayMove } from '@dnd-kit/sortable';
+import type { AnalyticsEngine, Dataset, PivotConfig, ChartConfig, KpiConfig, Column } from '@analytix/core';
 import { FieldPanel } from './FieldPanel.js';
 import { PivotBuilder } from './PivotBuilder.js';
+import type { DropZoneField, DropZoneRole } from './DropZone.js';
 import { ChartBuilder } from './ChartBuilder.js';
 import { KpiDashboard } from './KpiDashboard.js';
 import { ReportScheduler } from './ReportScheduler.js';
@@ -32,6 +41,39 @@ export interface AnalyticsBuilderProps {
   className?: string;
 }
 
+let fieldSeq = 0;
+function makeFieldId(columnId: string): string {
+  return `${columnId}-${++fieldSeq}`;
+}
+
+function makeDefaultFields(dataset: Dataset): {
+  rowFields: DropZoneField[];
+  colFields: DropZoneField[];
+  valueFields: DropZoneField[];
+} {
+  const cols = dataset.columns;
+  const dimCols = cols.filter((c) => c.dimensional);
+  const measCols = cols.filter((c) => c.aggregatable);
+
+  const rowFields: DropZoneField[] = [];
+  const colFields: DropZoneField[] = [];
+  const valueFields: DropZoneField[] = [];
+
+  // Try to use 'region' or first dimensional col as rows
+  const rowCol = dimCols.find((c) => c.id === 'region') ?? dimCols[0];
+  if (rowCol) rowFields.push({ id: makeFieldId(rowCol.id), column: rowCol });
+
+  // Try to use 'category' or second dimensional col as columns
+  const colCol = dimCols.find((c) => c.id === 'category') ?? dimCols.find((c) => c !== rowCol);
+  if (colCol) colFields.push({ id: makeFieldId(colCol.id), column: colCol });
+
+  // Try to use 'revenue' or first measure as value
+  const valCol = measCols.find((c) => c.id === 'revenue') ?? measCols[0];
+  if (valCol) valueFields.push({ id: makeFieldId(valCol.id), column: valCol, aggregation: 'sum' });
+
+  return { rowFields, colFields, valueFields };
+}
+
 export function AnalyticsBuilder({
   engine,
   initialDataset,
@@ -41,18 +83,40 @@ export function AnalyticsBuilder({
   const [activeTab, setActiveTab] = useState<BuilderTab>('pivot');
   const [activeDataset, setActiveDataset] = useState<Dataset | null>(initialDataset ?? null);
   const [fieldSearch, setFieldSearch] = useState('');
-  const [pivotConfig, setPivotConfig] = useState<PivotConfig | null>(null);
   const [chartConfig, setChartConfig] = useState<ChartConfig | null>(null);
   const [kpiConfigs] = useState<KpiConfig[]>([]);
   const [reportConfig, setReportConfig] = useState(() =>
     new ReportBuilderClass('report-main', 'Analytics Report').build()
   );
 
+  // ── Pivot drag state (lifted from PivotBuilder) ───────────────────────────
+  const initialDefaults = initialDataset ? makeDefaultFields(initialDataset) : { rowFields: [], colFields: [], valueFields: [] };
+  const [rowFields, setRowFields] = useState<DropZoneField[]>(() => initialDefaults.rowFields);
+  const [colFields, setColFields] = useState<DropZoneField[]>(() => initialDefaults.colFields);
+  const [valueFields, setValueFields] = useState<DropZoneField[]>(() => initialDefaults.valueFields);
+  const [showTotals, setShowTotals] = useState(true);
+  const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+  const [pivotConfig, setPivotConfig] = useState<PivotConfig | null>(null);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
   );
 
   const datasets = engine.getAllDatasets();
+
+  // Reset pivot fields when dataset changes
+  useEffect(() => {
+    if (activeDataset) {
+      const defaults = makeDefaultFields(activeDataset);
+      setRowFields(defaults.rowFields);
+      setColFields(defaults.colFields);
+      setValueFields(defaults.valueFields);
+    } else {
+      setRowFields([]);
+      setColFields([]);
+      setValueFields([]);
+    }
+  }, [activeDataset?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDatasetChange = useCallback(
     (datasetId: string) => {
@@ -61,6 +125,80 @@ export function AnalyticsBuilder({
     },
     [engine]
   );
+
+  // ── Drag handlers ─────────────────────────────────────────────────────────
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const data = event.active.data.current;
+    if (data?.type === 'field') {
+      setActiveColumn(data.column as Column);
+    }
+  }, []);
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      setActiveColumn(null);
+      const { active, over } = event;
+      if (!over) return;
+
+      const activeData = active.data.current;
+      const overId = String(over.id);
+
+      // Dropping a field from FieldPanel into a drop zone
+      if (activeData?.type === 'field') {
+        const column = activeData.column as Column;
+        const role = overId.replace('dropzone-', '') as DropZoneRole;
+
+        const newField: DropZoneField = {
+          id: makeFieldId(column.id),
+          column,
+          aggregation: column.aggregatable ? 'sum' : undefined,
+        };
+
+        if (role === 'rows') {
+          setRowFields((prev) =>
+            prev.find((f) => f.column.id === column.id) ? prev : [...prev, newField]
+          );
+        } else if (role === 'columns') {
+          setColFields((prev) =>
+            prev.find((f) => f.column.id === column.id) ? prev : [...prev, newField]
+          );
+        } else if (role === 'values') {
+          setValueFields((prev) => [...prev, newField]);
+        }
+        return;
+      }
+
+      // Re-ordering within a zone
+      const reorder = (fields: DropZoneField[]): DropZoneField[] => {
+        const oldIdx = fields.findIndex((f) => f.id === active.id);
+        const newIdx = fields.findIndex((f) => f.id === over.id);
+        if (oldIdx >= 0 && newIdx >= 0) return arrayMove(fields, oldIdx, newIdx);
+        return fields;
+      };
+
+      setRowFields((prev) => reorder(prev));
+      setColFields((prev) => reorder(prev));
+      setValueFields((prev) => reorder(prev));
+    },
+    []
+  );
+
+  const handleDragOver = useCallback((_event: DragOverEvent) => {}, []);
+
+  const handleRemoveFromZone = useCallback((zone: DropZoneRole, fieldId: string) => {
+    if (zone === 'rows')    setRowFields((prev) => prev.filter((f) => f.id !== fieldId));
+    if (zone === 'columns') setColFields((prev) => prev.filter((f) => f.id !== fieldId));
+    if (zone === 'values')  setValueFields((prev) => prev.filter((f) => f.id !== fieldId));
+  }, []);
+
+  const handleAggregationChange = useCallback((fieldId: string, agg: string) => {
+    setValueFields((prev) =>
+      prev.map((f) => (f.id === fieldId ? { ...f, aggregation: agg } : f))
+    );
+  }, []);
+
+  // ── Report handlers ───────────────────────────────────────────────────────
 
   const handleAddSchedule = useCallback(
     (schedule: ScheduleConfig) => {
@@ -105,8 +243,34 @@ export function AnalyticsBuilder({
     { id: 'report', label: 'Reports', icon: '📄' },
   ];
 
+  // Default chart config for immediate preview
+  const defaultChartInitial = activeDataset
+    ? {
+        id: 'chart-default',
+        type: 'bar' as const,
+        title: 'Revenue by Region',
+        xField:
+          activeDataset.columns.find((c) => c.id === 'region')?.id ??
+          activeDataset.columns.find((c) => c.dimensional)?.id ??
+          '',
+        series: (() => {
+          const rev =
+            activeDataset.columns.find((c) => c.id === 'revenue') ??
+            activeDataset.columns.find((c) => c.aggregatable);
+          return rev
+            ? [{ id: 'series-0', columnId: rev.id, label: rev.displayName }]
+            : [];
+        })(),
+      }
+    : undefined;
+
   return (
-    <DndContext sensors={sensors}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragOver={handleDragOver}
+    >
       <div className={`analytics-builder ${className ?? ''}`.trim()}>
         {/* Top toolbar */}
         <div className="analytics-builder-toolbar">
@@ -183,6 +347,13 @@ export function AnalyticsBuilder({
                 <PivotBuilder
                   engine={engine}
                   dataset={activeDataset}
+                  rowFields={rowFields}
+                  colFields={colFields}
+                  valueFields={valueFields}
+                  showTotals={showTotals}
+                  onRemoveFromZone={handleRemoveFromZone}
+                  onAggregationChange={handleAggregationChange}
+                  onTotalsChange={setShowTotals}
                   onConfigChange={setPivotConfig}
                 />
               )}
@@ -191,7 +362,7 @@ export function AnalyticsBuilder({
                 <ChartBuilder
                   engine={engine}
                   dataset={activeDataset}
-                  initialConfig={chartConfig ?? undefined}
+                  initialConfig={chartConfig ?? defaultChartInitial}
                   onConfigChange={setChartConfig}
                 />
               )}
@@ -235,11 +406,16 @@ export function AnalyticsBuilder({
                 <div className="report-workspace">
                   <div className="report-info">
                     <h3>Report: {reportConfig.name}</h3>
-                    <p>{reportConfig.sections.length} sections · {reportConfig.schedules.length} schedules</p>
+                    <p>
+                      {reportConfig.sections.length} sections ·{' '}
+                      {reportConfig.schedules.length} schedules
+                    </p>
                   </div>
                   {pivotConfig && (
                     <div className="report-config-section">
-                      <p>Pivot config "{pivotConfig.id}" will be included in the report.</p>
+                      <p>
+                        Pivot config "{pivotConfig.id}" will be included in the report.
+                      </p>
                     </div>
                   )}
                   <ReportScheduler
@@ -254,6 +430,15 @@ export function AnalyticsBuilder({
           </main>
         </div>
       </div>
+
+      {/* Drag overlay — shows the dragged field chip */}
+      <DragOverlay>
+        {activeColumn && (
+          <div className="field-chip field-chip--overlay">
+            {activeColumn.displayName}
+          </div>
+        )}
+      </DragOverlay>
     </DndContext>
   );
 }

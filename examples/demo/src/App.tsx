@@ -12,26 +12,22 @@
  * No Tailwind, no Bootstrap. All styles in styles.css.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnalyticsEngine } from '@analytix/core';
-import type { Dataset, KpiConfig, PivotConfig, Row } from '@analytix/core';
+import type { KpiConfig, Row } from '@analytix/core';
 import { computePivot as _computePivot } from '@analytix/pivot-engine';
 import { computeKpi as _computeKpi }     from '@analytix/kpi-engine';
 import {
   AnalyticsBuilder,
   KpiCard,
-  PivotTable,
   useAnalyticsEngine,
-  usePivot,
   useKpi,
 } from '@analytix/react';
 
 // ── New differentiators ────────────────────────────────────────
 import { InsightEngine }       from '@analytix/insight-engine';
 import type { Insight, InsightResult } from '@analytix/insight-engine';
-import { CrossFilterProvider, useCrossFilter } from '@analytix/crossfilter';
-import { DataImportPanel }     from '@analytix/data-connector';
-import type { DataImportPanelProps } from '@analytix/data-connector';
+import { CrossFilterProvider } from '@analytix/crossfilter';
 import { DashboardCanvas, CanvasEngine } from '@analytix/canvas-layout';
 import type { CanvasWidget } from '@analytix/canvas-layout';
 
@@ -115,24 +111,6 @@ const KPI_UNITS: KpiConfig = {
   format: 'compact',
   decimals: 0,
   refreshPolicy: { enabled: false, intervalSeconds: 30, pauseWhenHidden: true },
-};
-
-// ─── Pre-configured pivot ─────────────────────────────────────
-
-const PIVOT_REVENUE_BY_REGION: PivotConfig = {
-  id: 'pivot-revenue-region',
-  datasetId: 'sales',
-  rowFields: ['region'],
-  columnFields: ['category'],
-  valueFields: [
-    { columnId: 'revenue', aggregation: 'sum', label: 'Revenue ($)', format: 'currency' },
-    { columnId: 'profit_margin', aggregation: 'avg', label: 'Margin (%)', format: 'percent' },
-  ],
-  filters: [],
-  showRowTotals: true,
-  showColumnTotals: true,
-  showSubTotals: false,
-  compactMode: false,
 };
 
 // ─── Tab config ───────────────────────────────────────────────
@@ -239,76 +217,26 @@ export default function App() {
 // ─── Pivot Builder tab ────────────────────────────────────────
 
 function PivotBuilderTab({ engine }: { engine: AnalyticsEngine }) {
-  const { result, loading, error } = usePivot(engine, PIVOT_REVENUE_BY_REGION);
-  const [showImport, setShowImport] = useState(false);
-
-  // Cross-filter hook for pivot tab (widget id = 'pivot-main', dataset = 'sales')
-  const allRows = (engine.getDataset('sales')?.rows ?? []) as Row[];
-  const {
-    isFiltered,
-    filterCount,
-    clearFilter,
-  } = useCrossFilter('pivot-main', 'sales', allRows);
-
-  const handleImport = useCallback<DataImportPanelProps['onImport']>((_dataset: Dataset) => {
-    setShowImport(false);
-    // In a real app: engine.loadDatasetFromDataset(dataset)
-    alert(`Imported ${_dataset.rows.length} rows — integrate engine.loadDataset() to use live data.`);
-  }, []);
-
+  const salesDataset = engine.getDataset('sales') ?? undefined;
   return (
     <section className="demo-section" aria-labelledby="pivot-heading">
       <div className="demo-section-header">
-        <h2 id="pivot-heading">Revenue by Region × Category</h2>
+        <h2 id="pivot-heading">Pivot Builder</h2>
         <p>
-          Pre-configured pivot — revenue sum and profit margin average.
-          Switch to the Chart Builder tab to drag-and-drop your own analysis.
+          Drag fields from the left panel into Rows, Columns, and Values to build any pivot
+          table. Pre-loaded with Region &times; Category &#8594; Revenue. Add more fields,
+          change aggregations, or switch to Charts.
         </p>
-
-        {/* Cross-filter badge */}
-        <div className="pivot-toolbar">
-          {isFiltered && (
-            <div className="crossfilter-badge" role="status">
-              <span aria-hidden="true">🔗</span>
-              Cross-filter active ({filterCount} dimension{filterCount > 1 ? 's' : ''})
-              <button
-                className="crossfilter-badge__clear"
-                onClick={clearFilter}
-                aria-label="Clear cross-filter"
-              >
-                ×
-              </button>
-            </div>
-          )}
-
-          <button
-            className="import-trigger-btn"
-            onClick={() => setShowImport(true)}
-            aria-expanded={showImport}
-            aria-controls="import-panel-portal"
-          >
-            <span aria-hidden="true">⬆</span> Import Data
-          </button>
-        </div>
       </div>
-
-      {loading && <div className="demo-loading">Computing pivot table…</div>}
-      {error   && <div className="demo-error">Error: {error.message}</div>}
-      {result  && !loading && <PivotTable result={result} />}
-
-      {!loading && !error && !result && (
-        <div className="pivot-empty">No data yet — load a dataset to see the pivot table.</div>
-      )}
-
-      {/* Data Import Panel modal */}
-      {showImport && (
-        <div className="import-modal-overlay" id="import-panel-portal" role="presentation">
-          <DataImportPanel
-            onImport={handleImport}
-            onClose={() => setShowImport(false)}
-          />
-        </div>
-      )}
+      <AnalyticsBuilder
+        engine={engine}
+        initialDataset={salesDataset}
+        onExport={(fmt: string) =>
+          alert(
+            `Export as ${fmt.toUpperCase()} — integrate @analytix/report-builder for full PDF/Excel generation.`
+          )
+        }
+      />
     </section>
   );
 }
