@@ -12,9 +12,9 @@
  * No Tailwind, no Bootstrap. All styles in styles.css.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnalyticsEngine } from '@analytix/core';
-import type { KpiConfig, PivotConfig, Row } from '@analytix/core';
+import type { Dataset, KpiConfig, PivotConfig, Row } from '@analytix/core';
 import { computePivot as _computePivot } from '@analytix/pivot-engine';
 import { computeKpi as _computeKpi }     from '@analytix/kpi-engine';
 import {
@@ -33,6 +33,7 @@ import { CrossFilterProvider, useCrossFilter } from '@analytix/crossfilter';
 import { DataImportPanel }     from '@analytix/data-connector';
 import type { DataImportPanelProps } from '@analytix/data-connector';
 import { DashboardCanvas, CanvasEngine } from '@analytix/canvas-layout';
+import type { CanvasWidget } from '@analytix/canvas-layout';
 
 import { SALES_DATA, EMPLOYEE_DATA, SALES_STATS } from './data/sample-data.js';
 
@@ -249,7 +250,7 @@ function PivotBuilderTab({ engine }: { engine: AnalyticsEngine }) {
     clearFilter,
   } = useCrossFilter('pivot-main', 'sales', allRows);
 
-  const handleImport = useCallback<DataImportPanelProps['onImport']>((_dataset) => {
+  const handleImport = useCallback<DataImportPanelProps['onImport']>((_dataset: Dataset) => {
     setShowImport(false);
     // In a real app: engine.loadDatasetFromDataset(dataset)
     alert(`Imported ${_dataset.rows.length} rows — integrate engine.loadDataset() to use live data.`);
@@ -334,7 +335,7 @@ function ChartBuilderTab({
       <AnalyticsBuilder
         engine={engine}
         initialDataset={salesDataset ?? undefined}
-        onExport={(fmt) =>
+        onExport={(fmt: string) =>
           alert(
             `Export as ${fmt.toUpperCase()} — integrate @analytix/report-builder for full PDF/Excel generation.`
           )
@@ -771,7 +772,7 @@ function AiInsightsTab() {
         { id: 'region',                displayName: 'Region',               type: 'string' as const,    aggregatable: false, dimensional: true,  nullable: false },
         { id: 'category',              displayName: 'Category',             type: 'string' as const,    aggregatable: false, dimensional: true,  nullable: false },
       ],
-      rows:       SALES_DATA as unknown as import('@analytix/core').Row[],
+      rows:       SALES_DATA as unknown as Row[],
       source:     { id: 'src-sales', name: 'Sales Data', type: 'inline' as const, rowCount: SALES_DATA.length },
       createdAt:  new Date(),
       updatedAt:  new Date(),
@@ -784,12 +785,12 @@ function AiInsightsTab() {
   }, []);
 
   const visibleInsights = result?.insights.filter(
-    (i) => filter === 'all' || i.severity === filter
+    (i: Insight) => filter === 'all' || i.severity === filter
   ) ?? [];
 
-  const criticalCount = result?.insights.filter((i) => i.severity === 'critical').length ?? 0;
-  const warningCount  = result?.insights.filter((i) => i.severity === 'warning').length  ?? 0;
-  const infoCount     = result?.insights.filter((i) => i.severity === 'info').length     ?? 0;
+  const criticalCount = result?.insights.filter((i: Insight) => i.severity === 'critical').length ?? 0;
+  const warningCount  = result?.insights.filter((i: Insight) => i.severity === 'warning').length  ?? 0;
+  const infoCount     = result?.insights.filter((i: Insight) => i.severity === 'info').length     ?? 0;
 
   return (
     <section className="demo-section" aria-labelledby="insights-heading">
@@ -882,7 +883,7 @@ function bootstrapCanvas() {
 bootstrapCanvas();
 
 /** Mini bar chart renderer for the canvas */
-function BarChartRenderer({ widget: _widget }: { widget: import('@analytix/canvas-layout').CanvasWidget }) {
+function BarChartRenderer({ widget: _widget }: { widget: CanvasWidget }) {
   // Simplified bar chart using CSS bars
   const bars = [
     { label: 'NA',   value: 78, color: '#6366f1' },
@@ -910,7 +911,7 @@ function BarChartRenderer({ widget: _widget }: { widget: import('@analytix/canva
   );
 }
 
-function KpiCardRenderer({ widget: _widget }: { widget: import('@analytix/canvas-layout').CanvasWidget }) {
+function KpiCardRenderer({ widget: _widget }: { widget: CanvasWidget }) {
   return (
     <div className="canvas-kpi-card">
       <div className="canvas-kpi-card__value">$4.2M</div>
@@ -920,7 +921,7 @@ function KpiCardRenderer({ widget: _widget }: { widget: import('@analytix/canvas
   );
 }
 
-function PivotRenderer({ widget: _widget }: { widget: import('@analytix/canvas-layout').CanvasWidget }) {
+function PivotRenderer({ widget: _widget }: { widget: CanvasWidget }) {
   return (
     <div className="canvas-pivot-placeholder">
       <table className="canvas-pivot-mini" aria-label="Sales pivot preview">

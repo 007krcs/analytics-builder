@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm install && pnpm --filter demo build",
+  "buildCommand": "pnpm install && pnpm -r --filter='!demo' build && pnpm --filter demo build",
   "outputDirectory": "examples/demo/dist",
   "framework": null
 }
