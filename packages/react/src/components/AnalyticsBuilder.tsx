@@ -46,6 +46,85 @@ function makeFieldId(columnId: string): string {
   return `${columnId}-${++fieldSeq}`;
 }
 
+function makeDefaultKpis(dataset: Dataset): KpiConfig[] {
+  const measCols = dataset.columns.filter((c) => c.aggregatable);
+  const configs: KpiConfig[] = [];
+
+  const revCol = measCols.find((c) => c.id === 'revenue') ?? measCols[0];
+  if (revCol) {
+    const total = dataset.rows.reduce((s, r) => s + (Number(r[revCol.id]) || 0), 0);
+    configs.push({
+      id: `kpi-${revCol.id}`,
+      title: revCol.displayName,
+      description: `Sum of ${revCol.displayName.toLowerCase()}`,
+      datasetId: dataset.id,
+      columnId: revCol.id,
+      aggregation: 'sum',
+      filters: [],
+      decimals: 0,
+      format: 'currency',
+      prefix: '$',
+      threshold: { warning: total * 0.8, critical: total * 0.6, target: total, comparisonType: 'greater_is_better' },
+      refreshPolicy: { enabled: false, intervalSeconds: 30, pauseWhenHidden: true },
+    });
+  }
+
+  const profitCol = measCols.find((c) => c.id === 'profit') ?? measCols.find((c) => c !== revCol && c.id !== 'revenue');
+  if (profitCol) {
+    const total = dataset.rows.reduce((s, r) => s + (Number(r[profitCol.id]) || 0), 0);
+    configs.push({
+      id: `kpi-${profitCol.id}`,
+      title: profitCol.displayName,
+      description: `Sum of ${profitCol.displayName.toLowerCase()}`,
+      datasetId: dataset.id,
+      columnId: profitCol.id,
+      aggregation: 'sum',
+      filters: [],
+      decimals: 0,
+      threshold: { warning: total * 0.7, critical: total * 0.5, comparisonType: 'greater_is_better' },
+      refreshPolicy: { enabled: false, intervalSeconds: 30, pauseWhenHidden: true },
+    });
+  }
+
+  const satCol = measCols.find((c) => c.id === 'customer_satisfaction') ?? measCols.find((c) => c !== revCol && c !== profitCol);
+  if (satCol) {
+    const total = dataset.rows.reduce((s, r) => s + (Number(r[satCol.id]) || 0), 0);
+    const avg = dataset.rows.length > 0 ? total / dataset.rows.length : 0;
+    configs.push({
+      id: `kpi-${satCol.id}`,
+      title: `Avg ${satCol.displayName}`,
+      description: `Average ${satCol.displayName.toLowerCase()}`,
+      datasetId: dataset.id,
+      columnId: satCol.id,
+      aggregation: 'avg',
+      filters: [],
+      decimals: 2,
+      threshold: { warning: avg * 0.8, critical: avg * 0.6, target: avg * 1.1, comparisonType: 'greater_is_better' },
+      refreshPolicy: { enabled: false, intervalSeconds: 30, pauseWhenHidden: true },
+    });
+  }
+
+  const unitsCol = measCols.find((c) => c.id === 'units') ?? measCols.find((c) => c !== revCol && c !== profitCol && c !== satCol);
+  if (unitsCol) {
+    const total = dataset.rows.reduce((s, r) => s + (Number(r[unitsCol.id]) || 0), 0);
+    configs.push({
+      id: `kpi-${unitsCol.id}`,
+      title: unitsCol.displayName,
+      description: `Total ${unitsCol.displayName.toLowerCase()}`,
+      datasetId: dataset.id,
+      columnId: unitsCol.id,
+      aggregation: 'sum',
+      filters: [],
+      decimals: 0,
+      format: 'compact',
+      threshold: { warning: total * 0.75, critical: total * 0.5, comparisonType: 'greater_is_better' },
+      refreshPolicy: { enabled: false, intervalSeconds: 30, pauseWhenHidden: true },
+    });
+  }
+
+  return configs;
+}
+
 function makeDefaultFields(dataset: Dataset): {
   rowFields: DropZoneField[];
   colFields: DropZoneField[];
@@ -84,7 +163,9 @@ export function AnalyticsBuilder({
   const [activeDataset, setActiveDataset] = useState<Dataset | null>(initialDataset ?? null);
   const [fieldSearch, setFieldSearch] = useState('');
   const [chartConfig, setChartConfig] = useState<ChartConfig | null>(null);
-  const [kpiConfigs] = useState<KpiConfig[]>([]);
+  const [kpiConfigs] = useState<KpiConfig[]>(() =>
+    initialDataset ? makeDefaultKpis(initialDataset) : []
+  );
   const [reportConfig, setReportConfig] = useState(() =>
     new ReportBuilderClass('report-main', 'Analytics Report').build()
   );
@@ -103,6 +184,11 @@ export function AnalyticsBuilder({
   );
 
   const datasets = engine.getAllDatasets();
+
+  // Register the report config with the engine on mount
+  useEffect(() => {
+    engine.addReportConfig(reportConfig);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Reset pivot fields when dataset changes
   useEffect(() => {
