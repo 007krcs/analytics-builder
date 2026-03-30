@@ -883,6 +883,19 @@ a { color: inherit; text-decoration: none; }
   font-weight: 700;
   border-top: 2px solid var(--success-border);
 }
+/* Grand Total + subtotal value cells: always right-align to match column headers */
+.pivot-row--total td:not(.pivot-td--label),
+.pivot-row--subtotal td:not(.pivot-td--label) {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+/* Subtotal rows: light blue tint */
+.pivot-row--subtotal td {
+  background: var(--brand-50) !important;
+  font-weight: 600;
+  border-top: 1px solid var(--brand-300);
+}
 
 .pivot-table--hover .pivot-row:hover td {
   background: var(--brand-50) !important;
@@ -1743,97 +1756,439 @@ a { color: inherit; text-decoration: none; }
 .about-tech li { font-size: 13px; color: var(--text-secondary); }
 .about-tech strong { color: var(--text); font-weight: 600; }
 
-/* ── Responsive — 1024px ────────────────────────────────────── */
-@media (max-width: 1024px) {
+/* =============================================================================
+   RESPONSIVE DESIGN — Mobile-first, every device covered
+   Breakpoints:
+     xs  < 360px   — older / very small phones
+     sm  360–479px — modern phones (iPhone SE, Galaxy S series)
+     md  480–767px — large phones, small phablets
+     lg  768–1023px — tablets portrait (iPad Mini, iPad Air)
+     xl  1024–1279px — tablets landscape / small laptops
+     2xl 1280–1439px — laptops / large tablets
+     3xl 1440px+    — desktops and large monitors
+   ============================================================================= */
+
+/* ── Global touch & interaction improvements ─────────────────── */
+button, a, [role="button"], input, select, textarea {
+  touch-action: manipulation; /* Faster tap response, no 300ms delay */
+}
+
+/* Minimum touch target size (WCAG 2.5.5 — 44×44px) */
+.app-nav-tab,
+.btn,
+.chart-type-btn,
+.pivot-tab-btn,
+.analytics-builder-tab,
+.toolbar-btn,
+.drop-zone-remove,
+.kpi-action-btn,
+.schedule-toggle,
+.schedule-remove,
+.marketplace-install-btn,
+.field-item {
+  min-height: 44px;
+}
+
+/* Use dynamic viewport height to handle mobile browser chrome */
+.analytics-builder {
+  height: calc(100dvh - var(--header-h) - var(--nav-h));
+}
+/* Fallback for browsers without dvh */
+@supports not (height: 100dvh) {
+  .analytics-builder {
+    height: calc(100vh - var(--header-h) - var(--nav-h));
+  }
+}
+
+/* Safe area insets for iPhone notch / Dynamic Island / home indicator */
+.app-header {
+  padding-left: max(var(--sp-6), env(safe-area-inset-left));
+  padding-right: max(var(--sp-6), env(safe-area-inset-right));
+}
+.app-nav {
+  padding-left: max(var(--sp-6), env(safe-area-inset-left));
+  padding-right: max(var(--sp-6), env(safe-area-inset-right));
+}
+.demo-section {
+  padding-bottom: max(var(--sp-6), env(safe-area-inset-bottom));
+}
+
+/* ── Smooth scrolling everywhere that overflows ──────────────── */
+.app-nav,
+.analytics-builder-sidebar,
+.analytics-builder-workspace,
+.chart-builder-controls,
+.pivot-table-scroll,
+.demo-section,
+.field-panel,
+.sql-editor-wrapper {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* ── Large desktops (1440px+) — max-width content container ──── */
+@media (min-width: 1440px) {
+  .demo-section {
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .kpi-demo-grid { grid-template-columns: repeat(4, 1fr); }
+  .demo-stats-row { grid-template-columns: repeat(6, 1fr); }
+  .marketplace-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ── Laptops (1280–1439px) ───────────────────────────────────── */
+@media (max-width: 1279px) {
+  .marketplace-grid { grid-template-columns: repeat(3, 1fr); }
+  .docs-compare-table { font-size: 13px; }
+}
+
+/* ── Tablets landscape / small laptops (1024–1279px) ─────────── */
+@media (max-width: 1023px) {
   .kpi-demo-grid { grid-template-columns: repeat(2, 1fr); }
   .demo-stats-row { grid-template-columns: repeat(3, 1fr); }
   .about-grid { grid-template-columns: repeat(2, 1fr); }
-  .chart-builder { grid-template-columns: 240px 1fr; }
+  .chart-builder { grid-template-columns: 220px 1fr; }
+  .marketplace-grid { grid-template-columns: repeat(2, 1fr); }
+  :root { --sidebar-w: 210px; }
 }
 
-/* ── Responsive — 768px ─────────────────────────────────────── */
-@media (max-width: 768px) {
+/* ── Tablets portrait (768–1023px) ───────────────────────────── */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .analytics-builder-sidebar {
+    width: var(--sidebar-w);
+  }
+  .chart-type-grid { grid-template-columns: 1fr; }
+  .docs-steps { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Tablet breakpoint (768px) ───────────────────────────────── */
+@media (max-width: 767px) {
   :root {
-    --sidebar-w: 200px;
-    --header-h: 56px;
+    --sidebar-w: 100%;
+    --header-h: 52px;
+    --nav-h: 46px;
   }
 
-  .app-header { padding: 0 var(--sp-3); gap: var(--sp-3); }
-  .app-dataset-info { display: none; }
-
-  /* Nav scrolls horizontally on mobile */
-  .app-nav {
+  /* ── Header ─────────────────────────────────────────────────── */
+  .app-header {
     padding: 0 var(--sp-3);
+    gap: var(--sp-2);
+    padding-left: max(var(--sp-3), env(safe-area-inset-left));
+    padding-right: max(var(--sp-3), env(safe-area-inset-right));
+  }
+  .app-dataset-info { display: none; }
+  .app-logo { width: 30px; height: 30px; font-size: 15px; }
+  .app-title { font-size: 16px; }
+  .app-subtitle { font-size: 10px; }
+
+  /* ── Nav: horizontal scroll, no wrap ────────────────────────── */
+  .app-nav {
+    padding: 0;
+    padding-left: max(var(--sp-2), env(safe-area-inset-left));
+    padding-right: max(var(--sp-2), env(safe-area-inset-right));
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
     white-space: nowrap;
-    display: flex;
     flex-wrap: nowrap;
+    gap: 0;
   }
   .app-nav::-webkit-scrollbar { display: none; }
-  .app-nav-tab { padding: var(--sp-2) var(--sp-3); font-size: 12px; flex-shrink: 0; }
+  .app-nav-tab {
+    padding: var(--sp-2) var(--sp-3);
+    font-size: 12px;
+    flex-shrink: 0;
+    min-height: var(--nav-h);
+  }
 
-  .demo-section { padding: var(--sp-4); }
+  /* ── Demo sections ───────────────────────────────────────────── */
+  .demo-section {
+    padding: var(--sp-3);
+    padding-bottom: max(var(--sp-6), env(safe-area-inset-bottom));
+  }
+  .demo-section-header { margin-bottom: var(--sp-4); }
+  .demo-section-header h2 { font-size: 18px; }
 
+  /* ── KPI grid ────────────────────────────────────────────────── */
   .kpi-demo-grid { grid-template-columns: repeat(2, 1fr); gap: var(--sp-3); }
-  .demo-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .demo-stats-row { grid-template-columns: repeat(2, 1fr); gap: var(--sp-3); }
   .about-grid { grid-template-columns: 1fr; }
+  .kpi-delta-label { display: none; }
 
-  /* Analytics builder: fields panel on top, workspace below */
+  /* ── Analytics Builder: sidebar collapses to top strip ──────── */
+  .analytics-builder {
+    height: auto;
+    min-height: calc(100dvh - var(--header-h) - var(--nav-h));
+    overflow: visible;
+  }
+  .analytics-builder-toolbar {
+    padding: var(--sp-2) var(--sp-3);
+    gap: var(--sp-2);
+    flex-wrap: wrap;
+  }
+  .toolbar-dataset-select { min-width: 0; flex: 1; font-size: 12px; }
+  .toolbar-brand .toolbar-title { display: none; }
+  .toolbar-actions { gap: var(--sp-1); }
+  .toolbar-actions .btn { padding: var(--sp-1) var(--sp-2); font-size: 11px; }
+
   .analytics-builder-body {
     flex-direction: column;
+    overflow: visible;
   }
+
+  /* Sidebar: collapsed horizontal strip at top */
   .analytics-builder-sidebar {
     width: 100%;
-    max-height: 200px;
-    overflow-y: auto;
+    max-width: 100%;
+    min-width: 0;
+    max-height: 180px;
     border-right: none;
     border-bottom: 1px solid var(--border);
+    overflow-y: auto;
+    overflow-x: hidden;
   }
+
   .analytics-builder-main {
+    overflow: visible;
     min-height: 0;
   }
 
-  /* Chart builder: controls stack on top of preview */
+  /* Tabs: scrollable row */
+  .analytics-builder-tabs {
+    padding: var(--sp-2) var(--sp-3) 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+  .analytics-builder-tabs::-webkit-scrollbar { display: none; }
+  .analytics-builder-tab {
+    flex-shrink: 0;
+    font-size: 12px;
+    padding: var(--sp-2) var(--sp-3);
+    min-height: 40px;
+  }
+
+  /* Workspace scrolls vertically */
+  .analytics-builder-workspace {
+    overflow: visible;
+    min-height: 500px;
+  }
+
+  /* ── Chart Builder ───────────────────────────────────────────── */
   .chart-builder {
-    grid-template-columns: 1fr;
     display: flex;
     flex-direction: column;
+    grid-template-columns: none;
+    height: auto;
   }
   .chart-builder-controls {
     max-height: none;
     overflow-y: visible;
     border-right: none;
     border-bottom: 1px solid var(--border);
-    padding-bottom: var(--sp-4);
+    padding: var(--sp-3);
   }
-  .chart-builder-preview { min-height: 280px; }
+  .chart-type-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-2);
+  }
+  .chart-type-category { break-inside: avoid; }
+  .chart-type-btn { font-size: 11px; padding: var(--sp-2); min-height: 44px; }
+  .chart-builder-preview {
+    min-height: 280px;
+    border-top: 1px solid var(--border);
+    padding: var(--sp-3);
+  }
+  .chart-control-group { margin-bottom: var(--sp-3); }
+  .chart-apply-btn { width: 100%; }
 
-  /* Pivot builder zones: 2 columns on mobile */
-  .pivot-builder-zones { grid-template-columns: 1fr 1fr; }
+  /* ── Pivot Builder ───────────────────────────────────────────── */
+  .pivot-builder-zones { grid-template-columns: 1fr 1fr; gap: var(--sp-2); }
+  .pivot-builder-options {
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+  .pivot-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pivot-table { min-width: 400px; }
 
-  /* Pivot table scrolls horizontally */
-  .pivot-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  /* ── Pivot zones: chip text truncation ───────────────────────── */
+  .drop-zone-chip { max-width: 120px; }
+  .drop-zone-chip-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  /* KPI delta label shorter on narrow screens */
-  .kpi-delta-label { display: none; }
+  /* ── Report Scheduler ────────────────────────────────────────── */
+  .schedule-form { gap: var(--sp-3); }
+  .schedule-form-grid { grid-template-columns: 1fr; }
+  .schedule-row { flex-direction: column; align-items: flex-start; gap: var(--sp-2); }
+  .schedule-row-actions { width: 100%; display: flex; justify-content: flex-end; }
+
+  /* ── SQL Editor ──────────────────────────────────────────────── */
+  .sql-editor-wrapper { padding: var(--sp-3); }
+
+  /* ── Marketplace ─────────────────────────────────────────────── */
+  .marketplace-grid { grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+  .marketplace-toolbar { flex-direction: column; align-items: stretch; gap: var(--sp-2); }
+  .marketplace-search { width: 100%; }
+  .marketplace-filters { flex-wrap: wrap; }
+
+  /* ── Docs ────────────────────────────────────────────────────── */
+  .docs-steps { grid-template-columns: 1fr; }
+  .docs-arch { flex-direction: column; }
+  .docs-hero { padding: var(--sp-6) var(--sp-3); }
+  .docs-hero h1 { font-size: 22px; }
+  .docs-compare-table { font-size: 12px; overflow-x: auto; display: block; }
+  .docs-code-block { font-size: 11px; overflow-x: auto; }
+  .docs-highlights { grid-template-columns: 1fr 1fr; }
+  .docs-roadmap-grid { grid-template-columns: 1fr; }
+
+  /* ── Canvas ──────────────────────────────────────────────────── */
+  .canvas-board { min-height: 400px; }
+
+  /* ── Insight / AI tab ────────────────────────────────────────── */
+  .insight-filters { flex-direction: column; gap: var(--sp-2); }
+  .insight-card { padding: var(--sp-3); }
 }
 
-/* ── Responsive — 480px ─────────────────────────────────────── */
-@media (max-width: 480px) {
-  .kpi-demo-grid { grid-template-columns: 1fr; }
-  .demo-stats-row { grid-template-columns: repeat(2, 1fr); }
-  .about-grid { grid-template-columns: 1fr; }
+/* ── Small phones (< 480px) ──────────────────────────────────── */
+@media (max-width: 479px) {
+  :root {
+    --header-h: 48px;
+    --nav-h: 44px;
+  }
+
+  /* Header: logo + title only, very compact */
   .app-title { font-size: 15px; }
   .app-subtitle { display: none; }
+  .app-header { padding: 0 var(--sp-2); gap: var(--sp-2); }
+  .app-logo { width: 28px; height: 28px; font-size: 14px; }
 
-  /* Single-column pivot zones on very small screens */
-  .pivot-builder-zones { grid-template-columns: 1fr; }
+  /* Nav: icon + 1 word labels */
+  .app-nav-tab { padding: var(--sp-2); font-size: 11px; gap: var(--sp-1); }
 
-  /* Full-width chart builder controls */
+  /* KPI single column */
+  .kpi-demo-grid { grid-template-columns: 1fr; gap: var(--sp-2); }
+  .kpi-card { padding: var(--sp-3); }
+  .kpi-card-value { font-size: 22px; }
+
+  /* Stats: 2 columns */
+  .demo-stats-row { grid-template-columns: repeat(2, 1fr); gap: var(--sp-2); }
+  .stat-card { padding: var(--sp-3); }
+  .stat-value { font-size: 20px; }
+
+  /* Pivot: single column zones */
+  .pivot-builder-zones { grid-template-columns: 1fr; gap: var(--sp-2); }
+
+  /* Chart type grid: 2 columns */
   .chart-type-grid { grid-template-columns: repeat(2, 1fr); }
+  .chart-type-btn { padding: var(--sp-2) var(--sp-1); }
+
+  /* Marketplace: 1 column */
+  .marketplace-grid { grid-template-columns: 1fr; }
+  .marketplace-card { padding: var(--sp-3); }
+
+  /* Docs */
+  .docs-highlights { grid-template-columns: 1fr; }
+  .docs-hero h1 { font-size: 18px; }
+
+  /* Field panel: compact */
+  .field-panel { padding: var(--sp-2); }
+  .field-item { padding: var(--sp-1) var(--sp-2); font-size: 11px; min-height: 36px; }
+  .field-panel-search input { font-size: 12px; }
+
+  /* About section */
+  .about-grid { grid-template-columns: 1fr; }
+  .about-card { padding: var(--sp-3); }
+
+  /* Toolbar compact */
+  .analytics-builder-toolbar { padding: var(--sp-2); gap: var(--sp-1); }
+  .toolbar-dataset-select { font-size: 11px; padding: var(--sp-1) var(--sp-2); }
+}
+
+/* ── Very small / old phones (< 360px) ───────────────────────── */
+@media (max-width: 359px) {
+  .app-nav-tab .app-nav-tab-icon { font-size: 14px; }
+  .app-nav-tab span:last-child { display: none; } /* icon only */
+  .chart-type-grid { grid-template-columns: 1fr; }
+  .analytics-builder-tabs { font-size: 11px; }
+  .kpi-demo-grid { grid-template-columns: 1fr; }
+  .demo-stats-row { grid-template-columns: 1fr; }
+}
+
+/* ── Landscape mobile (short + wide) ─────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+  :root { --header-h: 44px; --nav-h: 40px; }
+
+  .app-title { font-size: 14px; }
+  .app-logo { width: 26px; height: 26px; font-size: 13px; }
+
+  /* In landscape, allow sidebar side-by-side at small height */
+  .analytics-builder-body { flex-direction: row; }
+  .analytics-builder-sidebar {
+    width: 180px;
+    max-height: none;
+    height: 100%;
+    border-bottom: none;
+    border-right: 1px solid var(--border);
+  }
+
+  /* Chart preview shorter */
+  .chart-builder-preview { min-height: 200px; }
+
+  /* KPI: 4-col for landscape */
+  .kpi-demo-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ── Print styles ─────────────────────────────────────────────── */
+@media print {
+  .app-header,
+  .app-nav,
+  .analytics-builder-toolbar,
+  .analytics-builder-sidebar,
+  .analytics-builder-tabs,
+  .chart-builder-controls { display: none !important; }
+
+  .analytics-builder { height: auto; overflow: visible; }
+  .analytics-builder-body { flex-direction: column; }
+  .analytics-builder-main { overflow: visible; }
+  .analytics-builder-workspace { overflow: visible; }
+  .demo-section { padding: 0; overflow: visible; }
+
+  * { box-shadow: none !important; animation: none !important; }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── High contrast mode ───────────────────────────────────────── */
+@media (forced-colors: active) {
+  .app-nav-tab--active { border-bottom-color: Highlight; }
+  .kpi-card--good { border-left-color: Highlight; }
+  .kpi-card--warning { border-left-color: GrayText; }
+  .kpi-card--critical { border-left-color: Mark; }
+  .drop-zone--active { outline: 2px solid Highlight; }
+  .btn { border: 1px solid ButtonText; }
+  .field-item:focus { outline: 2px solid Highlight; }
+}
+
+/* ── Dark mode (system preference) ───────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  /* Already handled by CSS custom properties — extend here */
+  :root {
+    color-scheme: dark light;
+  }
 }
 
 /* ── Utility ────────────────────────────────────────────────── */

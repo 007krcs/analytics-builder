@@ -64,7 +64,7 @@ export function PivotTable({
                 {result.flatColumns.map((col) => {
                   const cell = result.grandTotalRow!.cells[col.key];
                   return (
-                    <td key={col.key} className="pivot-td pivot-td--total">
+                    <td key={col.key} className="pivot-td pivot-td--value pivot-td--total">
                       {cell?.formatted ?? '—'}
                     </td>
                   );
