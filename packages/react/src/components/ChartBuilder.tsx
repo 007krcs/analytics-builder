@@ -6,7 +6,7 @@
 import { useState, useCallback } from 'react';
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area,
-  ScatterChart, Scatter, PieChart, Pie, Cell,
+  ScatterChart, Scatter, ZAxis, PieChart, Pie, Cell,
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, ReferenceLine,
@@ -31,7 +31,7 @@ function CalendarHeatmapChart({ data, valueKey, height }: {
   valueKey: string;
   height: number;
 }) {
-  if (data.length === 0) return <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>No data</div>;
+  if (data.length === 0) return <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>No data — select a date field as X Axis</div>;
 
   const vals = data.map(d => Number(d[valueKey]) || 0);
   const maxVal = Math.max(...vals) || 1;
@@ -48,6 +48,18 @@ function CalendarHeatmapChart({ data, valueKey, height }: {
 
   const startDate = new Date(dates[0]);
   const endDate = new Date(dates[dates.length - 1]);
+
+  // Validate that dates are actual dates
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    return (
+      <div style={{ height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#6b7280', gap: 8, padding: 16, textAlign: 'center' }}>
+        <span style={{ fontSize: 28 }}>📅</span>
+        <strong>Calendar Heatmap needs a Date field</strong>
+        <span style={{ fontSize: 12, color: '#9ca3af' }}>Set X Axis to "Date" column to see the calendar grid</span>
+      </div>
+    );
+  }
+
   const cellSize = 13;
   const gap = 2;
 
@@ -436,7 +448,7 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
 
     case 'line':
     case 'line-smooth': {
-      const curveType = config.type === 'line-smooth' ? 'monotone' : 'linear';
+      const isSmooth = config.type === 'line-smooth';
       return (
         <ResponsiveContainer width="100%" height={height}>
           <LineChart {...commonProps}>
@@ -446,7 +458,15 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
             <Tooltip />
             <Legend />
             {yKeys.map((key, i) => (
-              <Line key={key} type={curveType} dataKey={key} stroke={colors[i % colors.length]} dot={false} />
+              <Line
+                key={key}
+                type={isSmooth ? 'monotone' : 'linear'}
+                dataKey={key}
+                stroke={colors[i % colors.length]}
+                strokeWidth={isSmooth ? 2.5 : 1.5}
+                dot={isSmooth ? false : { r: 3 }}
+                activeDot={{ r: 5 }}
+              />
             ))}
           </LineChart>
         </ResponsiveContainer>
@@ -480,8 +500,7 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
       );
     }
 
-    case 'scatter':
-    case 'bubble': {
+    case 'scatter': {
       return (
         <ResponsiveContainer width="100%" height={height}>
           <ScatterChart {...commonProps}>
@@ -489,7 +508,29 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
             <XAxis dataKey={xKey} name={xKey} type="number" />
             <YAxis dataKey={yKeys[0]} name={yKeys[0]} type="number" />
             <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-            <Scatter name={config.title} data={data} fill={colors[0]} />
+            <Scatter name={config.title} data={data} fill={colors[0]} shape="circle" />
+          </ScatterChart>
+        </ResponsiveContainer>
+      );
+    }
+
+    case 'bubble': {
+      // Bubble uses ZAxis for size — derived from second series or magnitude of first
+      const bubbleData = data.map(d => ({
+        ...d,
+        __z__: Number(d['__size__'] ?? d[yKeys[1] ?? yKeys[0]] ?? 1),
+      }));
+      return (
+        <ResponsiveContainer width="100%" height={height}>
+          <ScatterChart {...commonProps}>
+            <CartesianGrid />
+            <XAxis dataKey={xKey} name={xKey} type="number" />
+            <YAxis dataKey={yKeys[0]} name={yKeys[0]} type="number" />
+            <ZAxis dataKey="__z__" range={[40, 400]} name="Size" />
+            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+            {colors.slice(0, Math.max(yKeys.length, 1)).map((color, i) => (
+              <Scatter key={i} name={yKeys[i] ?? config.title} data={bubbleData} fill={color} fillOpacity={0.5} />
+            ))}
           </ScatterChart>
         </ResponsiveContainer>
       );
@@ -522,8 +563,7 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
       );
     }
 
-    case 'radar':
-    case 'polar': {
+    case 'radar': {
       return (
         <ResponsiveContainer width="100%" height={height}>
           <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
@@ -535,6 +575,44 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
             <Legend />
             <Tooltip />
           </RadarChart>
+        </ResponsiveContainer>
+      );
+    }
+
+    case 'polar': {
+      // Nightingale Rose / Polar Area chart using RadialBarChart
+      const polarData = data.slice(0, 12).map((d, i) => ({
+        name: String(d.subject ?? d[xKey] ?? `Item ${i + 1}`),
+        value: Number(d[yKeys[0]]) || 0,
+        fill: colors[i % colors.length],
+      }));
+      return (
+        <ResponsiveContainer width="100%" height={height}>
+          <RadialBarChart
+            cx="50%"
+            cy="50%"
+            innerRadius="15%"
+            outerRadius="85%"
+            startAngle={90}
+            endAngle={-270}
+            data={polarData}
+          >
+            <RadialBar
+              dataKey="value"
+              background={{ fill: '#f3f4f6' }}
+              cornerRadius={4}
+              label={{ position: 'insideStart', fill: '#fff', fontSize: 10 }}
+            >
+              {polarData.map((entry, index) => (
+                <Cell key={index} fill={entry.fill} />
+              ))}
+            </RadialBar>
+            <Legend
+              iconSize={10}
+              formatter={(value: unknown) => String(polarData[value as number]?.name ?? value)}
+            />
+            <Tooltip />
+          </RadialBarChart>
         </ResponsiveContainer>
       );
     }
@@ -669,7 +747,16 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
     }
 
     case 'heatmap': {
-      const hYKey = config.groupField ?? xKey;
+      if (!config.groupField) {
+        return (
+          <div style={{ height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#6b7280', gap: 8, padding: 16, textAlign: 'center' }}>
+            <span style={{ fontSize: 28 }}>🌡️</span>
+            <strong>Heatmap needs a Y Axis field</strong>
+            <span style={{ fontSize: 12, color: '#9ca3af' }}>Set X Axis (columns) and Group Field / Y Axis (rows)</span>
+          </div>
+        );
+      }
+      const hYKey = config.groupField;
       const hVKey = yKeys[0] ?? 'value';
       return (
         <HeatmapGrid data={data} xKey={xKey} yKey={hYKey} valueKey={hVKey} height={height} />
@@ -693,20 +780,24 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
 
     case 'funnel': {
       const fValueKey = yKeys[0] ?? 'value';
+      if (data.length === 0) {
+        return <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>Select X Axis and Y Axis fields</div>;
+      }
       const funnelData = data.map((d, i) => ({
-        name: String(d[xKey] ?? d.stage ?? i),
+        name: String(d[xKey] ?? d.stage ?? `Stage ${i + 1}`),
         value: Number(d[fValueKey]) || 0,
+        pct: `${d.percentage ?? 0}%`,
         fill: colors[i % colors.length],
       }));
       return (
         <ResponsiveContainer width="100%" height={height}>
-          <FunnelChart>
-            <Tooltip />
-            <Funnel dataKey="value" data={funnelData} isAnimationActive>
+          <FunnelChart margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
+            <Tooltip formatter={(v: number | string) => [v, fValueKey]} />
+            <Funnel dataKey="value" data={funnelData} isAnimationActive lastShapeType="rectangle">
               {funnelData.map((entry, index) => (
                 <Cell key={index} fill={entry.fill} />
               ))}
-              <LabelList position="center" fill="#fff" stroke="none" dataKey="name" style={{ fontSize: 12, fontWeight: 600 }} />
+              <LabelList position="center" fill="#fff" stroke="none" dataKey="name" style={{ fontSize: 13, fontWeight: 600 }} />
             </Funnel>
           </FunnelChart>
         </ResponsiveContainer>
@@ -714,6 +805,17 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
     }
 
     case 'sankey': {
+      // Show guidance if group field not configured
+      if (!config.groupField) {
+        return (
+          <div style={{ height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#6b7280', gap: 8, padding: 16, textAlign: 'center' }}>
+            <span style={{ fontSize: 28 }}>🔀</span>
+            <strong>Sankey needs a Target Field</strong>
+            <span style={{ fontSize: 12, color: '#9ca3af' }}>Set X Axis as source (e.g. Region) and Group Field as target (e.g. Category)</span>
+          </div>
+        );
+      }
+
       // Convert flat [{source, target, value}] → Recharts Sankey format
       const nodeSet = new Set<string>();
       (data as Array<{ source?: string; target?: string; value?: number }>).forEach(d => {
@@ -736,7 +838,7 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
       if (sankeyData.links.length === 0) {
         return (
           <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontSize: 13 }}>
-            Sankey requires a Group Field to define the flow target. Select X Axis (source) and Group Field (target).
+            No flow connections found. Select distinct fields for X Axis (source) and Group Field (target).
           </div>
         );
       }

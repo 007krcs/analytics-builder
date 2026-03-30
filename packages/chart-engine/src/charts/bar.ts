@@ -15,20 +15,27 @@ export function transformBar(rows: Row[], config: ChartConfig): PreparedChartDat
   let data: ChartDataPoint[];
 
   if (config.groupField) {
-    // Group mode: pivot rows by groupField into columns
+    // Group mode: pivot rows by groupField into columns (sums per xKey+groupField combo)
     const grouped = groupRowsByField(rows, xKey, config.groupField, config.series[0]?.columnId);
     data = grouped.data;
   } else {
-    // Simple mode: one column per series
-    data = rows.map((row) => {
-      const point: ChartDataPoint = { [xKey]: row[xKey] as string };
+    // Simple mode: aggregate (sum) all series values per unique xKey category
+    const agg = new Map<string, ChartDataPoint>();
+    for (const row of rows) {
+      const x = String(row[xKey] ?? '');
+      if (!agg.has(x)) {
+        const point: ChartDataPoint = { [xKey]: x };
+        config.series.forEach((s) => { point[s.label ?? s.columnId] = 0; });
+        agg.set(x, point);
+      }
+      const entry = agg.get(x)!;
       config.series.forEach((s) => {
         const key = s.label ?? s.columnId;
         const raw = row[s.columnId];
-        point[key] = typeof raw === 'number' ? raw : null;
+        entry[key] = (Number(entry[key]) || 0) + (typeof raw === 'number' ? raw : (parseFloat(String(raw)) || 0));
       });
-      return point;
-    });
+    }
+    data = Array.from(agg.values());
   }
 
   // For stacked-100, normalize each row to percentages

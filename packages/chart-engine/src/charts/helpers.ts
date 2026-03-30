@@ -43,7 +43,8 @@ export function groupRowsByField(
     }
     const point = xValues.get(xVal)!;
     const rawVal: CellValue = valueField ? row[valueField] : null;
-    point[grpVal] = typeof rawVal === 'number' ? rawVal : 0;
+    // Accumulate (sum) instead of overwrite
+    point[grpVal] = (Number(point[grpVal]) || 0) + (typeof rawVal === 'number' ? rawVal : 0);
   }
 
   return {

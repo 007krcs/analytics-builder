@@ -440,13 +440,19 @@ function transformWaterfall(rows: Row[], config: ChartConfig): PreparedChartData
   const valueKey = config.series[0]?.columnId ?? '';
   const displayKey = config.series[0]?.label ?? valueKey;
 
+  // Aggregate by xKey first
+  const agg = new Map<string, number>();
+  for (const row of rows) {
+    const x = String(row[xKey] ?? '');
+    agg.set(x, (agg.get(x) ?? 0) + (Number(row[valueKey]) || 0));
+  }
+
   let cumulative = 0;
-  const data = rows.map((row) => {
-    const value = Number(row[valueKey]) || 0;
+  const data = Array.from(agg.entries()).map(([x, value]) => {
     const start = cumulative;
     cumulative += value;
     return {
-      [xKey]: row[xKey] as string,
+      [xKey]: x,
       [displayKey]: value,
       start,
       end: cumulative,
@@ -468,20 +474,21 @@ function transformFunnel(rows: Row[], config: ChartConfig): PreparedChartData {
   const valueKey = config.series[0]?.columnId ?? '';
   const displayKey = config.series[0]?.label ?? valueKey;
 
-  const sorted = [...rows].sort(
-    (a, b) => (Number(b[valueKey]) || 0) - (Number(a[valueKey]) || 0)
-  );
-  const maxVal = Number(sorted[0]?.[valueKey]) || 1;
+  // Aggregate by xKey first, then sort descending
+  const agg = new Map<string, number>();
+  for (const row of rows) {
+    const x = String(row[xKey] ?? '');
+    agg.set(x, (agg.get(x) ?? 0) + (Number(row[valueKey]) || 0));
+  }
+  const sorted = Array.from(agg.entries()).sort((a, b) => b[1] - a[1]);
+  const maxVal = sorted[0]?.[1] ?? 1;
 
-  const data = sorted.map((row, i) => {
-    const value = Number(row[valueKey]) || 0;
-    return {
-      stage: i + 1,
-      [xKey]: row[xKey] as string,
-      [displayKey]: value,
-      percentage: Math.round((value / maxVal) * 100),
-    };
-  });
+  const data = sorted.map(([x, value], i) => ({
+    stage: i + 1,
+    [xKey]: x,
+    [displayKey]: value,
+    percentage: Math.round((value / maxVal) * 100),
+  }));
 
   return {
     data,
@@ -496,13 +503,22 @@ function transformRadar(rows: Row[], config: ChartConfig): PreparedChartData {
   const xKey = config.xField;
   const yKeys = config.series.map((s) => s.label ?? s.columnId);
 
-  const data = rows.map((row) => {
-    const point: Record<string, unknown> = { subject: row[xKey] as string };
+  // Aggregate by xKey so each category becomes one radar spoke
+  const agg = new Map<string, Record<string, number>>();
+  for (const row of rows) {
+    const x = String(row[xKey] ?? '');
+    if (!agg.has(x)) agg.set(x, {});
+    const entry = agg.get(x)!;
     config.series.forEach((s) => {
-      point[s.label ?? s.columnId] = Number(row[s.columnId]) || 0;
+      const key = s.label ?? s.columnId;
+      entry[key] = (entry[key] ?? 0) + (Number(row[s.columnId]) || 0);
     });
-    return point as Record<string, string | number | null | undefined>;
-  });
+  }
+
+  const data = Array.from(agg.entries()).map(([x, vals]) => ({
+    subject: x,
+    ...vals,
+  })) as Record<string, string | number | null | undefined>[];
 
   return {
     data,
@@ -601,10 +617,22 @@ function transformSankey(rows: Row[], config: ChartConfig): PreparedChartData {
   const targetKey = config.groupField ?? '';
   const valueKey = config.series[0]?.columnId ?? '';
 
+  // Return empty if no target field configured
+  if (!targetKey) {
+    return {
+      data: [],
+      xKey: 'source',
+      yKeys: ['value'],
+      colorMap: {},
+      metadata: { rowCount: rows.length, chartType: config.type, preparedAt: new Date() },
+    };
+  }
+
   const links: Record<string, number> = {};
   for (const row of rows) {
     const source = String(row[sourceKey] ?? '');
     const target = String(row[targetKey] ?? '');
+    if (!source || !target || source === target) continue;
     const v = Number(row[valueKey]) || 1;
     const key = `${source}→${target}`;
     links[key] = (links[key] ?? 0) + v;
