@@ -1,5 +1,6 @@
 /**
- * KpiCard — Displays a single computed KPI with value, status, and trend.
+ * KpiCard — Displays a single computed KPI with value, status, trend,
+ * and period-over-period delta when previousPeriod is configured.
  */
 
 import type { KpiResult, KpiConfig } from '@analytix/core';
@@ -13,6 +14,8 @@ export interface KpiCardProps {
   variant?: 'default' | 'compact' | 'progress';
   onRefresh?: () => void;
   className?: string;
+  /** Optional previous-period value for snapshot delta display */
+  previousPeriodValue?: number | null;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -37,10 +40,27 @@ export function KpiCard({
   variant = 'default',
   onRefresh,
   className,
+  previousPeriodValue,
 }: KpiCardProps) {
   const status = result?.status ?? 'neutral';
   const statusColor = STATUS_COLORS[status];
   const trend = result?.trend;
+
+  // Compute snapshot delta from previousPeriodValue prop
+  const snapshotDelta: { pct: number; isUp: boolean; color: string } | null = (() => {
+    if (previousPeriodValue == null || result?.value == null) return null;
+    const prev = previousPeriodValue;
+    if (prev === 0) return null;
+    const pct = ((result.value - prev) / Math.abs(prev)) * 100;
+    const isUp = pct >= 0;
+    const greaterIsBetter = config.threshold?.comparisonType !== 'lower_is_better';
+    const positive = greaterIsBetter ? isUp : !isUp;
+    return {
+      pct,
+      isUp,
+      color: positive ? STATUS_COLORS.good : STATUS_COLORS.critical,
+    };
+  })();
 
   const trendColor =
     trend
@@ -112,6 +132,24 @@ export function KpiCard({
                   {trend.percentageChange > 0 ? '+' : ''}{trend.percentageChange.toFixed(1)}%
                 </span>
                 <span className="kpi-trend-label">{trend.periodLabel}</span>
+              </div>
+            )}
+
+            {/* Snapshot delta — period-over-period percentage change */}
+            {snapshotDelta != null && !trend && (
+              <div
+                className="kpi-card-delta"
+                style={{ color: snapshotDelta.color }}
+                aria-label={`Period-over-period change: ${snapshotDelta.pct >= 0 ? '+' : ''}${snapshotDelta.pct.toFixed(1)}%`}
+                title="vs. previous period"
+              >
+                <span className="kpi-delta-arrow" aria-hidden="true">
+                  {snapshotDelta.isUp ? '▲' : '▼'}
+                </span>
+                <span className="kpi-delta-pct">
+                  {snapshotDelta.pct >= 0 ? '+' : ''}{snapshotDelta.pct.toFixed(1)}%
+                </span>
+                <span className="kpi-delta-label">vs. prev period</span>
               </div>
             )}
 

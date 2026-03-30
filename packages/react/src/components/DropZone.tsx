@@ -95,6 +95,8 @@ export interface DropZoneProps {
   direction?: 'horizontal' | 'vertical';
   placeholder?: string;
   className?: string;
+  /** WCAG 2.1 AA: accessible label for screen readers */
+  'aria-label'?: string;
 }
 
 export function DropZone({
@@ -107,6 +109,7 @@ export function DropZone({
   direction = 'horizontal',
   placeholder,
   className,
+  'aria-label': ariaLabel,
 }: DropZoneProps) {
   const isFull = maxFields !== undefined && fields.length >= maxFields;
 
@@ -125,6 +128,8 @@ export function DropZone({
   return (
     <div
       className={`drop-zone drop-zone--${direction} ${isOver ? 'drop-zone--over' : ''} ${isFull ? 'drop-zone--full' : ''} ${className ?? ''}`.trim()}
+      role="region"
+      aria-label={ariaLabel ?? `${label} drop zone`}
     >
       <div className="drop-zone-header">
         <span className="drop-zone-label">{label}</span>

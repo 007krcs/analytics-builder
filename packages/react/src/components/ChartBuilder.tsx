@@ -14,6 +14,7 @@ import {
   RadialBarChart, RadialBar,
   ComposedChart,
   Sankey,
+  Brush,
 } from 'recharts';
 import type { AnalyticsEngine, ChartConfig, Dataset, ChartType } from '@analytix/core';
 import { getChartMeta, getChartsByCategory, prepareChartData } from '@analytix/chart-engine';
@@ -449,6 +450,7 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
     case 'line':
     case 'line-smooth': {
       const isSmooth = config.type === 'line-smooth';
+      const showBrush = data.length > 20;
       return (
         <ResponsiveContainer width="100%" height={height}>
           <LineChart {...commonProps}>
@@ -468,6 +470,15 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
                 activeDot={{ r: 5 }}
               />
             ))}
+            {showBrush && (
+              <Brush
+                dataKey={xKey}
+                height={24}
+                stroke="#6366f1"
+                fill="#f5f3ff"
+                travellerWidth={8}
+              />
+            )}
           </LineChart>
         </ResponsiveContainer>
       );
@@ -476,6 +487,7 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
     case 'area':
     case 'area-stacked': {
       const stacked = config.type === 'area-stacked';
+      const showBrush = data.length > 20;
       return (
         <ResponsiveContainer width="100%" height={height}>
           <AreaChart {...commonProps}>
@@ -495,6 +507,15 @@ function ChartRenderer({ config, data, domain: _domain, height = 300 }: ChartRen
                 stackId={stacked ? 'stack' : undefined}
               />
             ))}
+            {showBrush && (
+              <Brush
+                dataKey={xKey}
+                height={24}
+                stroke="#6366f1"
+                fill="#f5f3ff"
+                travellerWidth={8}
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
       );
@@ -967,26 +988,40 @@ export function ChartBuilder({
 
   return (
     <div className={`chart-builder ${className ?? ''}`.trim()}>
-      <div className="chart-builder-controls">
+      <div className="chart-builder-controls" role="form" aria-label="Chart configuration">
         <div className="chart-control-group">
-          <label className="chart-control-label">Chart type</label>
-          <div className="chart-type-grid">
-            {Object.entries(chartsByCategory).map(([category, types]) => (
-              <div key={category} className="chart-type-category">
-                <div className="chart-type-category-label">{category}</div>
-                {types.map((m) => (
-                  <button
-                    key={m.type}
-                    className={`chart-type-btn ${chartType === m.type ? 'chart-type-btn--active' : ''}`}
-                    onClick={() => setChartType(m.type)}
-                    title={m.description}
-                  >
-                    <span className="chart-type-icon">{m.icon}</span>
-                    <span className="chart-type-label">{m.label}</span>
-                  </button>
-                ))}
-              </div>
-            ))}
+          <label className="chart-control-label" id="chart-type-label">Chart type</label>
+          <div
+            className="chart-type-grid"
+            role="group"
+            aria-labelledby="chart-type-label"
+          >
+            {Object.entries(chartsByCategory).map(([category, types]) => {
+              const categoryId = `chart-cat-${category.replace(/\s+/g, '-').toLowerCase()}`;
+              return (
+                <div
+                  key={category}
+                  className="chart-type-category"
+                  role="group"
+                  aria-labelledby={categoryId}
+                >
+                  <div className="chart-type-category-label" id={categoryId}>{category}</div>
+                  {types.map((m) => (
+                    <button
+                      key={m.type}
+                      className={`chart-type-btn ${chartType === m.type ? 'chart-type-btn--active' : ''}`}
+                      onClick={() => setChartType(m.type)}
+                      title={m.description}
+                      aria-label={`${m.label} chart: ${m.description}`}
+                      aria-pressed={chartType === m.type}
+                    >
+                      <span className="chart-type-icon" aria-hidden="true">{m.icon}</span>
+                      <span className="chart-type-label">{m.label}</span>
+                    </button>
+                  ))}
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -1065,7 +1100,13 @@ export function ChartBuilder({
         </button>
       </div>
 
-      <div className="chart-builder-preview">
+      <div
+        className="chart-builder-preview"
+        role="region"
+        aria-label="Chart preview"
+        aria-live="polite"
+        aria-atomic="false"
+      >
         <div className="chart-preview-title">{title}</div>
         {getChartMeta(chartType) && (
           <div className="chart-preview-desc">{getChartMeta(chartType).description}</div>

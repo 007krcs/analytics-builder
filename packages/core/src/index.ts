@@ -8,3 +8,7 @@ export type { AnalyticsEngineOptions, EngineState } from './engine/analytics-eng
 // Event bus
 export { EventBus, globalEventBus } from './engine/event-bus.js';
 export type { AnalyticsEventMap, EventName, EventPayload, EventHandler } from './engine/event-bus.js';
+
+// Plugin marketplace
+export { MARKETPLACE_PLUGINS, searchPlugins } from './plugin-marketplace.js';
+export type { MarketplacePlugin } from './plugin-marketplace.js';

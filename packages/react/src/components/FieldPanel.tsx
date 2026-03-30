@@ -1,6 +1,7 @@
 /**
  * FieldPanel — Shows the available dataset columns as draggable field items.
  * Users drag fields from here into the DropZone targets.
+ * WCAG 2.1 AA: role=list/listitem, aria-label on search, keyboard drag trigger.
  */
 
 import { useState } from 'react';
@@ -41,18 +42,31 @@ function DraggableField({ column }: DraggableFieldProps) {
 
   const color = typeColor[column.type] ?? '#6b7280';
 
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      // Programmatically trigger the drag activation via the listeners
+      listeners?.onKeyDown?.(e as unknown as React.SyntheticEvent);
+    }
+  }
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...listeners}
       {...attributes}
+      role="listitem"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
       className="field-item"
       title={`${column.displayName} (${column.type})`}
+      aria-label={`${column.displayName}, type: ${column.type}. Press Enter or Space to start drag.`}
     >
       <span
         className="field-type-badge"
         style={{ backgroundColor: color }}
+        aria-hidden="true"
       >
         {getTypeLabel(column.type)}
       </span>
@@ -108,22 +122,24 @@ export function FieldPanel({
       {onSearchChange && (
         <div className="field-panel-search">
           <input
-            type="text"
+            type="search"
             placeholder="Search fields..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="field-search-input"
+            aria-label="Search available fields"
+            aria-controls="field-panel-list"
           />
         </div>
       )}
 
       {!dataset ? (
-        <div className="field-panel-empty">
+        <div className="field-panel-empty" role="status">
           <p>No dataset loaded</p>
           <p className="field-panel-hint">Load a dataset to see available fields</p>
         </div>
       ) : (
-        <>
+        <div id="field-panel-list" role="list" aria-label="Available fields">
           {dimensionCols.length > 0 && (
             <FieldGroup label="Dimensions" columns={dimensionCols} />
           )}
@@ -131,11 +147,11 @@ export function FieldPanel({
             <FieldGroup label="Measures" columns={measureCols} />
           )}
           {dimensionCols.length === 0 && measureCols.length === 0 && (
-            <div className="field-panel-empty">
-              <p>No fields match "{searchQuery}"</p>
+            <div className="field-panel-empty" role="status">
+              <p>No fields match &ldquo;{searchQuery}&rdquo;</p>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

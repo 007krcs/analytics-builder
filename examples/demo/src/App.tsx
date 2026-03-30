@@ -32,6 +32,9 @@ import { DashboardCanvas, CanvasEngine } from '@analytix/canvas-layout';
 import type { CanvasWidget } from '@analytix/canvas-layout';
 
 import { SALES_DATA, EMPLOYEE_DATA, SALES_STATS } from './data/sample-data.js';
+import { SqlEditor } from '@analytix/sql-connector';
+import { MARKETPLACE_PLUGINS, searchPlugins } from '@analytix/core';
+import type { MarketplacePlugin } from '@analytix/core';
 
 import './styles.css';
 
@@ -56,6 +59,12 @@ const KPI_REVENUE: KpiConfig = {
   decimals: 0,
   refreshPolicy: { enabled: false, intervalSeconds: 30, pauseWhenHidden: true },
 };
+
+// Previous-period comparison values (simulating prior-quarter actuals)
+const KPI_REVENUE_PREV   = Math.round(SALES_STATS.totalRevenue   * 0.88);
+const KPI_PROFIT_PREV    = Math.round(SALES_STATS.totalProfit    * 0.82);
+const KPI_SAT_PREV       = 3.9;
+const KPI_UNITS_PREV     = Math.round(SALES_STATS.totalUnits     * 0.91);
 
 const KPI_PROFIT: KpiConfig = {
   id: 'kpi-profit',
@@ -115,16 +124,18 @@ const KPI_UNITS: KpiConfig = {
 
 // ─── Tab config ───────────────────────────────────────────────
 
-type DemoTab = 'pivot' | 'charts' | 'kpis' | 'reports' | 'insights' | 'canvas' | 'docs';
+type DemoTab = 'pivot' | 'charts' | 'kpis' | 'reports' | 'insights' | 'canvas' | 'docs' | 'sql' | 'marketplace';
 
 const TAB_CONFIG: Array<{ id: DemoTab; label: string; icon: string }> = [
-  { id: 'pivot',    label: 'Pivot Builder',    icon: '⊞' },
-  { id: 'charts',   label: 'Chart Builder',    icon: '📊' },
-  { id: 'kpis',     label: 'KPI Dashboard',    icon: '📈' },
-  { id: 'reports',  label: 'Report Scheduler', icon: '📄' },
-  { id: 'insights', label: 'AI Insights',      icon: '🤖' },
-  { id: 'canvas',   label: 'Live Canvas',      icon: '🎨' },
-  { id: 'docs',     label: 'How It Works',     icon: '📖' },
+  { id: 'pivot',       label: 'Pivot Builder',    icon: '⊞' },
+  { id: 'charts',      label: 'Chart Builder',    icon: '📊' },
+  { id: 'kpis',        label: 'KPI Dashboard',    icon: '📈' },
+  { id: 'reports',     label: 'Report Scheduler', icon: '📄' },
+  { id: 'insights',    label: 'AI Insights',      icon: '🤖' },
+  { id: 'canvas',      label: 'Live Canvas',      icon: '🎨' },
+  { id: 'sql',         label: 'SQL Query',        icon: '🗄️' },
+  { id: 'marketplace', label: 'Marketplace',      icon: '🏪' },
+  { id: 'docs',        label: 'How It Works',     icon: '📖' },
 ];
 
 // ─── Root App ─────────────────────────────────────────────────
@@ -210,6 +221,14 @@ export default function App() {
           <LiveCanvasTab />
         )}
 
+        {activeTab === 'sql' && (
+          <SqlQueryTab engine={engine} />
+        )}
+
+        {activeTab === 'marketplace' && (
+          <MarketplaceTab />
+        )}
+
         {activeTab === 'docs' && (
           <DocsTab />
         )}
@@ -286,11 +305,11 @@ function KpiDashboardTab({ engine }: { engine: AnalyticsEngine }) {
   const { result: satisfactionResult } = useKpi(engine, KPI_AVG_SATISFACTION);
   const { result: unitsResult }        = useKpi(engine, KPI_UNITS);
 
-  const kpis: Array<{ config: KpiConfig; result: ReturnType<typeof useKpi>['result'] }> = [
-    { config: KPI_REVENUE,          result: revenueResult },
-    { config: KPI_PROFIT,           result: profitResult },
-    { config: KPI_AVG_SATISFACTION, result: satisfactionResult },
-    { config: KPI_UNITS,            result: unitsResult },
+  const kpis: Array<{ config: KpiConfig; result: ReturnType<typeof useKpi>['result']; prev: number }> = [
+    { config: KPI_REVENUE,          result: revenueResult,      prev: KPI_REVENUE_PREV  },
+    { config: KPI_PROFIT,           result: profitResult,       prev: KPI_PROFIT_PREV   },
+    { config: KPI_AVG_SATISFACTION, result: satisfactionResult, prev: KPI_SAT_PREV      },
+    { config: KPI_UNITS,            result: unitsResult,        prev: KPI_UNITS_PREV    },
   ];
 
   return (
@@ -300,18 +319,20 @@ function KpiDashboardTab({ engine }: { engine: AnalyticsEngine }) {
         <p>
           Key metrics computed from {SALES_DATA.length.toLocaleString()} sales records.
           Border colour reflects threshold status: green = good, yellow = warning, red = critical.
+          Arrows show period-over-period delta vs. prior quarter.
         </p>
       </div>
 
       <article aria-label="KPI cards">
         <div className="kpi-demo-grid">
-          {kpis.map(({ config, result }) => (
+          {kpis.map(({ config, result, prev }) => (
             <KpiCard
               key={config.id}
               config={config}
               result={result}
               size="medium"
               variant="default"
+              previousPeriodValue={prev}
             />
           ))}
         </div>
@@ -906,6 +927,190 @@ function LiveCanvasTab() {
         renderers={CANVAS_RENDERERS}
         className="demo-canvas"
       />
+    </section>
+  );
+}
+
+// ─── SQL Query tab ────────────────────────────────────────────
+
+function SqlQueryTab({ engine }: { engine: AnalyticsEngine }) {
+  const [sqlResults, setSqlResults] = useState<Row[] | null>(null);
+  const SAMPLE_SQL =
+    'SELECT region, SUM(revenue) AS total_revenue, COUNT(*) AS deals\n' +
+    'FROM sales\n' +
+    'GROUP BY region\n' +
+    'ORDER BY total_revenue DESC';
+
+  return (
+    <section className="demo-section" aria-labelledby="sql-heading">
+      <div className="demo-section-header">
+        <h2 id="sql-heading">SQL Query</h2>
+        <p>
+          Query your datasets with SQL — no server required. Uses a pure-JS in-browser
+          engine supporting SELECT, FROM, WHERE, GROUP BY, ORDER BY, and LIMIT.
+          <br />
+          <strong>Quick start:</strong> Import the &ldquo;sales&rdquo; dataset then run the sample query below.
+        </p>
+      </div>
+
+      <div className="sql-editor-wrapper">
+        <SqlEditor
+          engine={engine}
+          initialSql={SAMPLE_SQL}
+          onResult={(rows) => setSqlResults(rows)}
+        />
+      </div>
+
+      {sqlResults !== null && sqlResults.length > 0 && (
+        <div className="sql-results-summary" aria-live="polite">
+          <span className="sql-results-badge">
+            {sqlResults.length} row{sqlResults.length !== 1 ? 's' : ''} returned
+          </span>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ─── Marketplace tab ──────────────────────────────────────────
+
+const CATEGORY_LABELS: Record<string, string> = {
+  chart: '📊 Charts',
+  connector: '🔌 Connectors',
+  transform: '⚡ Transforms',
+  export: '📤 Export',
+};
+
+const TIER_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  free:       { bg: '#dcfce7', text: '#15803d', border: '#86efac' },
+  pro:        { bg: '#ede9fe', text: '#7c3aed', border: '#c4b5fd' },
+  enterprise: { bg: '#fef3c7', text: '#b45309', border: '#fcd34d' },
+};
+
+function PluginCard({ plugin }: { plugin: MarketplacePlugin }) {
+  const tier = TIER_COLORS[plugin.tier] ?? TIER_COLORS.free;
+  const stars = '★'.repeat(Math.round(plugin.rating)) + '☆'.repeat(5 - Math.round(plugin.rating));
+
+  return (
+    <article
+      className="marketplace-card"
+      aria-label={`${plugin.name} plugin`}
+    >
+      <div className="marketplace-card-header">
+        <div className="marketplace-card-meta">
+          <span
+            className="marketplace-tier-badge"
+            style={{ background: tier.bg, color: tier.text, border: `1px solid ${tier.border}` }}
+          >
+            {plugin.tier.toUpperCase()}
+          </span>
+          <span className="marketplace-category-badge">
+            {CATEGORY_LABELS[plugin.category] ?? plugin.category}
+          </span>
+        </div>
+        <div className="marketplace-card-rating" aria-label={`Rating: ${plugin.rating} out of 5`}>
+          <span className="marketplace-stars">{stars}</span>
+          <span className="marketplace-rating-num">{plugin.rating.toFixed(1)}</span>
+        </div>
+      </div>
+
+      <h3 className="marketplace-card-name">{plugin.name}</h3>
+      <p className="marketplace-card-desc">{plugin.description}</p>
+
+      <div className="marketplace-card-tags">
+        {plugin.tags.slice(0, 4).map((tag) => (
+          <span key={tag} className="marketplace-tag">{tag}</span>
+        ))}
+      </div>
+
+      <div className="marketplace-card-footer">
+        <span className="marketplace-card-author">by {plugin.author}</span>
+        <span className="marketplace-card-installs">
+          {plugin.installs >= 1000
+            ? `${(plugin.installs / 1000).toFixed(1)}k installs`
+            : `${plugin.installs} installs`}
+        </span>
+        <span className="marketplace-card-version">v{plugin.version}</span>
+      </div>
+
+      {plugin.downloadUrl ? (
+        <a
+          href={plugin.downloadUrl}
+          className="marketplace-install-btn"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Install ${plugin.name}`}
+        >
+          Install
+        </a>
+      ) : (
+        <button
+          className="marketplace-install-btn"
+          onClick={() => alert(`pnpm add ${plugin.id}\n\nFull registry coming soon!`)}
+          aria-label={`Install ${plugin.name}`}
+        >
+          Install
+        </button>
+      )}
+    </article>
+  );
+}
+
+function MarketplaceTab() {
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('');
+
+  const filtered = searchPlugins(query, category || undefined);
+  const categories = Array.from(new Set(MARKETPLACE_PLUGINS.map((p) => p.category)));
+
+  return (
+    <section className="demo-section" aria-labelledby="marketplace-heading">
+      <div className="demo-section-header">
+        <h2 id="marketplace-heading">Plugin Marketplace</h2>
+        <p>
+          Extend Analytix with community and official plugins. Charts, connectors,
+          data transforms, and export formats — install any plugin with one command.
+        </p>
+      </div>
+
+      {/* Search + filter toolbar */}
+      <div className="marketplace-toolbar" role="search" aria-label="Search plugins">
+        <input
+          type="search"
+          className="marketplace-search"
+          placeholder="Search plugins…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          aria-label="Search plugins by name, description, or tags"
+        />
+        <select
+          className="marketplace-category-filter"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          aria-label="Filter by category"
+        >
+          <option value="">All categories</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>{CATEGORY_LABELS[cat] ?? cat}</option>
+          ))}
+        </select>
+        <span className="marketplace-count" aria-live="polite">
+          {filtered.length} plugin{filtered.length !== 1 ? 's' : ''}
+        </span>
+      </div>
+
+      {/* Plugin grid */}
+      <div className="marketplace-grid" role="list" aria-label="Available plugins">
+        {filtered.length === 0 ? (
+          <p className="marketplace-empty">No plugins match your search.</p>
+        ) : (
+          filtered.map((plugin) => (
+            <div key={plugin.id} role="listitem">
+              <PluginCard plugin={plugin} />
+            </div>
+          ))
+        )}
+      </div>
     </section>
   );
 }
