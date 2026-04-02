@@ -1,24 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Analytics Builder — Demo</title>
-    <meta name="description" content="Drag-and-drop analytics builder: pivot tables, 20+ charts, KPI dashboards, scheduled reports." />
-    <style>
-      *, *::before, *::after { box-sizing: border-box; }
-      html, body, #root {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-        background: #f3f4f6;
-        color: #111827;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <!-- ── Primary Meta ──────────────────────────────────────────────────── -->
+  <title>Analytics Studio — Drag-and-Drop BI & Analytics Platform | Tekivex</title>
+  <meta name="description" content="Analytics Studio is a free, open-source BI platform: drag-and-drop pivot builder, 26+ interactive charts, in-browser SQL engine, KPI dashboards with auto-thresholds, and scheduled PDF/Excel reports. No backend required." />
+  <meta name="keywords" content="analytics platform, business intelligence tool, drag drop BI, pivot table builder, data visualization, in-browser SQL, KPI dashboard, chart builder, open source analytics, free BI software, Analytics Studio, Tekivex" />
+  <meta name="author" content="Tekivex" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="canonical" href="https://analytics.tekivex.com/" />
+
+  <!-- ── Open Graph ─────────────────────────────────────────────────────── -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Analytics Studio — Tekivex" />
+  <meta property="og:title" content="Analytics Studio — Drag-and-Drop BI & Analytics Platform" />
+  <meta property="og:description" content="Free, open-source BI platform with 26+ charts, drag-drop pivot builder, in-browser SQL, KPI dashboards, and scheduled reports. No backend required." />
+  <meta property="og:image" content="https://analytics.tekivex.com/og-analytics-studio.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Analytics Studio — Visual BI Platform" />
+  <meta property="og:url" content="https://analytics.tekivex.com/" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- ── Twitter Card ───────────────────────────────────────────────────── -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@tekivex" />
+  <meta name="twitter:creator" content="@tekivex" />
+  <meta name="twitter:title" content="Analytics Studio — Free Drag-and-Drop BI Platform" />
+  <meta name="twitter:description" content="26+ charts, pivot tables, in-browser SQL, KPI dashboards — all in the browser, no backend, free forever." />
+  <meta name="twitter:image" content="https://analytics.tekivex.com/og-analytics-studio.png" />
+  <meta name="twitter:image:alt" content="Analytics Studio BI Platform" />
+
+  <!-- ── Icons & Manifest ───────────────────────────────────────────────── -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- ── Fonts ──────────────────────────────────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- ── JSON-LD: SoftwareApplication ──────────────────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Analytics Studio",
+    "description": "Open-source drag-and-drop analytics platform with 26+ interactive charts, in-browser SQL engine, pivot tables, KPI dashboards, and scheduled PDF/Excel reports. No backend required.",
+    "url": "https://analytics.tekivex.com",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Tekivex",
+      "url": "https://tekivex.com"
+    },
+    "softwareVersion": "0.2.0",
+    "license": "https://opensource.org/licenses/MIT",
+    "featureList": [
+      "26+ interactive chart types (bar, line, scatter, radar, heatmap, treemap, sankey)",
+      "Drag-and-drop pivot builder with group, aggregate, and filter",
+      "In-browser SQL engine — SELECT, WHERE, GROUP BY, JOIN, no server",
+      "KPI dashboard with auto-thresholds and alert rules",
+      "Scheduled report designer — export PDF and Excel on cron schedule",
+      "AI natural-language query parser — no API key required",
+      "React, Vue, Svelte framework adapters",
+      "Full responsive layout for desktop, tablet, and mobile"
+    ],
+    "screenshot": "https://analytics.tekivex.com/og-analytics-studio.png"
+  }
+  </script>
+
+  <!-- ── JSON-LD: WebSite ───────────────────────────────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Analytics Studio",
+    "url": "https://analytics.tekivex.com",
+    "description": "Free drag-and-drop BI and analytics platform by Tekivex.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Tekivex",
+      "url": "https://tekivex.com"
+    }
+  }
+  </script>
+
+  <!-- ── JSON-LD: BreadcrumbList ────────────────────────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Tekivex",
+        "item": "https://tekivex.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Analytics Studio",
+        "item": "https://analytics.tekivex.com"
       }
-    </style>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    ]
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body, #root {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
 </html>
