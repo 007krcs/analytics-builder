@@ -9,3 +9,6 @@ coverage/
 *.log
 .turbo/
 .vercel/
+
+# Claude Code local config
+.claude/
