@@ -2,7 +2,7 @@
  * WebSocket Connector — Streaming rows with buffer + batch updates.
  */
 
-import type { Row } from '@analytix/core';
+import type { Row } from '@gridstorm/analytix-core';
 
 export interface WebSocketConnectorOptions {
   /** How many rows to buffer before emitting a batch (default: 50) */

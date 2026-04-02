@@ -2,7 +2,7 @@
  * Chart engine internal types and data transformation contracts.
  */
 
-import type { Row, ChartConfig, ChartType } from '@analytix/core';
+import type { Row, ChartConfig, ChartType } from '@gridstorm/analytix-core';
 
 /** The normalized data format passed to Recharts components */
 export interface ChartDataPoint {

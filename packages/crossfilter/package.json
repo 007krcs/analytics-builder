@@ -1,6 +1,7 @@
 {
-  "name": "@analytix/crossfilter",
-  "version": "0.1.0",
+  "name": "@gridstorm/analytix-crossfilter",
+  "version": "0.1.1",
+  "homepage": "https://analytics.tekivex.com",
   "description": "Cross-widget filtering — click any chart element to instantly filter all other charts",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -13,14 +14,14 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@analytix/core": "workspace:*"
+    "@gridstorm/analytix-core": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=18.0.0"

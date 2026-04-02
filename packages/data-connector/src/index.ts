@@ -1,5 +1,5 @@
 /**
- * @analytix/data-connector
+ * @gridstorm/analytix-data-connector
  *
  * Zero-config data ingestion:
  *  - CSV drag-drop with auto schema detection

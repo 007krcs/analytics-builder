@@ -3,7 +3,7 @@
  * Samples first 100 rows, returns Column definitions with confidence scores.
  */
 
-import type { Column, ColumnType, Row } from '@analytix/core';
+import type { Column, ColumnType, Row } from '@gridstorm/analytix-core';
 
 const SAMPLE_SIZE = 100;
 

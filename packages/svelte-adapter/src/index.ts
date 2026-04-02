@@ -1,5 +1,5 @@
 /**
- * @analytix/svelte — Svelte stores adapter for Analytics Builder
+ * @gridstorm/analytix-svelte — Svelte stores adapter for Analytics Builder
  *
  * Provides writable/readable stores for KPI results, pivot tables,
  * and engine state — compatible with Svelte 4 and Svelte 5.
@@ -12,7 +12,7 @@ import type {
   PivotConfig,
   PivotResult,
   EngineState,
-} from '@analytix/core';
+} from '@gridstorm/analytix-core';
 
 // ─── Svelte store types (minimal subset) ─────────────────────────────────────
 // We avoid importing svelte directly so this package builds in any environment.
@@ -83,7 +83,7 @@ function readable<T>(initial: T, start: (set: (val: T) => void) => () => void): 
  * @example
  * ```svelte
  * <script>
- *   import { createEngineStore } from '@analytix/svelte'
+ *   import { createEngineStore } from '@gridstorm/analytix-svelte'
  *   const state = createEngineStore(engine)
  * </script>
  * <p>Datasets: {$state.datasets.length}</p>
@@ -120,7 +120,7 @@ export function createEngineStore(engine: AnalyticsEngine): Readable<EngineState
  * @example
  * ```svelte
  * <script>
- *   import { createKpiStore } from '@analytix/svelte'
+ *   import { createKpiStore } from '@gridstorm/analytix-svelte'
  *   const revenue = createKpiStore(engine, kpiConfig)
  * </script>
  * <div>{$revenue?.formatted ?? 'Loading…'}</div>
@@ -173,7 +173,7 @@ export function createKpiStore(
  * @example
  * ```svelte
  * <script>
- *   import { createPivotStore } from '@analytix/svelte'
+ *   import { createPivotStore } from '@gridstorm/analytix-svelte'
  *   const pivot = createPivotStore(engine, pivotConfig)
  * </script>
  * ```
@@ -215,22 +215,22 @@ export function createPivotStore(
 // ─── README ───────────────────────────────────────────────────────────────────
 
 export const SVELTE_ADAPTER_README = `
-# @analytix/svelte
+# @gridstorm/analytix-svelte
 
 Svelte stores adapter for Analytics Builder. Compatible with Svelte 4 and Svelte 5.
 
 ## Installation
 
 \`\`\`bash
-pnpm add @analytix/svelte @analytix/core svelte
+pnpm add @gridstorm/analytix-svelte @gridstorm/analytix-core svelte
 \`\`\`
 
 ## Usage
 
 \`\`\`svelte
 <script lang="ts">
-  import { AnalyticsEngine, buildDataset } from '@analytix/core'
-  import { createKpiStore, createPivotStore, createEngineStore } from '@analytix/svelte'
+  import { AnalyticsEngine, buildDataset } from '@gridstorm/analytix-core'
+  import { createKpiStore, createPivotStore, createEngineStore } from '@gridstorm/analytix-svelte'
 
   const engine = new AnalyticsEngine()
 

@@ -1,6 +1,7 @@
 {
-  "name": "@analytix/vue",
-  "version": "0.1.0",
+  "name": "@gridstorm/analytix-vue",
+  "version": "0.1.1",
+  "homepage": "https://analytics.tekivex.com",
   "description": "Vue 3 composables adapter for Analytics Builder",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -13,14 +14,14 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@analytix/core": "workspace:*"
+    "@gridstorm/analytix-core": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^3.0.0"

@@ -1,8 +1,8 @@
 /**
- * Types for the @analytix/insight-engine package.
+ * Types for the @gridstorm/analytix-insight-engine package.
  */
 
-import type { Dataset, Row } from '@analytix/core';
+import type { Dataset, Row } from '@gridstorm/analytix-core';
 
 /** All possible insight classification types */
 export type InsightType =

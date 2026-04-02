@@ -2,7 +2,7 @@
  * Clipboard Connector — Paste tab-separated data from Excel/Sheets.
  */
 
-import type { Dataset } from '@analytix/core';
+import type { Dataset } from '@gridstorm/analytix-core';
 import { parseCsvString } from './csv-connector.js';
 import type { CsvParseOptions } from './csv-connector.js';
 

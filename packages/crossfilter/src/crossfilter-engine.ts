@@ -9,7 +9,7 @@
  * the effect of every OTHER widget's filter, but not its own).
  */
 
-import type { Row, CellValue } from '@analytix/core';
+import type { Row, CellValue } from '@gridstorm/analytix-core';
 import { FilterRegistry }     from './filter-registry.js';
 import type {
   CrossFilterState,

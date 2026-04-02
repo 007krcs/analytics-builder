@@ -1,5 +1,5 @@
 /**
- * Types for @analytix/canvas-layout
+ * Types for @gridstorm/analytix-canvas-layout
  */
 
 /** Pixel position on the canvas */

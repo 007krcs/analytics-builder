@@ -18,7 +18,7 @@ import type {
   PivotColumnHeader,
   CellValue,
   DataFilter,
-} from '@analytix/core';
+} from '@gridstorm/analytix-core';
 import { aggregate, formatValue } from './aggregations.js';
 import {
   GroupAccumulator,
@@ -185,7 +185,7 @@ export class PivotEngine {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function applyFilters(rows: import('@analytix/core').Row[], filters: DataFilter[]): import('@analytix/core').Row[] {
+function applyFilters(rows: import('@gridstorm/analytix-core').Row[], filters: DataFilter[]): import('@gridstorm/analytix-core').Row[] {
   if (!filters.length) return rows;
   return rows.filter((row) =>
     filters.every((f) => {

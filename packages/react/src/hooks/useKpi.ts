@@ -3,8 +3,8 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { AnalyticsEngine, KpiConfig, KpiResult } from '@analytix/core';
-import { refreshScheduler } from '@analytix/kpi-engine';
+import type { AnalyticsEngine, KpiConfig, KpiResult } from '@gridstorm/analytix-core';
+import { refreshScheduler } from '@gridstorm/analytix-kpi-engine';
 
 export interface UseKpiResult {
   result: KpiResult | null;

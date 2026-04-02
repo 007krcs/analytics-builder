@@ -30,7 +30,7 @@ import type {
   DataTableSection,
   PageBreakSection,
   SpacerSection,
-} from '@analytix/core';
+} from '@gridstorm/analytix-core';
 
 let sectionCounter = 0;
 const nextSectionId = () => `section-${++sectionCounter}`;
@@ -303,9 +303,9 @@ export class ReportBuilder {
  */
 export async function generateReport(
   config: ReportConfig,
-  engine: import('@analytix/core').AnalyticsEngine,
+  engine: import('@gridstorm/analytix-core').AnalyticsEngine,
   format: ReportFormat = 'pdf'
-): Promise<import('@analytix/core').ReportRunResult> {
+): Promise<import('@gridstorm/analytix-core').ReportRunResult> {
   const { renderToPdf } = await import('./pdf-renderer.js');
   const { renderToExcel } = await import('./excel-renderer.js');
 
@@ -320,8 +320,8 @@ export async function generateReport(
 
   if (format === 'excel' || format === 'csv') {
     // Gather data for Excel renderer
-    const pivotResults = new Map<string, import('@analytix/core').PivotResult>();
-    const dataRows = new Map<string, import('@analytix/core').Row[]>();
+    const pivotResults = new Map<string, import('@gridstorm/analytix-core').PivotResult>();
+    const dataRows = new Map<string, import('@gridstorm/analytix-core').Row[]>();
     const kpiValues = new Map<string, { label: string; value: string; status: string }>();
 
     for (const section of config.sections) {
@@ -355,7 +355,7 @@ export async function generateReport(
 
 async function resolveSections(
   config: ReportConfig,
-  _engine: import('@analytix/core').AnalyticsEngine
+  _engine: import('@gridstorm/analytix-core').AnalyticsEngine
 ): Promise<import('./types.js').ResolvedSection[]> {
   const { escapeHtml } = await import('./pdf-renderer.js');
 
@@ -411,7 +411,7 @@ async function resolveSections(
 
 function buildRenderContext(
   config: ReportConfig,
-  engine: import('@analytix/core').AnalyticsEngine
+  engine: import('@gridstorm/analytix-core').AnalyticsEngine
 ): import('./types.js').RenderContext {
   return {
     reportId: config.id,

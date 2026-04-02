@@ -13,8 +13,8 @@
  */
 
 // Re-export the core Row type for a consistent interface
-export type { Row } from '@analytix/core';
-import type { Row } from '@analytix/core';
+export type { Row } from '@gridstorm/analytix-core';
+import type { Row } from '@gridstorm/analytix-core';
 
 interface ParsedSelect {
   expressions: SelectExpr[];

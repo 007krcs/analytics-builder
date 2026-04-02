@@ -16,8 +16,8 @@ import {
   Sankey,
   Brush,
 } from 'recharts';
-import type { AnalyticsEngine, ChartConfig, Dataset, ChartType } from '@analytix/core';
-import { getChartMeta, getChartsByCategory, prepareChartData } from '@analytix/chart-engine';
+import type { AnalyticsEngine, ChartConfig, Dataset, ChartType } from '@gridstorm/analytix-core';
+import { getChartMeta, getChartsByCategory, prepareChartData } from '@gridstorm/analytix-chart-engine';
 
 const CHART_COLORS = [
   '#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#3b82f6',

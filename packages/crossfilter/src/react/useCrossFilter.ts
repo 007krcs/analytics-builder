@@ -8,7 +8,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCrossFilterEngine } from './CrossFilterProvider.js';
-import type { Row, CellValue } from '@analytix/core';
+import type { Row, CellValue } from '@gridstorm/analytix-core';
 import type { DatasetFilterState } from '../filter-types.js';
 
 export interface UseCrossFilterReturn {

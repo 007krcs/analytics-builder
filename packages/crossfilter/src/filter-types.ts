@@ -1,8 +1,8 @@
 /**
- * Types for @analytix/crossfilter
+ * Types for @gridstorm/analytix-crossfilter
  */
 
-import type { CellValue, Row } from '@analytix/core';
+import type { CellValue, Row } from '@gridstorm/analytix-core';
 
 /** A filter selection from one widget on one column */
 export interface FilterSelection {

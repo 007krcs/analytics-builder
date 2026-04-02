@@ -2,7 +2,7 @@
  * Heatmap and Calendar Heatmap data transformers.
  */
 
-import type { Row, ChartConfig } from '@analytix/core';
+import type { Row, ChartConfig } from '@gridstorm/analytix-core';
 import type { PreparedChartData, ChartDataPoint } from '../types.js';
 import { toNum } from './helpers.js';
 

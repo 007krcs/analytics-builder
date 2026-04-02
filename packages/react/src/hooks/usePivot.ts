@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { AnalyticsEngine, PivotConfig, PivotResult } from '@analytix/core';
+import type { AnalyticsEngine, PivotConfig, PivotResult } from '@gridstorm/analytix-core';
 
 export interface UsePivotResult {
   result: PivotResult | null;

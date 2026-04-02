@@ -2,7 +2,7 @@
  * Scatter and Bubble chart data transformer.
  */
 
-import type { Row, ChartConfig } from '@analytix/core';
+import type { Row, ChartConfig } from '@gridstorm/analytix-core';
 import type { PreparedChartData, ChartDataPoint } from '../types.js';
 import { resolveColors, toNum } from './helpers.js';
 

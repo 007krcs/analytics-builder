@@ -1,15 +1,15 @@
 /**
- * @analytix/vue — Vue 3 composables for Analytics Builder
+ * @gridstorm/analytix-vue — Vue 3 composables for Analytics Builder
  *
  * Usage:
- *   import { useAnalyticsEngine, useKpi, usePivot } from '@analytix/vue'
+ *   import { useAnalyticsEngine, useKpi, usePivot } from '@gridstorm/analytix-vue'
  *
  * This is a type-safe stub using Vue's Composition API. Vue itself is a
  * peerDependency — the composables use type-only imports so this package
  * can be built without Vue installed in the monorepo.
  */
 
-import type { AnalyticsEngine, KpiConfig, KpiResult, PivotConfig, PivotResult } from '@analytix/core';
+import type { AnalyticsEngine, KpiConfig, KpiResult, PivotConfig, PivotResult } from '@gridstorm/analytix-core';
 
 // ─── Vue type stubs ───────────────────────────────────────────────────────────
 // We use `import type` to avoid requiring vue as a real dep during build.
@@ -38,7 +38,7 @@ async function getVue() {
  * @example
  * ```vue
  * <script setup>
- * import { useAnalyticsEngine } from '@analytix/vue'
+ * import { useAnalyticsEngine } from '@gridstorm/analytix-vue'
  * const { engine } = useAnalyticsEngine()
  * </script>
  * ```
@@ -46,7 +46,7 @@ async function getVue() {
 export function useAnalyticsEngine(): { engine: AnalyticsEngine } {
   throw new Error(
     '[stub] useAnalyticsEngine() must be called inside a Vue component setup(). ' +
-    'Install @analytix/vue in a Vue 3 project.'
+    'Install @gridstorm/analytix-vue in a Vue 3 project.'
   );
 }
 
@@ -62,7 +62,7 @@ export function useAnalyticsEngine(): { engine: AnalyticsEngine } {
  * @example
  * ```vue
  * <script setup>
- * import { useAnalyticsEngine, useKpi } from '@analytix/vue'
+ * import { useAnalyticsEngine, useKpi } from '@gridstorm/analytix-vue'
  * const { engine } = useAnalyticsEngine()
  * const revenue = useKpi(engine, { id: 'rev', datasetId: 'sales', ... })
  * </script>
@@ -74,7 +74,7 @@ export function useKpi(
 ): Ref<KpiResult | null> {
   throw new Error(
     '[stub] useKpi() must be called inside a Vue component setup(). ' +
-    'Install @analytix/vue in a Vue 3 project.'
+    'Install @gridstorm/analytix-vue in a Vue 3 project.'
   );
 }
 
@@ -90,7 +90,7 @@ export function useKpi(
  * @example
  * ```vue
  * <script setup>
- * import { usePivot } from '@analytix/vue'
+ * import { usePivot } from '@gridstorm/analytix-vue'
  * const pivotResult = usePivot(engine, pivotConfig)
  * </script>
  * ```
@@ -101,7 +101,7 @@ export function usePivot(
 ): Ref<PivotResult | null> {
   throw new Error(
     '[stub] usePivot() must be called inside a Vue component setup(). ' +
-    'Install @analytix/vue in a Vue 3 project.'
+    'Install @gridstorm/analytix-vue in a Vue 3 project.'
   );
 }
 
@@ -114,7 +114,7 @@ export function usePivot(
  * Call this from your plugin install() function:
  *
  * ```typescript
- * import { createVueComposables } from '@analytix/vue'
+ * import { createVueComposables } from '@gridstorm/analytix-vue'
  * const { useKpi, usePivot } = await createVueComposables()
  * ```
  */
@@ -188,14 +188,14 @@ export async function createVueComposables() {
 // ─── README ───────────────────────────────────────────────────────────────────
 
 export const VUE_ADAPTER_README = `
-# @analytix/vue
+# @gridstorm/analytix-vue
 
 Vue 3 composables adapter for Analytics Builder.
 
 ## Installation
 
 \`\`\`bash
-pnpm add @analytix/vue @analytix/core vue
+pnpm add @gridstorm/analytix-vue @gridstorm/analytix-core vue
 \`\`\`
 
 ## Usage
@@ -203,8 +203,8 @@ pnpm add @analytix/vue @analytix/core vue
 \`\`\`vue
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { AnalyticsEngine, buildDataset } from '@analytix/core'
-import { createVueComposables } from '@analytix/vue'
+import { AnalyticsEngine, buildDataset } from '@gridstorm/analytix-core'
+import { createVueComposables } from '@gridstorm/analytix-vue'
 
 const engine = new AnalyticsEngine()
 const composables = await createVueComposables()

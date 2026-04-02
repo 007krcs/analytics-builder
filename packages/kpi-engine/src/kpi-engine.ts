@@ -15,7 +15,7 @@ import type {
   Dataset,
   Row,
   CellValue,
-} from '@analytix/core';
+} from '@gridstorm/analytix-core';
 
 /** Aggregation helper — computes sum/avg/count etc over an array of numbers */
 function aggregateValues(

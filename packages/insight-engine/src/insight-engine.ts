@@ -3,7 +3,7 @@
  * Runs all detectors in parallel, ranks results, and generates narrative.
  */
 
-import type { Dataset } from '@analytix/core';
+import type { Dataset } from '@gridstorm/analytix-core';
 import type { Insight, InsightConfig, InsightResult } from './types.js';
 import { detectTrends }       from './detectors/trend-detector.js';
 import { detectAnomalies }    from './detectors/anomaly-detector.js';

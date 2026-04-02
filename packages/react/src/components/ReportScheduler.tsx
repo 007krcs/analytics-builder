@@ -10,8 +10,8 @@ import type {
   ScheduleDefinition,
   ReportFormat,
   ReportDelivery,
-} from '@analytix/core';
-import { parseCronExpression, nextCronDate } from '@analytix/kpi-engine';
+} from '@gridstorm/analytix-core';
+import { parseCronExpression, nextCronDate } from '@gridstorm/analytix-kpi-engine';
 
 export interface ReportSchedulerProps {
   report: ReportConfig;

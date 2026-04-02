@@ -6,7 +6,7 @@
  *  2. A WebSocket mock that emits rows every 500ms
  */
 
-import type { Row } from '@analytix/core';
+import type { Row } from '@gridstorm/analytix-core';
 
 // ── REST mock: 50 rows of monthly time-series ────────────────────────────────
 

@@ -3,7 +3,7 @@
  * Flags strong positive (r > 0.7) and inverse (r < -0.7) correlations.
  */
 
-import type { Dataset, Row } from '@analytix/core';
+import type { Dataset, Row } from '@gridstorm/analytix-core';
 import type { Insight } from '../types.js';
 
 function pearson(xs: number[], ys: number[]): number {

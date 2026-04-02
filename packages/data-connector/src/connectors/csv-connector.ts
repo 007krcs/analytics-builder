@@ -9,7 +9,7 @@
  *  - Streams large files in 1000-row batches via async generator
  */
 
-import type { Dataset } from '@analytix/core';
+import type { Dataset } from '@gridstorm/analytix-core';
 import { transformRows } from '../data-transformer.js';
 import type { TransformOptions } from '../data-transformer.js';
 

@@ -3,7 +3,7 @@
  * Handles bar, bar-horizontal, bar-stacked, bar-stacked-100.
  */
 
-import type { Row, ChartConfig } from '@analytix/core';
+import type { Row, ChartConfig } from '@gridstorm/analytix-core';
 import type { PreparedChartData, ChartDataPoint } from '../types.js';
 import { resolveColors, groupRowsByField } from './helpers.js';
 

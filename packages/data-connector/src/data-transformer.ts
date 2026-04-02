@@ -2,8 +2,8 @@
  * DataTransformer — Normalize diverse inputs to Dataset format.
  */
 
-import { buildDataset } from '@analytix/core';
-import type { Dataset, Row, Column, ColumnType } from '@analytix/core';
+import { buildDataset } from '@gridstorm/analytix-core';
+import type { Dataset, Row, Column, ColumnType } from '@gridstorm/analytix-core';
 import { inferSchema, coerceValue } from './schema-inferrer.js';
 
 export interface TransformOptions {

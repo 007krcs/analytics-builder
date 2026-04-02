@@ -3,7 +3,7 @@
  * Uses the same least-squares regression as the trend detector.
  */
 
-import type { Dataset, Row } from '@analytix/core';
+import type { Dataset, Row } from '@gridstorm/analytix-core';
 import type { Insight } from '../types.js';
 
 function linearRegression(values: number[]): { slope: number; intercept: number } {

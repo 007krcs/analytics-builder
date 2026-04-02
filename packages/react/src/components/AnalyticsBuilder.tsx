@@ -23,15 +23,15 @@ import {
   DragOverlay,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import type { AnalyticsEngine, Dataset, PivotConfig, ChartConfig, KpiConfig, Column } from '@analytix/core';
+import type { AnalyticsEngine, Dataset, PivotConfig, ChartConfig, KpiConfig, Column } from '@gridstorm/analytix-core';
 import { FieldPanel } from './FieldPanel.js';
 import { PivotBuilder } from './PivotBuilder.js';
 import type { DropZoneField, DropZoneRole } from './DropZone.js';
 import { ChartBuilder } from './ChartBuilder.js';
 import { KpiDashboard } from './KpiDashboard.js';
 import { ReportScheduler } from './ReportScheduler.js';
-import { ReportBuilder as ReportBuilderClass } from '@analytix/report-builder';
-import type { ScheduleConfig } from '@analytix/core';
+import { ReportBuilder as ReportBuilderClass } from '@gridstorm/analytix-report-builder';
+import type { ScheduleConfig } from '@gridstorm/analytix-core';
 
 export type BuilderTab = 'pivot' | 'chart' | 'kpi' | 'report';
 

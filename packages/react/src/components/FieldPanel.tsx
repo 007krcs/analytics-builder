@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import type { Column, Dataset } from '@analytix/core';
+import type { Column, Dataset } from '@gridstorm/analytix-core';
 
 // ─── DraggableField ──────────────────────────────────────────────────────────
 

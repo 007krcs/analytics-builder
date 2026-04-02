@@ -2,7 +2,7 @@
  * REST Connector — Fetch JSON API, auto-detect array path, auto-paginate.
  */
 
-import type { Dataset } from '@analytix/core';
+import type { Dataset } from '@gridstorm/analytix-core';
 import { transformRows } from '../data-transformer.js';
 import type { TransformOptions } from '../data-transformer.js';
 

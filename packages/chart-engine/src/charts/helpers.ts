@@ -2,7 +2,7 @@
  * Shared utilities for chart data transformers.
  */
 
-import type { Row, ChartConfig, CellValue } from '@analytix/core';
+import type { Row, ChartConfig, CellValue } from '@gridstorm/analytix-core';
 import type { ChartDataPoint } from '../types.js';
 
 /** Default color palette */

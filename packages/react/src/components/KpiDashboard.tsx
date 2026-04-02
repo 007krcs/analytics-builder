@@ -19,7 +19,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { AnalyticsEngine, KpiConfig, KpiDashboard as KpiDashboardType } from '@analytix/core';
+import type { AnalyticsEngine, KpiConfig, KpiDashboard as KpiDashboardType } from '@gridstorm/analytix-core';
 import { KpiCard } from './KpiCard.js';
 import { useKpiMany } from '../hooks/useKpi.js';
 

@@ -1,5 +1,5 @@
 /**
- * @analytix/crossfilter
+ * @gridstorm/analytix-crossfilter
  *
  * Cross-widget filtering engine + React bindings.
  * Click any chart element to instantly filter ALL other charts on the dashboard.

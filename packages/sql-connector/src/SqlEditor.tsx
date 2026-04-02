@@ -11,8 +11,8 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import type { AnalyticsEngine } from '@analytix/core';
-import type { Row } from '@analytix/core';
+import type { AnalyticsEngine } from '@gridstorm/analytix-core';
+import type { Row } from '@gridstorm/analytix-core';
 import { SqlConnector } from './sql-connector.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────

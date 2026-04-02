@@ -3,7 +3,7 @@
  * Returns trend insights with slope direction and R² strength.
  */
 
-import type { Dataset, Row } from '@analytix/core';
+import type { Dataset, Row } from '@gridstorm/analytix-core';
 import type { Insight, TrendStrength } from '../types.js';
 
 /** Compute least-squares linear regression for y-values (x = 0,1,...,n-1) */

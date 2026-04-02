@@ -4,7 +4,7 @@
  */
 
 import { useCallback, useRef, useState } from 'react';
-import type { Dataset, Column, ColumnType } from '@analytix/core';
+import type { Dataset, Column, ColumnType } from '@gridstorm/analytix-core';
 import { parseCsvFile }        from '../connectors/csv-connector.js';
 import { parseClipboardText }  from '../connectors/clipboard-connector.js';
 
@@ -208,7 +208,7 @@ export function DataImportPanel({ onImport, onClose }: DataImportPanelProps) {
           <button
             className="import-parse-btn"
             disabled={!apiUrl.trim()}
-            onClick={() => alert('REST API fetch — integrate fetchRestApi() from @analytix/data-connector')}
+            onClick={() => alert('REST API fetch — integrate fetchRestApi() from @gridstorm/analytix-data-connector')}
           >
             Fetch API Data
           </button>
@@ -233,7 +233,7 @@ export function DataImportPanel({ onImport, onClose }: DataImportPanelProps) {
           <button
             className="import-parse-btn"
             disabled={!wsUrl.trim()}
-            onClick={() => alert('WebSocket streaming — integrate connectWebSocket() from @analytix/data-connector')}
+            onClick={() => alert('WebSocket streaming — integrate connectWebSocket() from @gridstorm/analytix-data-connector')}
           >
             Connect Stream
           </button>

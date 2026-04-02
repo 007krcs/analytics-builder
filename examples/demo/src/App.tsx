@@ -13,28 +13,28 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AnalyticsEngine } from '@analytix/core';
-import type { KpiConfig, Row } from '@analytix/core';
-import { computePivot as _computePivot } from '@analytix/pivot-engine';
-import { computeKpi as _computeKpi }     from '@analytix/kpi-engine';
+import { AnalyticsEngine } from '@gridstorm/analytix-core';
+import type { KpiConfig, Row } from '@gridstorm/analytix-core';
+import { computePivot as _computePivot } from '@gridstorm/analytix-pivot-engine';
+import { computeKpi as _computeKpi }     from '@gridstorm/analytix-kpi-engine';
 import {
   AnalyticsBuilder,
   KpiCard,
   useAnalyticsEngine,
   useKpi,
-} from '@analytix/react';
+} from '@gridstorm/analytix-react';
 
 // ── New differentiators ────────────────────────────────────────
-import { InsightEngine }       from '@analytix/insight-engine';
-import type { Insight, InsightResult } from '@analytix/insight-engine';
-import { CrossFilterProvider } from '@analytix/crossfilter';
-import { DashboardCanvas, CanvasEngine } from '@analytix/canvas-layout';
-import type { CanvasWidget } from '@analytix/canvas-layout';
+import { InsightEngine }       from '@gridstorm/analytix-insight-engine';
+import type { Insight, InsightResult } from '@gridstorm/analytix-insight-engine';
+import { CrossFilterProvider } from '@gridstorm/analytix-crossfilter';
+import { DashboardCanvas, CanvasEngine } from '@gridstorm/analytix-canvas-layout';
+import type { CanvasWidget } from '@gridstorm/analytix-canvas-layout';
 
 import { SALES_DATA, EMPLOYEE_DATA, SALES_STATS } from './data/sample-data.js';
-import { SqlEditor } from '@analytix/sql-connector';
-import { MARKETPLACE_PLUGINS, searchPlugins } from '@analytix/core';
-import type { MarketplacePlugin } from '@analytix/core';
+import { SqlEditor } from '@gridstorm/analytix-sql-connector';
+import { MARKETPLACE_PLUGINS, searchPlugins } from '@gridstorm/analytix-core';
+import type { MarketplacePlugin } from '@gridstorm/analytix-core';
 
 import './styles.css';
 
@@ -257,7 +257,7 @@ function PivotBuilderTab({ engine }: { engine: AnalyticsEngine }) {
         initialDataset={salesDataset}
         onExport={(fmt: string) =>
           alert(
-            `Export as ${fmt.toUpperCase()} — integrate @analytix/report-builder for full PDF/Excel generation.`
+            `Export as ${fmt.toUpperCase()} — integrate @gridstorm/analytix-report-builder for full PDF/Excel generation.`
           )
         }
       />
@@ -289,7 +289,7 @@ function ChartBuilderTab({
         initialDataset={salesDataset ?? undefined}
         onExport={(fmt: string) =>
           alert(
-            `Export as ${fmt.toUpperCase()} — integrate @analytix/report-builder for full PDF/Excel generation.`
+            `Export as ${fmt.toUpperCase()} — integrate @gridstorm/analytix-report-builder for full PDF/Excel generation.`
           )
         }
       />
@@ -376,7 +376,7 @@ function ReportSchedulerTab({ engine: _engine }: { engine: AnalyticsEngine }) {
 
       <div className="report-workspace">
         <div className="report-info">
-          <h3>@analytix/report-builder</h3>
+          <h3>@gridstorm/analytix-report-builder</h3>
           <p>
             Chain <code>addPivot()</code>, <code>addChart()</code>, <code>addKpiSummary()</code>,
             and <code>addText()</code> calls then call <code>.schedule(&#123;…&#125;).build()</code>
@@ -1240,7 +1240,7 @@ function DocsTab() {
             ))}
           </div>
         </div>
-        <div className="docs-arch-arrow">↓ &nbsp;@analytix/react</div>
+        <div className="docs-arch-arrow">↓ &nbsp;@gridstorm/analytix-react</div>
         <div className="docs-arch-layer">
           <div className="docs-arch-layer-label">Core Orchestrator</div>
           <div className="docs-arch-boxes">
@@ -1249,7 +1249,7 @@ function DocsTab() {
             ))}
           </div>
         </div>
-        <div className="docs-arch-arrow">↓ &nbsp;@analytix/core</div>
+        <div className="docs-arch-arrow">↓ &nbsp;@gridstorm/analytix-core</div>
         <div className="docs-arch-layer">
           <div className="docs-arch-layer-label">Specialized Engines (zero dependencies between them)</div>
           <div className="docs-arch-boxes">
@@ -1265,11 +1265,11 @@ function DocsTab() {
       <div className="docs-code-examples">
         <details className="docs-code-block">
           <summary>Minimal setup — 3 lines to embed the full builder</summary>
-          <pre>{`import { AnalyticsEngine } from '@analytix/core';
-import { computePivot }    from '@analytix/pivot-engine';
-import { computeKpi }      from '@analytix/kpi-engine';
-import { parseCsv }        from '@analytix/data-connector';
-import { AnalyticsBuilder } from '@analytix/react';
+          <pre>{`import { AnalyticsEngine } from '@gridstorm/analytix-core';
+import { computePivot }    from '@gridstorm/analytix-pivot-engine';
+import { computeKpi }      from '@gridstorm/analytix-kpi-engine';
+import { parseCsv }        from '@gridstorm/analytix-data-connector';
+import { AnalyticsBuilder } from '@gridstorm/analytix-react';
 
 // 1. Create engine + wire sub-engines
 const engine = new AnalyticsEngine();
@@ -1288,10 +1288,10 @@ export default function App() {
 
         <details className="docs-code-block">
           <summary>Standalone pivot table — use without the full builder UI</summary>
-          <pre>{`import { AnalyticsEngine } from '@analytix/core';
-import { computePivot }    from '@analytix/pivot-engine';
-import { PivotTable }      from '@analytix/react';
-import { usePivot }        from '@analytix/react';
+          <pre>{`import { AnalyticsEngine } from '@gridstorm/analytix-core';
+import { computePivot }    from '@gridstorm/analytix-pivot-engine';
+import { PivotTable }      from '@gridstorm/analytix-react';
+import { usePivot }        from '@gridstorm/analytix-react';
 
 const config = {
   id: 'revenue-pivot',
@@ -1314,7 +1314,7 @@ function MyPivot({ engine }) {
 
         <details className="docs-code-block">
           <summary>AI Insights — zero-dependency analysis, no API key</summary>
-          <pre>{`import { InsightEngine } from '@analytix/insight-engine';
+          <pre>{`import { InsightEngine } from '@gridstorm/analytix-insight-engine';
 
 const engine = new InsightEngine();
 
@@ -1343,7 +1343,7 @@ console.log(result.narrative);
 
         <details className="docs-code-block">
           <summary>Cross-widget filtering — click a bar to filter all other charts</summary>
-          <pre>{`import { CrossFilterProvider, useCrossFilter } from '@analytix/crossfilter';
+          <pre>{`import { CrossFilterProvider, useCrossFilter } from '@gridstorm/analytix-crossfilter';
 
 // 1. Wrap your dashboard in CrossFilterProvider
 function Dashboard({ dataset }) {
@@ -1382,7 +1382,7 @@ function RevenueBar({ datasetId, rows }) {
             'SQL connector — DuckDB WASM, query CSV/Parquet with SQL',
             'Mobile-responsive layout with touch drag-and-drop',
             'Plugin marketplace — community chart types and connectors',
-            '@analytix/vue and @analytix/svelte adapter packages',
+            '@gridstorm/analytix-vue and @gridstorm/analytix-svelte adapter packages',
             'WCAG 2.1 AA accessibility audit and compliance',
             'Native time-series axis with zoom and pan gestures',
             'Snapshot alerts — compare KPI values across periods',

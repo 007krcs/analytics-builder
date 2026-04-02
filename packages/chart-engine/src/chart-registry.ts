@@ -3,7 +3,7 @@
  * Used by UI components to render correct controls and validate configurations.
  */
 
-import type { ChartType, ChartTypeMetadata, ChartConfig, Row, Dataset } from '@analytix/core';
+import type { ChartType, ChartTypeMetadata, ChartConfig, Row, Dataset } from '@gridstorm/analytix-core';
 import type { PreparedChartData } from './types.js';
 import {
   transformBar,

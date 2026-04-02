@@ -5,8 +5,8 @@
  */
 
 import { useId } from 'react';
-import type { AnalyticsEngine, PivotConfig, Dataset } from '@analytix/core';
-import type { AggregationFunction } from '@analytix/core';
+import type { AnalyticsEngine, PivotConfig, Dataset } from '@gridstorm/analytix-core';
+import type { AggregationFunction } from '@gridstorm/analytix-core';
 import { DropZone, type DropZoneField, type DropZoneRole } from './DropZone.js';
 import { usePivot } from '../hooks/usePivot.js';
 import { PivotTable } from './PivotTable.js';

@@ -3,7 +3,7 @@
  * Flags any point with |z| > 2.5 OR outside 3×IQR as an anomaly.
  */
 
-import type { Dataset, Row } from '@analytix/core';
+import type { Dataset, Row } from '@gridstorm/analytix-core';
 import type { Insight } from '../types.js';
 
 function mean(values: number[]): number {

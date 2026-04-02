@@ -12,7 +12,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { Column } from '@analytix/core';
+import type { Column } from '@gridstorm/analytix-core';
 
 export type DropZoneRole = 'rows' | 'columns' | 'values' | 'filters';
 

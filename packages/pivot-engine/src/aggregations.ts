@@ -3,7 +3,7 @@
  * All functions operate on arrays of numbers and return a single numeric result.
  */
 
-import type { AggregationFunction } from '@analytix/core';
+import type { AggregationFunction } from '@gridstorm/analytix-core';
 
 /** Run an aggregation over a set of numeric values */
 export function aggregate(

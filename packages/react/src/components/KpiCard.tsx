@@ -3,7 +3,7 @@
  * and period-over-period delta when previousPeriod is configured.
  */
 
-import type { KpiResult, KpiConfig } from '@analytix/core';
+import type { KpiResult, KpiConfig } from '@gridstorm/analytix-core';
 
 export interface KpiCardProps {
   config: KpiConfig;

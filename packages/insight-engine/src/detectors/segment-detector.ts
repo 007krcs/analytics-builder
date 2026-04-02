@@ -3,7 +3,7 @@
  * Groups by dimensional columns and aggregates numeric columns.
  */
 
-import type { Dataset, Row } from '@analytix/core';
+import type { Dataset, Row } from '@gridstorm/analytix-core';
 import type { Insight } from '../types.js';
 
 export function detectSegments(dataset: Dataset): Insight[] {

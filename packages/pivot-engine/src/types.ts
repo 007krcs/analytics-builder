@@ -2,7 +2,7 @@
  * Internal types for pivot-engine computation.
  */
 
-import type { CellValue } from '@analytix/core';
+import type { CellValue } from '@gridstorm/analytix-core';
 
 /** A group key is the concatenation of dimension values */
 export type GroupKey = string;

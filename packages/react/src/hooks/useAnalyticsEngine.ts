@@ -7,10 +7,10 @@
  */
 
 import { useRef, useEffect, useCallback, useState } from 'react';
-import { AnalyticsEngine } from '@analytix/core';
-import type { AnalyticsEngineOptions, Dataset, Row } from '@analytix/core';
-import { computePivot } from '@analytix/pivot-engine';
-import { computeKpi } from '@analytix/kpi-engine';
+import { AnalyticsEngine } from '@gridstorm/analytix-core';
+import type { AnalyticsEngineOptions, Dataset, Row } from '@gridstorm/analytix-core';
+import { computePivot } from '@gridstorm/analytix-pivot-engine';
+import { computeKpi } from '@gridstorm/analytix-kpi-engine';
 
 export interface UseAnalyticsEngineResult {
   engine: AnalyticsEngine;

@@ -20,39 +20,6 @@ importers:
 
   examples/demo:
     dependencies:
-      '@analytix/canvas-layout':
-        specifier: workspace:*
-        version: link:../../packages/canvas-layout
-      '@analytix/chart-engine':
-        specifier: workspace:*
-        version: link:../../packages/chart-engine
-      '@analytix/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@analytix/crossfilter':
-        specifier: workspace:*
-        version: link:../../packages/crossfilter
-      '@analytix/data-connector':
-        specifier: workspace:*
-        version: link:../../packages/data-connector
-      '@analytix/insight-engine':
-        specifier: workspace:*
-        version: link:../../packages/insight-engine
-      '@analytix/kpi-engine':
-        specifier: workspace:*
-        version: link:../../packages/kpi-engine
-      '@analytix/pivot-engine':
-        specifier: workspace:*
-        version: link:../../packages/pivot-engine
-      '@analytix/react':
-        specifier: workspace:*
-        version: link:../../packages/react
-      '@analytix/report-builder':
-        specifier: workspace:*
-        version: link:../../packages/report-builder
-      '@analytix/sql-connector':
-        specifier: workspace:*
-        version: link:../../packages/sql-connector
       '@dnd-kit/core':
         specifier: ^6.0.0
         version: 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -62,6 +29,39 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.0.0
         version: 3.2.2(react@18.3.1)
+      '@gridstorm/analytix-canvas-layout':
+        specifier: workspace:*
+        version: link:../../packages/canvas-layout
+      '@gridstorm/analytix-chart-engine':
+        specifier: workspace:*
+        version: link:../../packages/chart-engine
+      '@gridstorm/analytix-core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@gridstorm/analytix-crossfilter':
+        specifier: workspace:*
+        version: link:../../packages/crossfilter
+      '@gridstorm/analytix-data-connector':
+        specifier: workspace:*
+        version: link:../../packages/data-connector
+      '@gridstorm/analytix-insight-engine':
+        specifier: workspace:*
+        version: link:../../packages/insight-engine
+      '@gridstorm/analytix-kpi-engine':
+        specifier: workspace:*
+        version: link:../../packages/kpi-engine
+      '@gridstorm/analytix-pivot-engine':
+        specifier: workspace:*
+        version: link:../../packages/pivot-engine
+      '@gridstorm/analytix-react':
+        specifier: workspace:*
+        version: link:../../packages/react
+      '@gridstorm/analytix-report-builder':
+        specifier: workspace:*
+        version: link:../../packages/report-builder
+      '@gridstorm/analytix-sql-connector':
+        specifier: workspace:*
+        version: link:../../packages/sql-connector
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -90,7 +90,7 @@ importers:
 
   packages/ai-support:
     dependencies:
-      '@analytix/core':
+      '@gridstorm/analytix-core':
         specifier: workspace:*
         version: link:../core
       react:
@@ -125,7 +125,7 @@ importers:
 
   packages/chart-engine:
     dependencies:
-      '@analytix/core':
+      '@gridstorm/analytix-core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -147,7 +147,7 @@ importers:
 
   packages/crossfilter:
     dependencies:
-      '@analytix/core':
+      '@gridstorm/analytix-core':
         specifier: workspace:*
         version: link:../core
       react:
@@ -166,7 +166,7 @@ importers:
 
   packages/data-connector:
     dependencies:
-      '@analytix/core':
+      '@gridstorm/analytix-core':
         specifier: workspace:*
         version: link:../core
       react:
@@ -185,7 +185,7 @@ importers:
 
   packages/insight-engine:
     dependencies:
-      '@analytix/core':
+      '@gridstorm/analytix-core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -198,7 +198,7 @@ importers:
 
   packages/kpi-engine:
     dependencies:
-      '@analytix/core':
+      '@gridstorm/analytix-core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -211,7 +211,7 @@ importers:
 
   packages/pivot-engine:
     dependencies:
-      '@analytix/core':
+      '@gridstorm/analytix-core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -224,21 +224,6 @@ importers:
 
   packages/react:
     dependencies:
-      '@analytix/chart-engine':
-        specifier: workspace:*
-        version: link:../chart-engine
-      '@analytix/core':
-        specifier: workspace:*
-        version: link:../core
-      '@analytix/kpi-engine':
-        specifier: workspace:*
-        version: link:../kpi-engine
-      '@analytix/pivot-engine':
-        specifier: workspace:*
-        version: link:../pivot-engine
-      '@analytix/report-builder':
-        specifier: workspace:*
-        version: link:../report-builder
       '@dnd-kit/core':
         specifier: ^6.0.0
         version: 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -248,6 +233,21 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.0.0
         version: 3.2.2(react@18.3.1)
+      '@gridstorm/analytix-chart-engine':
+        specifier: workspace:*
+        version: link:../chart-engine
+      '@gridstorm/analytix-core':
+        specifier: workspace:*
+        version: link:../core
+      '@gridstorm/analytix-kpi-engine':
+        specifier: workspace:*
+        version: link:../kpi-engine
+      '@gridstorm/analytix-pivot-engine':
+        specifier: workspace:*
+        version: link:../pivot-engine
+      '@gridstorm/analytix-report-builder':
+        specifier: workspace:*
+        version: link:../report-builder
       react:
         specifier: ^18.0.0
         version: 18.3.1
@@ -273,7 +273,7 @@ importers:
 
   packages/report-builder:
     dependencies:
-      '@analytix/core':
+      '@gridstorm/analytix-core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -286,7 +286,7 @@ importers:
 
   packages/sql-connector:
     dependencies:
-      '@analytix/core':
+      '@gridstorm/analytix-core':
         specifier: workspace:*
         version: link:../core
       react:
@@ -305,7 +305,7 @@ importers:
 
   packages/svelte-adapter:
     dependencies:
-      '@analytix/core':
+      '@gridstorm/analytix-core':
         specifier: workspace:*
         version: link:../core
       svelte:
@@ -321,7 +321,7 @@ importers:
 
   packages/vue-adapter:
     dependencies:
-      '@analytix/core':
+      '@gridstorm/analytix-core':
         specifier: workspace:*
         version: link:../core
       vue:

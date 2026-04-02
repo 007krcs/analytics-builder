@@ -1,5 +1,5 @@
 /**
- * @analytix/canvas-layout
+ * @gridstorm/analytix-canvas-layout
  *
  * Freeform drag-and-drop dashboard canvas.
  * Like Figma for dashboards — place widgets anywhere, resize freely, snap to guides.

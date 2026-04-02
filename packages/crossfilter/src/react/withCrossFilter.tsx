@@ -3,7 +3,7 @@
  */
 
 import { useCrossFilter } from './useCrossFilter.js';
-import type { Row, CellValue } from '@analytix/core';
+import type { Row, CellValue } from '@gridstorm/analytix-core';
 import type { DatasetFilterState } from '../filter-types.js';
 
 export interface CrossFilterInjectedProps {

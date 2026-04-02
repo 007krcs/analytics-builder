@@ -7,7 +7,7 @@
  * delimited block in the CSV output.
  */
 
-import type { ReportConfig, ReportRunResult, PivotResult, Row } from '@analytix/core';
+import type { ReportConfig, ReportRunResult, PivotResult, Row } from '@gridstorm/analytix-core';
 import type { ResolvedSection } from './types.js';
 import { escapeHtml } from './pdf-renderer.js';
 

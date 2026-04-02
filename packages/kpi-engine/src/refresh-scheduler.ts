@@ -9,7 +9,7 @@
  * - Cancellation via returned handles
  */
 
-import type { RefreshPolicy } from '@analytix/core';
+import type { RefreshPolicy } from '@gridstorm/analytix-core';
 import type { RefreshHandle } from './types.js';
 
 export type RefreshCallback = (kpiId: string) => void | Promise<void>;

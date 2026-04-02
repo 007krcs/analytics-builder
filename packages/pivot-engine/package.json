@@ -1,6 +1,7 @@
 {
-  "name": "@analytix/pivot-engine",
-  "version": "0.1.0",
+  "name": "@gridstorm/analytix-pivot-engine",
+  "version": "0.1.1",
+  "homepage": "https://analytics.tekivex.com",
   "description": "Pivot table computation engine for Analytics Builder",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -13,14 +14,14 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@analytix/core": "workspace:*"
+    "@gridstorm/analytix-core": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.0.0",

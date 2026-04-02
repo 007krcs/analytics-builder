@@ -1,6 +1,7 @@
 {
-  "name": "@analytix/react",
-  "version": "0.1.0",
+  "name": "@gridstorm/analytix-react",
+  "version": "0.1.1",
+  "homepage": "https://analytics.tekivex.com",
   "description": "React components for the drag-and-drop analytics builder",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -13,18 +14,18 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@analytix/core": "workspace:*",
-    "@analytix/pivot-engine": "workspace:*",
-    "@analytix/chart-engine": "workspace:*",
-    "@analytix/kpi-engine": "workspace:*",
-    "@analytix/report-builder": "workspace:*"
+    "@gridstorm/analytix-core": "workspace:*",
+    "@gridstorm/analytix-pivot-engine": "workspace:*",
+    "@gridstorm/analytix-chart-engine": "workspace:*",
+    "@gridstorm/analytix-kpi-engine": "workspace:*",
+    "@gridstorm/analytix-report-builder": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.0.0",

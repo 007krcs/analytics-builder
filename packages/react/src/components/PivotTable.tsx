@@ -2,7 +2,7 @@
  * PivotTable — Renders a PivotResult as an HTML table with sticky headers.
  */
 
-import type { PivotResult, PivotRow } from '@analytix/core';
+import type { PivotResult, PivotRow } from '@gridstorm/analytix-core';
 
 export interface PivotTableProps {
   result: PivotResult;

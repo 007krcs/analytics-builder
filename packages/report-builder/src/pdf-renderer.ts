@@ -7,7 +7,7 @@
  * Puppeteer, and encode it as base64 for transport.
  */
 
-import type { ReportConfig, ReportRunResult, PageLayout } from '@analytix/core';
+import type { ReportConfig, ReportRunResult, PageLayout } from '@gridstorm/analytix-core';
 import type { ResolvedSection, RenderContext } from './types.js';
 
 export function renderToPdf(

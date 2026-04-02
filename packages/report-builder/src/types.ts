@@ -2,7 +2,7 @@
  * Internal types for report-builder.
  */
 
-import type { ReportSection } from '@analytix/core';
+import type { ReportSection } from '@gridstorm/analytix-core';
 
 /** Resolved section with all data fetched */
 export interface ResolvedSection {
@@ -17,7 +17,7 @@ export interface ResolvedSection {
 export interface RenderContext {
   reportId: string;
   /** Engine instance for fetching data */
-  getData: (datasetId: string) => import('@analytix/core').Row[] | null;
-  getPivotResult: (pivotId: string) => import('@analytix/core').PivotResult | null;
-  getKpiResult: (kpiId: string) => import('@analytix/core').KpiResult | null;
+  getData: (datasetId: string) => import('@gridstorm/analytix-core').Row[] | null;
+  getPivotResult: (pivotId: string) => import('@gridstorm/analytix-core').PivotResult | null;
+  getKpiResult: (kpiId: string) => import('@gridstorm/analytix-core').KpiResult | null;
 }

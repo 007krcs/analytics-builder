@@ -1,5 +1,5 @@
 /**
- * @analytix/insight-engine
+ * @gridstorm/analytix-insight-engine
  *
  * Zero-dependency AI insights engine.
  * Auto-generates natural language insights from data patterns.
