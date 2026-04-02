@@ -4,7 +4,7 @@
   "private": true,
   "description": "Drag-and-drop analytics builder powered by GridStorm",
   "scripts": {
-    "build": "pnpm -r --filter='!demo' build && pnpm --filter demo build",
+    "build": "pnpm --filter './packages/**' build && pnpm --filter demo build",
     "dev": "pnpm --filter demo dev",
     "preview": "pnpm --filter demo preview",
     "start:prod": "pnpm --filter demo exec vite preview --host --port ${PORT:-3000}",
