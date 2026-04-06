@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0d1f35"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="45" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <ellipse cx="200" cy="160" rx="340" ry="220" fill="#8b5cf6" opacity="0.07" filter="url(#softglow)"/>
+  <ellipse cx="1060" cy="500" rx="280" ry="180" fill="#06b6d4" opacity="0.06" filter="url(#softglow)"/>
+
+  <!-- Top accent line -->
+  <rect x="0" y="0" width="1200" height="4" fill="url(#accent)"/>
+
+  <!-- RIGHT SIDE: Chart visuals -->
+  <!-- Bar chart -->
+  <rect x="680" y="130" width="460" height="360" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+  <text x="700" y="165" font-family="Inter,sans-serif" font-size="13" font-weight="600" fill="#64748b">REVENUE BY QUARTER</text>
+
+  <!-- Bars -->
+  <rect x="710" y="220" width="55" height="200" rx="4" fill="#8b5cf6" opacity="0.7"/>
+  <rect x="780" y="180" width="55" height="240" rx="4" fill="#8b5cf6" opacity="0.85"/>
+  <rect x="850" y="150" width="55" height="270" rx="4" fill="#8b5cf6"/>
+  <rect x="920" y="200" width="55" height="220" rx="4" fill="#06b6d4" opacity="0.8"/>
+  <rect x="990" y="165" width="55" height="255" rx="4" fill="#06b6d4"/>
+  <rect x="1060" y="140" width="55" height="280" rx="4" fill="#06b6d4"/>
+
+  <!-- Bar labels -->
+  <text x="737" y="435" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#64748b">Q1</text>
+  <text x="807" y="435" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#64748b">Q2</text>
+  <text x="877" y="435" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#64748b">Q3</text>
+  <text x="947" y="435" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#64748b">Q4</text>
+  <text x="1017" y="435" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#64748b">Q5</text>
+  <text x="1087" y="435" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#64748b">Q6</text>
+
+  <!-- Baseline -->
+  <line x1="695" y1="420" x2="1130" y2="420" stroke="#334155" stroke-width="1.5"/>
+
+  <!-- KPI cards row -->
+  <rect x="680" y="510" width="138" height="56" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="749" y="534" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#64748b">TOTAL REVENUE</text>
+  <text x="749" y="554" text-anchor="middle" font-family="Inter,sans-serif" font-size="16" font-weight="700" fill="#a78bfa">$2.4M</text>
+
+  <rect x="828" y="510" width="138" height="56" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="897" y="534" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#64748b">GROWTH</text>
+  <text x="897" y="554" text-anchor="middle" font-family="Inter,sans-serif" font-size="16" font-weight="700" fill="#34d399">+34.2%</text>
+
+  <rect x="976" y="510" width="138" height="56" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="1045" y="534" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#64748b">AVG ORDER</text>
+  <text x="1045" y="554" text-anchor="middle" font-family="Inter,sans-serif" font-size="16" font-weight="700" fill="#67e8f9">$847</text>
+
+  <!-- LEFT SIDE: Branding -->
+  <!-- Icon hex, center (140,190), r=90 -->
+  <polygon points="230,190 185,268 95,268 50,190 95,112 185,112" fill="#8b5cf6" opacity="0.9"/>
+  <!-- Chart icon inside: 3 ascending bars -->
+  <rect x="80" y="230" width="22" height="30" rx="4" fill="white" opacity="0.9"/>
+  <rect x="112" y="210" width="22" height="50" rx="4" fill="white" opacity="0.9"/>
+  <rect x="144" y="188" width="22" height="72" rx="4" fill="white" opacity="0.9"/>
+  <!-- Trend line -->
+  <polyline points="91,228 123,208 155,185" fill="none" stroke="#06b6d4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Brand name -->
+  <text x="60" y="345" font-family="Inter,-apple-system,sans-serif" font-size="62" font-weight="800" fill="url(#accent)" letter-spacing="-1.5">Analytics</text>
+  <text x="60" y="415" font-family="Inter,-apple-system,sans-serif" font-size="62" font-weight="800" fill="url(#accent)" letter-spacing="-1.5">Studio</text>
+
+  <!-- Tagline -->
+  <text x="62" y="455" font-family="Inter,sans-serif" font-size="22" font-weight="400" fill="#94a3b8">Drag-and-drop BI &amp; analytics platform</text>
+
+  <!-- Divider -->
+  <rect x="62" y="478" width="440" height="2" fill="url(#accent)" opacity="0.35" rx="1"/>
+
+  <!-- Pills -->
+  <rect x="62" y="496" width="110" height="34" rx="17" fill="#8b5cf6" fill-opacity="0.18" stroke="#8b5cf6" stroke-opacity="0.5" stroke-width="1.5"/>
+  <text x="117" y="518" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="600" fill="#c4b5fd">26+ charts</text>
+
+  <rect x="184" y="496" width="118" height="34" rx="17" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-opacity="0.4" stroke-width="1.5"/>
+  <text x="243" y="518" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="600" fill="#67e8f9">Pivot builder</text>
+
+  <rect x="314" y="496" width="104" height="34" rx="17" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-opacity="0.4" stroke-width="1.5"/>
+  <text x="366" y="518" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="600" fill="#6ee7b7">In-browser SQL</text>
+
+  <!-- Domain -->
+  <text x="600" y="590" text-anchor="middle" font-family="Inter,sans-serif" font-size="18" font-weight="500" fill="#475569" letter-spacing="1">analytics.tekivex.com</text>
+
+  <!-- Bottom accent -->
+  <rect x="0" y="626" width="1200" height="4" fill="url(#accent)" opacity="0.5"/>
+</svg>
