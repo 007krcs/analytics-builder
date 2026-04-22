@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * useSqlConnector — React hook wrapping SqlConnector for use in components.
  */

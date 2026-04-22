@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Segment Detector — Top/bottom N segments by aggregated value.
  * Groups by dimensional columns and aggregates numeric columns.

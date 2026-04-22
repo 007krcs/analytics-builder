@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * useCrossFilter — React hook for cross-widget filtering.
  *

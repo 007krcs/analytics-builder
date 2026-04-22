@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Correlation Detector — Pearson correlation between every pair of numeric columns.
  * Flags strong positive (r > 0.7) and inverse (r < -0.7) correlations.

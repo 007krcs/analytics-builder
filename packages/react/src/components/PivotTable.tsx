@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * PivotTable — Renders a PivotResult as an HTML table with sticky headers.
  */

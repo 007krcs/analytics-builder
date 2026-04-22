@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * AnalyticsEngine — Central orchestrator that wires together pivot, chart, KPI,
  * and report engines into a single coherent session.

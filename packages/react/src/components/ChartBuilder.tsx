@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * ChartBuilder — Configuration UI for building a chart from a dataset.
  * Renders the chart using Recharts based on the selected ChartType.

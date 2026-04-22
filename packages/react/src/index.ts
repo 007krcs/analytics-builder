@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 // Components
 export { AnalyticsBuilder } from './components/AnalyticsBuilder.js';
 export type { AnalyticsBuilderProps, BuilderTab } from './components/AnalyticsBuilder.js';

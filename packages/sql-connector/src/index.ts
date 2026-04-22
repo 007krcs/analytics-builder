@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 export { SqlConnector } from './sql-connector.js';
 export type { Row } from '@gridstorm/analytix-core';
 export { useSqlConnector } from './useSqlConnector.js';

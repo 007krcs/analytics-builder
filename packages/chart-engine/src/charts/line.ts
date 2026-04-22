@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Line and Area chart data transformer.
  * Handles line, line-smooth, area, area-stacked.

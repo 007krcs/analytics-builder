@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * useAnalyticsEngine — React hook that creates and manages a single
  * AnalyticsEngine instance for the lifetime of the component tree.

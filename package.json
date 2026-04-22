@@ -24,6 +24,7 @@
     "eslint-plugin-no-unsanitized": "^4.0.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-security": "^3.0.0",
+    "javascript-obfuscator": "^5.4.1",
     "jsdom": "^25.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

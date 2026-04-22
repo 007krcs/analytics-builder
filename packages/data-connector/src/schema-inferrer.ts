@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Schema Inferrer — Auto-detect column types from sample rows.
  * Samples first 100 rows, returns Column definitions with confidence scores.

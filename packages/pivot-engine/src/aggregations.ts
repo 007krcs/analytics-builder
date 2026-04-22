@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Aggregation functions for pivot computation.
  * All functions operate on arrays of numbers and return a single numeric result.

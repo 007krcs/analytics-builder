@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Anomaly Detector — Z-score + IQR dual method.
  * Flags any point with |z| > 2.5 OR outside 3×IQR as an anomaly.

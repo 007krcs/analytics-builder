@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Dataset, Column, and Row types for Analytics Builder.
  * Represents the raw data layer that all engines operate on.

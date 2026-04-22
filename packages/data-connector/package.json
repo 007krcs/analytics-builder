@@ -16,7 +16,7 @@
   },
   "files": ["dist", "README.md"],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && node ../../scripts/obfuscate.mjs ./dist",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
   },

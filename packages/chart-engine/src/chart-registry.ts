@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * ChartRegistry — Maps every ChartType to its metadata and default config schema.
  * Used by UI components to render correct controls and validate configurations.

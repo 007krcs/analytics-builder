@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * DashboardCanvas — Infinite freeform canvas with zoom, multi-select, and keyboard shortcuts.
  */

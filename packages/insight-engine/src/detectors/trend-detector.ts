@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Trend Detector — Least-squares linear regression on numeric columns.
  * Returns trend insights with slope direction and R² strength.

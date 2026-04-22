@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Bar chart data transformer.
  * Handles bar, bar-horizontal, bar-stacked, bar-stacked-100.

@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * REST Connector — Fetch JSON API, auto-detect array path, auto-paginate.
  */

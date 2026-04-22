@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * FieldPanel — Shows the available dataset columns as draggable field items.
  * Users drag fields from here into the DropZone targets.

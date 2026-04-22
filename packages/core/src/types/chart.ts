@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Chart configuration and type definitions.
  * Supports 20+ chart types with full configuration schemas.

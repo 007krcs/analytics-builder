@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Forecast Detector — Simple linear extrapolation for the next N periods.
  * Uses the same least-squares regression as the trend detector.

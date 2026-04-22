@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * KpiDashboard — A grid of KPI cards with optional auto-refresh.
  * Supports drag-to-reorder via @dnd-kit/sortable.

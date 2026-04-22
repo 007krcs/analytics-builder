@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * CanvasMinimap — Thumbnail overview of the full canvas.
  * Shows all widget positions scaled to the minimap dimensions.

@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * CanvasWidget — Draggable/resizable widget shell.
  * Uses pointer events for cross-browser drag and resize.

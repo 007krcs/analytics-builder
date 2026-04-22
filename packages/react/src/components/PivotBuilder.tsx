@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * PivotBuilder — Drag-and-drop pivot table configuration UI.
  * This is a controlled component — drag state is owned by the parent (AnalyticsBuilder).

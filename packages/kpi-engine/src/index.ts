@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 export { KpiEngine, kpiEngine, computeKpi } from './kpi-engine.js';
 export {
   RefreshScheduler,

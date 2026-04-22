@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * ReportScheduler — UI for configuring report schedules.
  * Supports interval, cron, and one-time schedule types.

@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Narrative Generator — Template-based English generation with phrase variety.
  * Turns an array of Insight objects into a 2-3 sentence executive summary.

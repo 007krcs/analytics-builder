@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * WidgetToolbar — Per-widget action bar: title, duplicate, delete, settings.
  */

@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * DropZone — A droppable target for fields in the pivot builder.
  * Renders the list of fields currently assigned to a zone (rows/columns/values)

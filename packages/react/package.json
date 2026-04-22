@@ -15,11 +15,6 @@
     }
   },
   "files": ["dist", "README.md"],
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit"
-  },
   "dependencies": {
     "@gridstorm/analytix-core": "workspace:*",
     "@gridstorm/analytix-pivot-engine": "workspace:*",
@@ -49,7 +44,7 @@
     "vitest": "^2.1.0"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && node ../../scripts/obfuscate.mjs ./dist",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

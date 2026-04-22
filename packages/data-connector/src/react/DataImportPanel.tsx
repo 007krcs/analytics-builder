@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * DataImportPanel — Drag-and-drop UI for importing data.
  * Custom CSS only, no UI library dependencies.

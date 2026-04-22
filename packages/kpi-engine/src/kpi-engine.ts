@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * KpiEngine — Computes KPI values from a dataset with:
  * - All aggregation functions (via pivot-engine aggregations)

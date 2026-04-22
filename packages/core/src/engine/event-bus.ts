@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * Typed event bus for inter-engine communication.
  * Supports wildcard listeners and once() subscriptions.

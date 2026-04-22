@@ -1,3 +1,5 @@
+// © 2025 GridStorm / Tekivex — All Rights Reserved
+// Unauthorized reproduction or distribution is prohibited.
 /**
  * KpiCard — Displays a single computed KPI with value, status, trend,
  * and period-over-period delta when previousPeriod is configured.
