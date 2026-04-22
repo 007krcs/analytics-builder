@@ -164,7 +164,8 @@ describe('FieldPanel', () => {
   it('shows query in the no-match message', () => {
     const ds = makeDataset([DIMENSION_COL]);
     wrap(<FieldPanel dataset={ds} searchQuery="xyz" onSearchChange={() => {}} />);
-    expect(screen.getByText(/"xyz"/)).toBeInTheDocument();
+    // Component renders smart quotes: "xyz" — match by substring so quote style doesn't matter
+    expect(screen.getByText((content) => content.includes('xyz'))).toBeInTheDocument();
   });
 
   // ── Group collapse ────────────────────────────────────────────────────────

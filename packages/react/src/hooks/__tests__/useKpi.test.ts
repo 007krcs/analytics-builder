@@ -1,6 +1,6 @@
 // ─── useKpi Tests ─────────────────────────────────────────────────────────────
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { AnalyticsEngine } from '@gridstorm/analytix-core';
 import type { KpiConfig } from '@gridstorm/analytix-core';
 import { computePivot } from '@gridstorm/analytix-pivot-engine';
@@ -121,9 +121,15 @@ describe('useKpi', () => {
     expect(result.current.result?.status).toBe('good');
   });
 
-  it('status is "warning" when value is between warning and target', () => {
+  it('status is "warning" when value is between warning and target', async () => {
     engine.addDatasetFromRows('ds-1', 'Sales', [{ revenue: 7000 }]);
     const { result } = renderHook(() => useKpi(engine, REVENUE_KPI));
+    // Flush all pending effects and state updates
+    await act(async () => {});
+    // If computation failed, surface the error instead of just checking status
+    if (result.current.error) {
+      throw new Error(`useKpi threw unexpectedly: ${result.current.error.message}`);
+    }
     expect(result.current.result?.status).toBe('warning');
   });
 

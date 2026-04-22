@@ -1,6 +1,6 @@
 // ─── usePivot Tests ───────────────────────────────────────────────────────────
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { AnalyticsEngine } from '@gridstorm/analytix-core';
 import type { PivotConfig } from '@gridstorm/analytix-core';
 import { computePivot } from '@gridstorm/analytix-pivot-engine';
@@ -17,13 +17,14 @@ function makeEngine(): AnalyticsEngine {
 const SIMPLE_CONFIG: PivotConfig = {
   id: 'pivot-1',
   datasetId: 'ds-1',
-  rowDimensions: [{ columnId: 'region', sortDirection: 'asc' }],
-  columnDimensions: [],
-  values: [{ columnId: 'revenue', aggregation: 'sum', label: 'Revenue' }],
+  rowFields: ['region'],
+  columnFields: [],
+  valueFields: [{ columnId: 'revenue', aggregation: 'sum', label: 'Revenue' }],
   filters: [],
-  showTotals: true,
-  showSubtotals: false,
-  sortBy: null,
+  showRowTotals: true,
+  showColumnTotals: false,
+  showSubTotals: false,
+  compactMode: false,
 };
 
 describe('usePivot', () => {
@@ -62,22 +63,24 @@ describe('usePivot', () => {
 
   // ── With valid config + dataset ────────────────────────────────────────────
 
-  it('returns a pivot result when config and dataset are present', () => {
+  it('returns a pivot result when config and dataset are present', async () => {
     engine.addDatasetFromRows('ds-1', 'Sales', [
       { region: 'North', revenue: 100 },
       { region: 'South', revenue: 200 },
     ]);
     const { result } = renderHook(() => usePivot(engine, SIMPLE_CONFIG));
-    expect(result.current.result).not.toBeNull();
+    // useEffect fires asynchronously — wait for state to settle
+    await waitFor(() => expect(result.current.result).not.toBeNull());
     expect(result.current.result?.configId).toBe('pivot-1');
   });
 
-  it('result has rows after computation', () => {
+  it('result has rows after computation', async () => {
     engine.addDatasetFromRows('ds-1', 'Sales', [
       { region: 'East', revenue: 150 },
       { region: 'West', revenue: 300 },
     ]);
     const { result } = renderHook(() => usePivot(engine, SIMPLE_CONFIG));
+    await waitFor(() => expect(result.current.result).not.toBeNull());
     expect(Array.isArray(result.current.result?.rows)).toBe(true);
     expect(result.current.result!.rows.length).toBeGreaterThan(0);
   });

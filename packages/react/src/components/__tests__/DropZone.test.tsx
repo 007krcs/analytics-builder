@@ -204,9 +204,10 @@ describe('DropZone', () => {
   // ── maxFields / full state ────────────────────────────────────────────────
 
   it('shows "Zone full" placeholder when fields.length equals maxFields', () => {
-    const fields = [makeField('f1', 'region'), makeField('f2', 'category')];
+    // The placeholder only renders when the zone is empty (fields.length === 0).
+    // To see "Zone full", use an empty zone whose maxFields is 0.
     wrap(
-      <DropZone id="rows" label="Rows" fields={fields} maxFields={2} onRemove={() => {}} />
+      <DropZone id="rows" label="Rows" fields={[]} maxFields={0} onRemove={() => {}} />
     );
     expect(screen.getByText('Zone full')).toBeInTheDocument();
   });

@@ -109,7 +109,11 @@ describe('ChartBuilder', () => {
 
   it('bar chart button is pressed by default', () => {
     render(<ChartBuilder engine={engine} dataset={null} />);
-    const barBtn = screen.getByRole('button', { name: /bar chart/i });
+    // Multiple buttons may contain "bar chart" in their aria-label; find the one
+    // whose accessible name starts with "Bar Chart" (not e.g. "Combo Chart … bar …")
+    const barBtn = screen.getAllByRole('button').find(
+      (b) => /^bar chart/i.test(b.getAttribute('aria-label') ?? b.textContent ?? ''),
+    )!;
     expect(barBtn.getAttribute('aria-pressed')).toBe('true');
   });
 
@@ -117,21 +121,29 @@ describe('ChartBuilder', () => {
     render(
       <ChartBuilder engine={engine} dataset={null} initialConfig={{ type: 'line' }} />
     );
-    const lineBtn = screen.getByRole('button', { name: /line chart/i });
+    const lineBtn = screen.getAllByRole('button').find(
+      (b) => /^line chart/i.test(b.getAttribute('aria-label') ?? b.textContent ?? ''),
+    )!;
     expect(lineBtn.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('clicking a chart type button makes it active', () => {
     render(<ChartBuilder engine={engine} dataset={null} />);
-    const lineBtn = screen.getByRole('button', { name: /line chart/i });
+    const lineBtn = screen.getAllByRole('button').find(
+      (b) => /^line chart/i.test(b.getAttribute('aria-label') ?? b.textContent ?? ''),
+    )!;
     fireEvent.click(lineBtn);
     expect(lineBtn.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('clicking a chart type deactivates the previous type', () => {
     render(<ChartBuilder engine={engine} dataset={null} />);
-    const barBtn = screen.getByRole('button', { name: /bar chart/i });
-    const lineBtn = screen.getByRole('button', { name: /line chart/i });
+    const barBtn = screen.getAllByRole('button').find(
+      (b) => /^bar chart/i.test(b.getAttribute('aria-label') ?? b.textContent ?? ''),
+    )!;
+    const lineBtn = screen.getAllByRole('button').find(
+      (b) => /^line chart/i.test(b.getAttribute('aria-label') ?? b.textContent ?? ''),
+    )!;
     fireEvent.click(lineBtn);
     expect(barBtn.getAttribute('aria-pressed')).toBe('false');
   });
@@ -178,24 +190,45 @@ describe('ChartBuilder', () => {
 
   it('clicking Apply calls onConfigChange', () => {
     const onConfigChange = vi.fn();
-    render(<ChartBuilder engine={engine} dataset={null} onConfigChange={onConfigChange} />);
+    // gauge chart type does not require an xField, so Apply is enabled without a dataset
+    render(
+      <ChartBuilder
+        engine={engine}
+        dataset={null}
+        initialConfig={{ type: 'gauge' }}
+        onConfigChange={onConfigChange}
+      />,
+    );
     fireEvent.click(screen.getByRole('button', { name: /apply/i }));
     expect(onConfigChange).toHaveBeenCalledTimes(1);
   });
 
   it('onConfigChange receives a config object with the selected chart type', () => {
     const onConfigChange = vi.fn();
-    render(<ChartBuilder engine={engine} dataset={null} onConfigChange={onConfigChange} />);
-    fireEvent.click(screen.getByRole('button', { name: /line chart/i }));
+    render(
+      <ChartBuilder
+        engine={engine}
+        dataset={null}
+        initialConfig={{ type: 'gauge' }}
+        onConfigChange={onConfigChange}
+      />,
+    );
     fireEvent.click(screen.getByRole('button', { name: /apply/i }));
     expect(onConfigChange).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'line' })
+      expect.objectContaining({ type: 'gauge' })
     );
   });
 
   it('onConfigChange receives title in config', () => {
     const onConfigChange = vi.fn();
-    render(<ChartBuilder engine={engine} dataset={null} onConfigChange={onConfigChange} />);
+    render(
+      <ChartBuilder
+        engine={engine}
+        dataset={null}
+        initialConfig={{ type: 'gauge' }}
+        onConfigChange={onConfigChange}
+      />,
+    );
     fireEvent.change(screen.getByPlaceholderText('Chart title'), {
       target: { value: 'My Chart' },
     });

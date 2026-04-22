@@ -107,14 +107,14 @@ function deriveStatus(
   switch (comparisonType) {
     case 'greater_is_better':
       if (value >= (target ?? warning)) return 'good';
-      if (value >= warning) return 'good';
-      if (value >= critical) return 'warning';
+      if (value >= warning) return 'warning'; // above warning threshold but below target
+      if (value >= critical) return 'critical';
       return 'critical';
 
     case 'lower_is_better':
       if (value <= (target ?? warning)) return 'good';
-      if (value <= warning) return 'good';
-      if (value <= critical) return 'warning';
+      if (value <= warning) return 'warning'; // below warning threshold but above target
+      if (value <= critical) return 'critical';
       return 'critical';
 
     case 'target_hit':

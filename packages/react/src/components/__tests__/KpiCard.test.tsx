@@ -91,7 +91,8 @@ describe('KpiCard', () => {
       <KpiCard config={makeConfig()} result={makeResult({ status: 'good' })} />
     );
     const card = container.querySelector('.kpi-card') as HTMLElement;
-    expect(card?.style.borderLeftColor).toBe('#22c55e');
+    // jsdom normalises hex → rgb(); accept either representation
+    expect(card?.style.borderLeftColor).toMatch(/^#22c55e$|^rgb\(34,\s*197,\s*94\)$/);
   });
 
   it('warning status applies yellow borderLeftColor (#f59e0b)', () => {
@@ -99,7 +100,7 @@ describe('KpiCard', () => {
       <KpiCard config={makeConfig()} result={makeResult({ status: 'warning' })} />
     );
     const card = container.querySelector('.kpi-card') as HTMLElement;
-    expect(card?.style.borderLeftColor).toBe('#f59e0b');
+    expect(card?.style.borderLeftColor).toMatch(/^#f59e0b$|^rgb\(245,\s*158,\s*11\)$/);
   });
 
   it('critical status applies red borderLeftColor (#ef4444)', () => {
@@ -107,7 +108,7 @@ describe('KpiCard', () => {
       <KpiCard config={makeConfig()} result={makeResult({ status: 'critical' })} />
     );
     const card = container.querySelector('.kpi-card') as HTMLElement;
-    expect(card?.style.borderLeftColor).toBe('#ef4444');
+    expect(card?.style.borderLeftColor).toMatch(/^#ef4444$|^rgb\(239,\s*68,\s*68\)$/);
   });
 
   it('neutral status applies gray borderLeftColor (#6b7280)', () => {
@@ -115,7 +116,7 @@ describe('KpiCard', () => {
       <KpiCard config={makeConfig()} result={makeResult({ status: 'neutral' })} />
     );
     const card = container.querySelector('.kpi-card') as HTMLElement;
-    expect(card?.style.borderLeftColor).toBe('#6b7280');
+    expect(card?.style.borderLeftColor).toMatch(/^#6b7280$|^rgb\(107,\s*114,\s*128\)$/);
   });
 
   // ── Accessible aria-label ─────────────────────────────────────────────────
@@ -253,7 +254,7 @@ describe('KpiCard', () => {
       <KpiCard config={makeConfig()} result={makeResult({ status: 'good' })} />
     );
     const dot = container.querySelector('.kpi-card-status-dot') as HTMLElement;
-    expect(dot?.style.backgroundColor).toBe('#22c55e');
+    expect(dot?.style.backgroundColor).toMatch(/^#22c55e$|^rgb\(34,\s*197,\s*94\)$/);
   });
 
   // ── Custom className ──────────────────────────────────────────────────────

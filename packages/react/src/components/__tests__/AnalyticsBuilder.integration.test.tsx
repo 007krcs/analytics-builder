@@ -126,7 +126,8 @@ describe('AnalyticsBuilder', () => {
     render(<AnalyticsBuilder engine={engine} />);
     fireEvent.change(screen.getByRole('combobox'), { target: { value: ds.id } });
     // After selecting the dataset, the field panel should show field count
-    expect(screen.getByText(/3 rows/)).toBeInTheDocument();
+    // "3 rows" appears in both the dataset option and the field-panel-meta span
+    expect(screen.getAllByText(/3\s*rows/).length).toBeGreaterThan(0);
   });
 
   // ── Export buttons ────────────────────────────────────────────────────────
@@ -178,7 +179,8 @@ describe('AnalyticsBuilder', () => {
     const ds = makeSalesDataset(engine);
     render(<AnalyticsBuilder engine={engine} initialDataset={ds} />);
     // The field panel should reflect the dataset rows
-    expect(screen.getByText(/3 rows/)).toBeInTheDocument();
+    // "3 rows" appears in both the dataset option and the field-panel-meta span
+    expect(screen.getAllByText(/3\s*rows/).length).toBeGreaterThan(0);
   });
 
   // ── KPI tab empty state ───────────────────────────────────────────────────
