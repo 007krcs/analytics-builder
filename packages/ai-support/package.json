@@ -1,6 +1,6 @@
 {
   "name": "@tekivex/ai-support",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tekivex AI Support Assistant — free, zero-API, client-side product support chatbot",
   "type": "module",
   "main": "./dist/index.cjs",

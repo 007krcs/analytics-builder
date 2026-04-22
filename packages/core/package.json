@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "homepage": "https://analytics.tekivex.com",
   "description": "Core types, engine, store and event bus for Analytics Builder",
   "type": "module",
@@ -14,7 +14,10 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup && node ../../scripts/obfuscate.mjs ./dist",
     "dev": "tsup --watch",

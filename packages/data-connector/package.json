@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-data-connector",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "homepage": "https://analytics.tekivex.com",
   "description": "Zero-config data ingestion: CSV, REST API, WebSocket streaming, clipboard paste",
   "type": "module",
@@ -14,7 +14,10 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup && node ../../scripts/obfuscate.mjs ./dist",
     "dev": "tsup --watch",

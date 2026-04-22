@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-sql-connector",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "homepage": "https://analytics.tekivex.com",
   "description": "In-browser SQL query engine for Analytics Builder (pure-JS, no WASM)",
   "type": "module",
@@ -14,7 +14,10 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",

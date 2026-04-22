@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-react",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "homepage": "https://analytics.tekivex.com",
   "description": "React components for the drag-and-drop analytics builder",
   "type": "module",
@@ -14,7 +14,10 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "dependencies": {
     "@gridstorm/analytix-core": "workspace:*",
     "@gridstorm/analytix-pivot-engine": "workspace:*",
