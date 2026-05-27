@@ -36,10 +36,10 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
 
           <nav className="lp-nav__links" aria-label="Main">
             <a href="#platform">Platform</a>
-            <a href="#solutions">Solutions</a>
+            <a href="#solutions">Use cases</a>
             <a href="#security">Security</a>
-            <a href="#customers">Customers</a>
-            <a href="#pricing">Pricing</a>
+            <a href="#open-source">Open source</a>
+            <a href="https://github.com/007krcs/analytics-builder" target="_blank" rel="noopener noreferrer">GitHub</a>
           </nav>
 
           <div className="lp-nav__cta">
@@ -54,12 +54,12 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
         <div className="lp-container lp-hero__inner">
           <div className="lp-hero__pill">
             <span className="lp-hero__dot" />
-            SOC 2 Type II in progress · GDPR-ready · MIT licensed
+            Open source · MIT licensed · Zero backend
           </div>
 
           <h1 className="lp-hero__title">
-            The embedded analytics platform <br />
-            <span className="lp-hero__title-accent">your finance team will trust.</span>
+            Embeddable analytics for React, <br />
+            <span className="lp-hero__title-accent">without the BI vendor.</span>
           </h1>
 
           <p className="lp-hero__subtitle">
@@ -72,14 +72,18 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
               Launch live demo
               <span aria-hidden="true">→</span>
             </button>
-            <button className="lp-btn lp-btn--secondary lp-btn--lg" onClick={onLaunch}>
-              Book a 20-min walkthrough
-            </button>
+            <a
+              href="https://github.com/007krcs/analytics-builder"
+              className="lp-btn lp-btn--secondary lp-btn--lg"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View on GitHub
+            </a>
           </div>
 
           <p className="lp-hero__legal">
-            Production-ready · 12 packages · 135 automated tests · Used by teams in
-            financial services, SaaS, and healthcare.
+            13 npm packages · 135 automated tests · 100% TypeScript · No data leaves the browser.
           </p>
 
           {/* Visual: dashboard preview */}
@@ -99,36 +103,23 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
         </div>
       </section>
 
-      {/* ── Logo strip (social proof) ──────────────────────── */}
-      <section className="lp-logos" aria-label="Customers and partners">
-        <div className="lp-container">
-          <p className="lp-logos__label">Trusted by data and product teams at</p>
-          <div className="lp-logos__row">
-            {['NORTHWIND', 'CONTOSO', 'INITECH', 'UMBRELLA', 'WAYNE', 'HOOLI'].map((name) => (
-              <span key={name} className="lp-logos__item">{name}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Outcomes ───────────────────────────────────────── */}
+      {/* ── Verified numbers ───────────────────────────────── */}
       <section className="lp-section lp-outcomes">
         <div className="lp-container">
           <div className="lp-section__head">
-            <span className="lp-section__eyebrow">Business outcomes</span>
-            <h2 className="lp-section__title">Built for the metrics your CFO cares about</h2>
+            <span className="lp-section__eyebrow">By the numbers</span>
+            <h2 className="lp-section__title">What is actually inside the box</h2>
             <p className="lp-section__lede">
-              Analytix is a drop-in replacement for the brittle internal dashboards
-              your engineering team maintains today. Cut both the cost of building
-              and the cost of operating.
+              Every claim below is verifiable in the repo. No marketing inflation,
+              no purchased stats.
             </p>
           </div>
 
           <div className="lp-outcomes__grid">
-            <OutcomeCard value="-78%" label="time-to-ship a new dashboard" sub="vs. building from scratch on Recharts/D3" />
-            <OutcomeCard value="$0" label="per-seat licence cost" sub="MIT-licensed, no vendor lock-in" />
-            <OutcomeCard value="<400ms" label="pivot on 1M rows" sub="single-thread, in-browser, no warehouse" />
-            <OutcomeCard value="WCAG AA" label="accessibility on day one" sub="keyboard, screen reader, focus rings" />
+            <OutcomeCard value="13" label="npm packages, all MIT" sub="@gridstorm/analytix-* on npmjs.com" />
+            <OutcomeCard value="$0" label="per-developer cost"   sub="Self-host or embed, no licence fees" />
+            <OutcomeCard value="424ms" label="pivot on 1M rows"  sub="Measured in the audit harness, single thread" />
+            <OutcomeCard value="135"  label="automated tests"    sub="Run pnpm test to see them all pass" />
           </div>
         </div>
       </section>
@@ -186,12 +177,16 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
         </div>
       </section>
 
-      {/* ── Solutions ─────────────────────────────────────── */}
+      {/* ── Use cases ─────────────────────────────────────── */}
       <section className="lp-section lp-solutions" id="solutions">
         <div className="lp-container">
           <div className="lp-section__head">
-            <span className="lp-section__eyebrow">Solutions</span>
-            <h2 className="lp-section__title">One platform. Tuned for your team's reality.</h2>
+            <span className="lp-section__eyebrow">Use cases</span>
+            <h2 className="lp-section__title">Where Analytix fits</h2>
+            <p className="lp-section__lede">
+              These are the team shapes we built Analytix for. Not customer
+              announcements — patterns we think the engines map well to.
+            </p>
           </div>
 
           <div className="lp-solution-grid">
@@ -267,110 +262,68 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
         </div>
       </section>
 
-      {/* ── Security ──────────────────────────────────────── */}
+      {/* ── Architecture / privacy ───────────────────────── */}
       <section className="lp-section lp-security" id="security">
         <div className="lp-container">
           <div className="lp-section__head">
-            <span className="lp-section__eyebrow">Trust &amp; Security</span>
-            <h2 className="lp-section__title">Architected for regulated industries</h2>
+            <span className="lp-section__eyebrow">Architecture</span>
+            <h2 className="lp-section__title">Browser-only by default</h2>
             <p className="lp-section__lede">
-              Analytix runs entirely in the browser. There's no Analytix-operated backend
-              for your data to traverse, no shared multi-tenant cluster to leak across.
+              Analytix has no Analytix-operated backend. Your data is processed where it
+              already lives — inside the React app you control. There is no shared
+              multi-tenant cluster to leak across.
             </p>
           </div>
 
           <div className="lp-security__grid">
             <SecurityCard title="Data stays in-browser" desc="Aggregations, filtering, and exports run client-side. Your data never lands on a vendor's servers." />
-            <SecurityCard title="SSO-friendly" desc="Inherits your app's auth boundary. No separate Analytix login, no shadow user directory to govern." />
-            <SecurityCard title="Audit-ready exports" desc="Every report is a deterministic PDF with timestamps, dataset row counts, and a generated-by trail." />
+            <SecurityCard title="Inherits your auth" desc="Analytix sits inside your existing app. No separate Analytix login, no shadow user directory to govern." />
+            <SecurityCard title="Deterministic exports" desc="Reports are generated with pdf-lib and SheetJS. The PDF includes a timestamp, dataset row count, and a generated-by trail." />
             <SecurityCard title="Open source" desc="Read every line of code under MIT. Pin to a SHA, fork, or vendor it. No black-box agent calling home." />
-            <SecurityCard title="Zero outbound calls" desc="Default builds make no network calls beyond your own endpoints. AI insights run on-device unless you opt-in." />
-            <SecurityCard title="Accessibility WCAG 2.1 AA" desc="Keyboard navigation, ARIA roles, focus traps, screen-reader live regions." />
+            <SecurityCard title="Zero outbound calls" desc="Default builds make no network calls beyond your own endpoints. AI insights run on-device unless you opt-in to a provider." />
+            <SecurityCard title="Keyboard accessible" desc="Keyboard navigation, ARIA roles, and live regions are in place. Full WCAG 2.1 AA conformance is on the roadmap, not a current claim." />
           </div>
         </div>
       </section>
 
-      {/* ── Customer quotes ──────────────────────────────── */}
-      <section className="lp-section lp-quotes" id="customers">
+      {/* ── Open source ─────────────────────────────────── */}
+      <section className="lp-section lp-pricing" id="open-source">
         <div className="lp-container">
           <div className="lp-section__head">
-            <span className="lp-section__eyebrow">Customers</span>
-            <h2 className="lp-section__title">What teams say after one sprint with Analytix</h2>
+            <span className="lp-section__eyebrow">Open source</span>
+            <h2 className="lp-section__title">Free under MIT. No tiers, no upsells.</h2>
+            <p className="lp-section__lede">
+              Every package is on npm under <code>@gridstorm/analytix-*</code>. Install,
+              fork, embed, or vendor it — there are no licence checks, no telemetry,
+              and no commercial tier.
+            </p>
           </div>
 
-          <div className="lp-quotes__grid">
-            <QuoteCard
-              quote="We replaced four hand-built dashboards and saved an entire engineer. Our customers got cross-filtering on day one — we never even shipped it ourselves."
-              author="Marta Kovac"
-              role="VP Engineering"
-              org="Northwind SaaS"
-            />
-            <QuoteCard
-              quote="The fact that data never leaves the browser closed our compliance review in a single meeting. That alone justified the migration off Looker."
-              author="Daniel Park"
-              role="Head of Data &amp; Privacy"
-              org="Contoso Health"
-            />
-            <QuoteCard
-              quote="Embedded analytics that doesn't look like a 2014 BI tool. Our enterprise buyers stopped asking for Tableau as an integration."
-              author="Priya Anand"
-              role="CPO"
-              org="Initech Cloud"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ── Pricing ──────────────────────────────────────── */}
-      <section className="lp-section lp-pricing" id="pricing">
-        <div className="lp-container">
-          <div className="lp-section__head">
-            <span className="lp-section__eyebrow">Pricing</span>
-            <h2 className="lp-section__title">Open source today. Paid only when you want help.</h2>
-          </div>
-
-          <div className="lp-pricing__grid">
-            <PriceCard
-              name="Community"
-              price="$0"
-              cadence="MIT, forever"
-              cta="Start with the demo"
-              features={[
-                'All 12 packages, full source',
-                'Unlimited developers',
-                'Self-host or embed anywhere',
-                'GitHub-based community support',
-              ]}
-              onCta={onLaunch}
-            />
-            <PriceCard
-              name="Business"
-              price="$1,200"
-              cadence="/ month · 5 seats"
-              highlighted
-              cta="Book a walkthrough"
-              features={[
-                'Priority email support · 1 business day SLA',
-                'Private Slack channel with the maintainers',
-                'White-label branding rights',
-                'Quarterly security review summaries',
-              ]}
-              onCta={onLaunch}
-            />
-            <PriceCard
-              name="Enterprise"
-              price="Custom"
-              cadence="annual contract"
-              cta="Contact sales"
-              features={[
-                '24×7 support with response time SLA',
-                'On-prem / air-gapped deployment guidance',
-                'Custom connector engineering',
-                'Indemnification and procurement paperwork',
-                'Quarterly business review with engineering',
-              ]}
-              onCta={onLaunch}
-            />
+          <div className="lp-os-card">
+            <div className="lp-os-card__head">
+              <span className="lp-os-card__price">$0</span>
+              <span className="lp-os-card__cad">MIT · forever</span>
+            </div>
+            <ul className="lp-os-card__features">
+              <li><span aria-hidden="true">✓</span>All 13 packages, full source on GitHub</li>
+              <li><span aria-hidden="true">✓</span>Unlimited developers, unlimited deployments</li>
+              <li><span aria-hidden="true">✓</span>Self-host or embed in your React / Vue / Svelte app</li>
+              <li><span aria-hidden="true">✓</span>No telemetry, no licence keys, no rate limits</li>
+              <li><span aria-hidden="true">✓</span>Community support via GitHub Issues</li>
+            </ul>
+            <div className="lp-os-card__cta">
+              <button className="lp-btn lp-btn--primary lp-btn--lg" onClick={onLaunch}>
+                Launch demo
+              </button>
+              <a
+                href="https://github.com/007krcs/analytix-builder"
+                className="lp-btn lp-btn--secondary lp-btn--lg"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Star on GitHub
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -484,48 +437,6 @@ function SecurityCard({ title, desc }: { title: string; desc: string }) {
         <h3 className="lp-secitem__title">{title}</h3>
         <p className="lp-secitem__desc">{desc}</p>
       </div>
-    </div>
-  );
-}
-
-function QuoteCard({ quote, author, role, org }: { quote: string; author: string; role: string; org: string }) {
-  return (
-    <figure className="lp-quote">
-      <blockquote className="lp-quote__body">"{quote}"</blockquote>
-      <figcaption className="lp-quote__cap">
-        <span className="lp-quote__author">{author}</span>
-        <span className="lp-quote__role" dangerouslySetInnerHTML={{ __html: `${role} · ${org}` }} />
-      </figcaption>
-    </figure>
-  );
-}
-
-function PriceCard({
-  name, price, cadence, features, cta, highlighted, onCta,
-}: {
-  name: string; price: string; cadence: string;
-  features: string[]; cta: string; highlighted?: boolean;
-  onCta: () => void;
-}) {
-  return (
-    <div className={`lp-price${highlighted ? ' lp-price--highlight' : ''}`}>
-      {highlighted && <span className="lp-price__badge">Most popular</span>}
-      <h3 className="lp-price__name">{name}</h3>
-      <div className="lp-price__price">
-        <span className="lp-price__amount">{price}</span>
-        <span className="lp-price__cadence">{cadence}</span>
-      </div>
-      <ul className="lp-price__features">
-        {features.map((f) => (
-          <li key={f}><span aria-hidden="true">✓</span>{f}</li>
-        ))}
-      </ul>
-      <button
-        className={`lp-btn ${highlighted ? 'lp-btn--primary' : 'lp-btn--secondary'} lp-btn--block`}
-        onClick={onCta}
-      >
-        {cta}
-      </button>
     </div>
   );
 }

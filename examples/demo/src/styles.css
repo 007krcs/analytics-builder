@@ -5371,3 +5371,58 @@ button, a, [role="button"], input, select, textarea {
   .lp-hero__cta-row .lp-btn { width: 100%; }
   .lp-footer__cols { grid-template-columns: 1fr 1fr; }
 }
+
+
+/* Single open-source card (replaces 3-tier pricing) */
+.lp-os-card {
+  max-width: 640px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid var(--lp-line);
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: 0 20px 50px -24px rgba(79, 70, 229, 0.25);
+  text-align: center;
+}
+.lp-os-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.lp-os-card__price { font-size: 56px; font-weight: 800; letter-spacing: -0.025em; color: var(--lp-ink); }
+.lp-os-card__cad   { font-size: 14px; color: var(--lp-ink-muted); }
+.lp-os-card__features {
+  display: grid;
+  gap: 12px;
+  text-align: left;
+  margin: 24px auto 28px;
+  max-width: 460px;
+}
+.lp-os-card__features li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 14px;
+  color: var(--lp-ink-soft);
+  line-height: 1.45;
+}
+.lp-os-card__features li span {
+  color: #16a34a;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.lp-os-card__cta {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 560px) {
+  .lp-os-card { padding: 24px; }
+  .lp-os-card__price { font-size: 44px; }
+  .lp-os-card__cta .lp-btn { width: 100%; }
+}
