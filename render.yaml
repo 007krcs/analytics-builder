@@ -1,0 +1,54 @@
+# Render Blueprint
+# Documented: https://render.com/docs/blueprint-spec
+#
+# Why a Blueprint?
+#   The default Render dashboard command `pnpm --filter './packages/**' build`
+#   doesn't reliably honor topological order when pnpm runs builds in parallel.
+#   The `@gridstorm/analytix-react` DTS step starts before upstream packages
+#   (core, pivot-engine, …) have finished emitting their dist/index.d.ts files,
+#   so type resolution fails.
+#
+#   We force `--workspace-concurrency=1` so each package's dist is fully
+#   written before the next package starts. Build time on Render goes from
+#   ~20s parallel → ~45s sequential — well worth the determinism.
+
+services:
+  - type: web
+    name: analytix-demo
+    runtime: static
+    plan: starter
+
+    # Use Node 20 (LTS). pnpm via corepack — bundled with Node ≥ 16.
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+
+    staticPublishPath: ./examples/demo/dist
+
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: PNPM_VERSION
+        value: 10.33.0
+      # Vite passes through environment variables that start with VITE_;
+      # add anything your demo needs here, or set them in the Render dashboard
+      # so secrets are never committed.
+
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /*.js
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /*.css
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+
+    routes:
+      # SPA fallback — every unknown path serves index.html so the
+      # client-side router (and the #demo hash) work for direct visits.
+      - type: rewrite
+        source: /*
+        destination: /index.html

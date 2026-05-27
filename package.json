@@ -4,13 +4,15 @@
   "private": true,
   "description": "Drag-and-drop analytics builder powered by GridStorm",
   "scripts": {
-    "build": "pnpm -r build",
-    "dev": "pnpm --filter demo dev",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "pnpm -r --filter \"@gridstorm/analytix-*\" exec tsc --noEmit",
-    "typecheck": "pnpm -r --filter \"@gridstorm/analytix-*\" exec tsc --noEmit",
-    "clean": "pnpm -r --parallel exec rm -rf dist"
+    "build":          "pnpm build:packages && pnpm build:demo",
+    "build:packages": "pnpm -r --filter \"@gridstorm/analytix-*\" --filter \"@tekivex/*\" --workspace-concurrency=1 build",
+    "build:demo":     "pnpm --filter demo build",
+    "dev":            "pnpm --filter demo dev",
+    "test":           "vitest run",
+    "test:watch":     "vitest",
+    "lint":           "pnpm -r --filter \"@gridstorm/analytix-*\" exec tsc --noEmit",
+    "typecheck":      "pnpm -r --filter \"@gridstorm/analytix-*\" exec tsc --noEmit",
+    "clean":          "pnpm -r --parallel exec rm -rf dist"
   },
   "devDependencies": {
     "typescript": "^5.4.0",
