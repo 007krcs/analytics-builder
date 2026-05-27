@@ -1,7 +1,6 @@
 {
   "name": "@gridstorm/analytix-data-connector",
-  "version": "0.1.2",
-  "homepage": "https://analytics.tekivex.com",
+  "version": "0.1.0",
   "description": "Zero-config data ingestion: CSV, REST API, WebSocket streaming, clipboard paste",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -9,22 +8,22 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
-    "dist",
-    "README.md"
+    "dist"
   ],
   "scripts": {
-    "build": "tsup && node ../../scripts/obfuscate.mjs ./dist",
+    "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@gridstorm/analytix-core": "workspace:*"
+    "@gridstorm/analytix-core": "workspace:*",
+    "xlsx": "^0.18.5"
   },
   "peerDependencies": {
     "react": ">=18.0.0"

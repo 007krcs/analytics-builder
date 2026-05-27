@@ -3,15 +3,20 @@
 /**
  * Excel renderer for reports.
  *
- * Produces a CSV-compatible format encoded as base64.
- * In production, replace with exceljs or xlsx for full XLSX support.
- * Each pivot table / data table section becomes its own "sheet" as a
- * delimited block in the CSV output.
+ * Produces a real .xlsx (ZIP + XML) file via SheetJS, with one sheet per
+ * section type. Falls back to a CSV-style sheet representation only when
+ * SheetJS is unavailable.
  */
+
+import * as XLSX from 'xlsx';
 
 import type { ReportConfig, ReportRunResult, PivotResult, Row } from '@gridstorm/analytix-core';
 import type { ResolvedSection } from './types.js';
-import { escapeHtml } from './pdf-renderer.js';
+
+interface SheetData {
+  name: string;
+  rows: (string | number)[][];
+}
 
 export function renderToExcel(
   config: ReportConfig,
@@ -24,144 +29,151 @@ export function renderToExcel(
 ): ReportRunResult {
   const start = performance.now();
   const warnings: string[] = [];
-  const sheetBlocks: string[] = [];
+  const sheets: SheetData[] = [];
 
-  // Report title block
-  sheetBlocks.push(buildCsvBlock([
-    [config.name],
-    [`Generated: ${new Date().toLocaleString()}`],
-    [],
-  ]));
+  // Cover sheet
+  sheets.push({
+    name: safeSheetName('Cover'),
+    rows: [
+      [config.name],
+      [`Generated: ${new Date().toLocaleString()}`],
+      ...(config.headerTitle ? [['Title', config.headerTitle]] : []),
+    ],
+  });
 
-  // Process sections in order
+  // Track unique sheet names — Excel forbids duplicates
+  const usedNames = new Set<string>(['Cover']);
+  const uniq = (base: string) => {
+    let n = safeSheetName(base);
+    let i = 2;
+    while (usedNames.has(n)) n = safeSheetName(`${base} (${i++})`);
+    usedNames.add(n);
+    return n;
+  };
+
+  // Pre-collect notes that go on a "Narrative" sheet
+  const narrativeRows: (string | number)[][] = [];
+
   for (const resolved of sections) {
-    const section = resolved.section;
-
-    if (section.type === 'title') {
-      sheetBlocks.push(buildCsvBlock([[`## ${section.text}`], []]));
-    } else if (section.type === 'text') {
-      sheetBlocks.push(buildCsvBlock([[section.markdown], []]));
-    } else if (section.type === 'pivot-table') {
-      const result = data.pivotResults.get(section.pivotConfigId);
-      if (!result) {
-        warnings.push(`Pivot result '${section.pivotConfigId}' not found for Excel export.`);
-        continue;
-      }
-      sheetBlocks.push(buildPivotCsv(result, section.caption));
-    } else if (section.type === 'data-table') {
-      const rows = data.dataRows.get(section.datasetId);
-      if (!rows || rows.length === 0) {
-        warnings.push(`Dataset '${section.datasetId}' not found or empty.`);
-        continue;
-      }
-      const limited = section.maxRows ? rows.slice(0, section.maxRows) : rows;
-      sheetBlocks.push(buildDataTableCsv(limited, section.columnIds, section.caption));
-    } else if (section.type === 'kpi-summary') {
-      const kpiRows: string[][] = [
-        section.caption ? [section.caption] : [],
-        ['KPI', 'Value', 'Status'],
-      ].filter((r) => r.length > 0);
-
-      for (const kpiId of section.kpiConfigIds) {
-        const kpi = data.kpiValues.get(kpiId);
-        if (kpi) {
-          kpiRows.push([kpi.label, kpi.value, kpi.status]);
+    const s = resolved.section;
+    switch (s.type) {
+      case 'title':
+        narrativeRows.push([`${'#'.repeat(s.level)} ${s.text}`]);
+        break;
+      case 'text':
+        narrativeRows.push([s.markdown]);
+        break;
+      case 'kpi-summary': {
+        const rows: (string | number)[][] = [];
+        if (s.caption) rows.push([s.caption]);
+        rows.push(['KPI', 'Value', 'Status']);
+        for (const id of s.kpiConfigIds) {
+          const k = data.kpiValues.get(id);
+          if (k) rows.push([k.label, k.value, k.status]);
+          else warnings.push(`KPI '${id}' not found.`);
         }
+        sheets.push({ name: uniq(s.caption ?? 'KPIs'), rows });
+        break;
       }
-      kpiRows.push([]);
-      sheetBlocks.push(buildCsvBlock(kpiRows));
-    } else if (section.type === 'page-break') {
-      sheetBlocks.push(buildCsvBlock([['--- Page Break ---'], []]));
+      case 'pivot-table': {
+        const result = data.pivotResults.get(s.pivotConfigId);
+        if (!result) { warnings.push(`Pivot '${s.pivotConfigId}' not found.`); break; }
+        sheets.push({
+          name: uniq(s.caption ?? s.pivotConfigId),
+          rows: pivotToRows(result),
+        });
+        break;
+      }
+      case 'data-table': {
+        const rows = data.dataRows.get(s.datasetId);
+        if (!rows || rows.length === 0) { warnings.push(`Dataset '${s.datasetId}' not found or empty.`); break; }
+        const limited = s.maxRows ? rows.slice(0, s.maxRows) : rows;
+        sheets.push({
+          name: uniq(s.caption ?? s.datasetId),
+          rows: dataTableToRows(limited, s.columnIds),
+        });
+        break;
+      }
+      case 'page-break':
+      case 'spacer':
+      case 'chart':
+        // Charts and layout sections have no Excel representation
+        break;
     }
-    // Spacers and chart sections are skipped in Excel output
   }
 
-  const csvContent = sheetBlocks.join('\n');
-  const data64 = btoa(unescape(encodeURIComponent(csvContent)));
-  const durationMs = performance.now() - start;
+  if (narrativeRows.length) {
+    sheets.unshift({ name: uniq('Narrative'), rows: narrativeRows });
+  }
 
-  void escapeHtml; // used in pdf-renderer, imported to share utilities
+  const wb = XLSX.utils.book_new();
+  for (const sheet of sheets) {
+    const ws = XLSX.utils.aoa_to_sheet(sheet.rows);
+    XLSX.utils.book_append_sheet(wb, ws, sheet.name);
+  }
+
+  // Write as base64 directly to avoid the in-browser Blob path
+  const data64 = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
 
   return {
     reportId: config.id,
-    format: 'excel',
-    data: data64,
+    format:   'excel',
+    data:     data64,
     mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    filename: `${sanitizeFilename(config.name)}_${formatDateForFilename(new Date())}.csv`,
-    generatedAt: new Date(),
-    durationMs,
+    filename: `${sanitizeFilename(config.name)}_${formatDateForFilename(new Date())}.xlsx`,
+    generatedAt:  new Date(),
+    durationMs:   performance.now() - start,
     sectionCount: sections.length,
     warnings,
   };
 }
 
-function buildPivotCsv(result: PivotResult, caption?: string): string {
-  const rows: string[][] = [];
-  if (caption) rows.push([caption]);
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-  // Header row
-  const headerRow = [''];
-  for (const col of result.flatColumns) {
-    headerRow.push(col.label);
-  }
-  rows.push(headerRow);
-
-  // Data rows
-  for (const row of result.rows) {
-    const csvRow: string[] = [Object.values(row.dimensions).join(' › ')];
-    for (const col of result.flatColumns) {
-      const cell = row.cells[col.key];
-      csvRow.push(cell?.formatted ?? '—');
+function pivotToRows(result: PivotResult): (string | number)[][] {
+  const rows: (string | number)[][] = [];
+  const header: (string | number)[] = [''];
+  for (const c of result.flatColumns) header.push(c.label);
+  rows.push(header);
+  for (const r of result.rows) {
+    const row: (string | number)[] = [Object.values(r.dimensions).join(' › ')];
+    for (const c of result.flatColumns) {
+      const cell = r.cells[c.key];
+      row.push(cell?.value ?? cell?.formatted ?? '');
     }
-    rows.push(csvRow);
+    rows.push(row);
   }
-
-  // Grand total
   if (result.grandTotalRow) {
-    const totalRow: string[] = ['TOTAL'];
-    for (const col of result.flatColumns) {
-      const cell = result.grandTotalRow.cells[col.key];
-      totalRow.push(cell?.formatted ?? '—');
+    const row: (string | number)[] = ['TOTAL'];
+    for (const c of result.flatColumns) {
+      const cell = result.grandTotalRow.cells[c.key];
+      row.push(cell?.value ?? cell?.formatted ?? '');
     }
-    rows.push(totalRow);
+    rows.push(row);
   }
-
-  rows.push([]);
-  return buildCsvBlock(rows);
+  return rows;
 }
 
-function buildDataTableCsv(
-  rows: Row[],
-  columnIds?: string[],
-  caption?: string
-): string {
-  const lines: string[][] = [];
-  if (caption) lines.push([caption]);
-
-  if (rows.length === 0) {
-    lines.push(['No data']);
-    lines.push([]);
-    return buildCsvBlock(lines);
-  }
-
+function dataTableToRows(rows: Row[], columnIds?: string[]): (string | number)[][] {
+  if (rows.length === 0) return [['(empty)']];
   const cols = columnIds ?? Object.keys(rows[0]);
-  lines.push(cols);
+  const out: (string | number)[][] = [cols];
   for (const row of rows) {
-    lines.push(cols.map((c) => String(row[c] ?? '')));
+    out.push(cols.map((c) => {
+      const v = row[c];
+      if (v == null) return '';
+      if (typeof v === 'number' || typeof v === 'string') return v;
+      return String(v);
+    }));
   }
-  lines.push([]);
-  return buildCsvBlock(lines);
+  return out;
 }
 
-function buildCsvBlock(rows: string[][]): string {
-  return rows.map((row) => row.map(csvEscape).join(',')).join('\n');
-}
-
-function csvEscape(val: string): string {
-  if (/[,"\n\r]/.test(val)) {
-    return `"${val.replace(/"/g, '""')}"`;
-  }
-  return val;
+/** Excel sheet names are limited to 31 chars and may not contain [ ] : * ? / \ */
+function safeSheetName(name: string): string {
+  let s = name.replace(/[[\]:*?/\\]/g, '_');
+  if (s.length > 31) s = s.slice(0, 31);
+  return s || 'Sheet';
 }
 
 function sanitizeFilename(name: string): string {

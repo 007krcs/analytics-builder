@@ -29,46 +29,74 @@ function detectDelimiter(firstLine: string): string {
   return best;
 }
 
-// ── RFC 4180 field parser ────────────────────────────────────────────────────
+// ── RFC 4180 record parser (state machine) ───────────────────────────────────
+//
+// Walks the entire CSV text character-by-character, tracking whether the
+// scanner is currently inside a double-quoted field. Newlines (LF or CRLF)
+// only terminate a record when not inside quotes. Doubled quotes "" inside
+// a quoted field are emitted as a single `"`. Empty trailing lines are dropped.
 
-function parseLine(line: string, delim: string): string[] {
-  const fields: string[] = [];
-  let i = 0;
-  const n = line.length;
+/** Parse an entire CSV / TSV text into a row-of-fields matrix. RFC 4180-correct. */
+export function parseCsvRecords(text: string, delim: string): string[][] {
+  // Strip UTF-8 BOM if present
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
 
-  while (i <= n) {
-    if (i === n) { fields.push(''); break; }
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = '';
+  let inQuotes = false;
+  const n = text.length;
 
-    if (line[i] === '"') {
-      // Quoted field
-      i++;
-      let field = '';
-      while (i < n) {
-        if (line[i] === '"') {
-          if (line[i + 1] === '"') { field += '"'; i += 2; }
-          else { i++; break; }
-        } else {
-          field += line[i++];
-        }
-      }
-      fields.push(field);
-      // skip delimiter
-      if (line[i] === delim) i++;
-    } else {
-      // Unquoted field
-      const end = line.indexOf(delim, i);
-      if (end === -1) {
-        fields.push(line.slice(i));
-        break;
+  for (let i = 0; i < n; i++) {
+    const c = text[i];
+
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }   // escaped quote
+        else { inQuotes = false; }                         // end of quoted run
       } else {
-        fields.push(line.slice(i, end));
-        i = end + 1;
+        field += c;
       }
+      continue;
     }
+
+    if (c === '"') {
+      inQuotes = true;
+      continue;
+    }
+    if (c === delim) {
+      row.push(field); field = '';
+      continue;
+    }
+    if (c === '\r') {
+      // accept CR or CRLF as record terminator
+      row.push(field); field = '';
+      rows.push(row); row = [];
+      if (text[i + 1] === '\n') i++;
+      continue;
+    }
+    if (c === '\n') {
+      row.push(field); field = '';
+      rows.push(row); row = [];
+      continue;
+    }
+    field += c;
   }
 
-  return fields;
+  // Last record (no trailing newline)
+  if (field.length > 0 || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
+
+  // Drop entirely-empty trailing rows (e.g. file ended with \n\n)
+  while (rows.length && rows[rows.length - 1].length === 1 && rows[rows.length - 1][0] === '') {
+    rows.pop();
+  }
+
+  return rows;
 }
+
 
 // ── Header detection ─────────────────────────────────────────────────────────
 
@@ -86,24 +114,35 @@ export interface CsvParseOptions extends TransformOptions {
   hasHeader?: boolean;
 }
 
+/** Detect the delimiter by counting candidates in the first ~4KB of `csv`. */
+function detectDelimiterFromText(csv: string): string {
+  const sample = csv.slice(0, 4096);
+  // Use the first non-empty *logical* line, but inspect at most 1 KB before a newline
+  let lineEnd = sample.indexOf('\n');
+  if (lineEnd < 0) lineEnd = sample.length;
+  return detectDelimiter(sample.slice(0, lineEnd));
+}
+
 /**
- * Parse a full CSV string into a Dataset.
+ * Parse a full CSV string into a Dataset. RFC 4180 compliant — handles quoted
+ * newlines, escaped quotes (""), CRLF, and UTF-8 BOM.
  */
 export function parseCsvString(csv: string, options: CsvParseOptions = {}): Dataset {
-  const lines = csv.split(/\r?\n/).filter((l) => l.trim() !== '');
-  if (lines.length === 0) return transformRows([], options);
+  if (csv.length === 0) return transformRows([], options);
 
-  const delim  = options.delimiter ?? detectDelimiter(lines[0]);
-  const first  = parseLine(lines[0], delim);
+  const delim = options.delimiter ?? detectDelimiterFromText(csv);
+  const records = parseCsvRecords(csv, delim);
+  if (records.length === 0) return transformRows([], options);
+
+  const first  = records[0];
   const hasHdr = options.hasHeader ?? looksLikeHeader(first);
 
   const headers: string[] = hasHdr
     ? first.map((h, i) => h.trim() || `column_${i + 1}`)
     : first.map((_, i) => `column_${i + 1}`);
 
-  const dataLines = hasHdr ? lines.slice(1) : lines;
-  const rawRows: Record<string, unknown>[] = dataLines.map((line) => {
-    const fields = parseLine(line, delim);
+  const dataRecords = hasHdr ? records.slice(1) : records;
+  const rawRows: Record<string, unknown>[] = dataRecords.map((fields) => {
     const row: Record<string, unknown> = {};
     headers.forEach((h, i) => { row[h] = fields[i] ?? null; });
     return row;
@@ -120,30 +159,30 @@ export async function* streamCsvString(
   csv: string,
   options: CsvParseOptions = {}
 ): AsyncGenerator<{ rows: Record<string, unknown>[]; batchIndex: number }> {
-  const lines = csv.split(/\r?\n/).filter((l) => l.trim() !== '');
-  if (lines.length === 0) return;
+  if (csv.length === 0) return;
 
-  const delim  = options.delimiter ?? detectDelimiter(lines[0]);
-  const first  = parseLine(lines[0], delim);
+  const delim = options.delimiter ?? detectDelimiterFromText(csv);
+  const records = parseCsvRecords(csv, delim);
+  if (records.length === 0) return;
+
+  const first  = records[0];
   const hasHdr = options.hasHeader ?? looksLikeHeader(first);
 
   const headers: string[] = hasHdr
     ? first.map((h, i) => h.trim() || `column_${i + 1}`)
     : first.map((_, i) => `column_${i + 1}`);
 
-  const dataLines = hasHdr ? lines.slice(1) : lines;
-  const BATCH     = 1000;
+  const dataRecords = hasHdr ? records.slice(1) : records;
+  const BATCH       = 1000;
 
-  for (let start = 0; start < dataLines.length; start += BATCH) {
-    const batch = dataLines.slice(start, start + BATCH);
-    const rows  = batch.map((line) => {
-      const fields = parseLine(line, delim);
+  for (let start = 0; start < dataRecords.length; start += BATCH) {
+    const batch = dataRecords.slice(start, start + BATCH);
+    const rows  = batch.map((fields) => {
       const row: Record<string, unknown> = {};
       headers.forEach((h, i) => { row[h] = fields[i] ?? null; });
       return row;
     });
     yield { rows, batchIndex: Math.floor(start / BATCH) };
-    // Yield to event loop so UI stays responsive
     await new Promise((r) => setTimeout(r, 0));
   }
 }

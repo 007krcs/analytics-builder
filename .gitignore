@@ -10,5 +10,11 @@ coverage/
 .turbo/
 .vercel/
 
-# Claude Code local config
-.claude/
+# Audit / scratch artifacts (from the 21-defect audit harnesses)
+_audit/
+audit-output*.txt
+audit-rerun*.txt
+build-log.txt
+demo-log.txt
+typecheck-log.txt
+typecheck-*.log

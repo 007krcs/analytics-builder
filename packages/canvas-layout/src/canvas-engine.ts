@@ -10,6 +10,40 @@ import { defaultWidgetRegistry }  from './widget-registry.js';
 
 const MAX_HISTORY = 20;
 
+/** Latest CanvasLayout schema version produced by getLayout(). */
+export const LATEST_LAYOUT_VERSION = '1';
+
+/**
+ * Registered migrations from older versions → LATEST_LAYOUT_VERSION.
+ * Each entry transforms its source-version layout forward one step.
+ * Add new entries here whenever the schema bumps.
+ */
+export const LAYOUT_MIGRATIONS: Record<string, (layout: CanvasLayout) => CanvasLayout> = {
+  // Example skeleton — no migrations needed at v1.
+  // '0': (l) => ({ ...l, version: '1' }),
+};
+
+/**
+ * Migrate a stored layout to LATEST_LAYOUT_VERSION. Throws on an unknown
+ * future version so silent breakage cannot ship.
+ */
+export function migrateLayout(layout: CanvasLayout): CanvasLayout {
+  let current = layout;
+  let safety = 10;
+  while (current.version !== LATEST_LAYOUT_VERSION) {
+    const fn = LAYOUT_MIGRATIONS[current.version];
+    if (!fn) {
+      throw new Error(
+        `Cannot migrate canvas layout from version "${current.version}" to "${LATEST_LAYOUT_VERSION}". ` +
+        `This layout was saved by a newer version of @gridstorm/analytix-canvas-layout. Upgrade the library.`
+      );
+    }
+    current = fn(current);
+    if (--safety <= 0) throw new Error('Canvas migration exceeded 10 hops; aborting.');
+  }
+  return current;
+}
+
 type CanvasEngineListener = (layout: CanvasLayout) => void;
 
 export class CanvasEngine {
@@ -135,7 +169,7 @@ export class CanvasEngine {
 
   getLayout(): CanvasLayout {
     return {
-      version:  '1',
+      version:  LATEST_LAYOUT_VERSION,
       widgets:  Array.from(this._widgets.values()),
       viewport: { ...this._viewport },
       zoom:     this._zoom,
@@ -143,11 +177,12 @@ export class CanvasEngine {
   }
 
   loadLayout(layout: CanvasLayout): void {
+    const migrated = migrateLayout(layout);
     this._saveHistory();
-    this._widgets   = new Map(layout.widgets.map((w) => [w.id, w]));
-    this._viewport  = { ...layout.viewport };
-    this._zoom      = layout.zoom;
-    this._nextZIndex = Math.max(...layout.widgets.map((w) => w.zIndex), 0) + 1;
+    this._widgets    = new Map(migrated.widgets.map((w) => [w.id, w]));
+    this._viewport   = { ...migrated.viewport };
+    this._zoom       = migrated.zoom;
+    this._nextZIndex = Math.max(...migrated.widgets.map((w) => w.zIndex), 0) + 1;
     this._emit();
   }
 

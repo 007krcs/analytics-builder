@@ -76,6 +76,10 @@ export interface InsightConfig {
   minConfidence?: number;
   /** If provided, only analyse these column IDs */
   columnFilter?: string[];
+  /** Max dimension columns the segment detector inspects (default 2). */
+  segmentMaxDims?: number;
+  /** Max numeric columns the segment detector inspects (default 2). */
+  segmentMaxNums?: number;
 }
 
 /** Result of InsightEngine.analyze() */
@@ -86,6 +90,8 @@ export interface InsightResult {
   datasetId: string;
   rowCount: number;
   columnCount: number;
+  /** Warnings raised by detectors (e.g. dropped columns). */
+  warnings: string[];
 }
 
 // Re-export Dataset for convenience

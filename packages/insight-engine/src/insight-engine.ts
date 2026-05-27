@@ -31,10 +31,12 @@ export class InsightEngine {
    */
   async analyze(dataset: Dataset, config: InsightConfig = {}): Promise<InsightResult> {
     const {
-      detectors     = ['trend', 'anomaly', 'correlation', 'segment', 'forecast'],
-      maxInsights   = 20,
-      minConfidence = 0.3,
+      detectors      = ['trend', 'anomaly', 'correlation', 'segment', 'forecast'],
+      maxInsights    = 20,
+      minConfidence  = 0.3,
       columnFilter,
+      segmentMaxDims = 2,
+      segmentMaxNums = 2,
     } = config;
 
     // Optionally narrow the dataset columns
@@ -42,13 +44,20 @@ export class InsightEngine {
       ? { ...dataset, columns: dataset.columns.filter((c) => columnFilter.includes(c.id)) }
       : dataset;
 
+    const warnings: string[] = [];
+    const onWarning = (m: string) => warnings.push(m);
+
     // Run all requested detectors in parallel
     const jobs: Promise<Insight[]>[] = [];
 
     if (detectors.includes('trend'))       jobs.push(Promise.resolve(detectTrends(workingDataset)));
     if (detectors.includes('anomaly'))     jobs.push(Promise.resolve(detectAnomalies(workingDataset)));
     if (detectors.includes('correlation')) jobs.push(Promise.resolve(detectCorrelations(workingDataset)));
-    if (detectors.includes('segment'))     jobs.push(Promise.resolve(detectSegments(workingDataset)));
+    if (detectors.includes('segment'))     jobs.push(Promise.resolve(detectSegments(workingDataset, {
+                                                       maxDims: segmentMaxDims,
+                                                       maxNums: segmentMaxNums,
+                                                       onWarning,
+                                                     })));
     if (detectors.includes('forecast'))    jobs.push(Promise.resolve(detectForecasts(workingDataset)));
 
     const results = await Promise.all(jobs);
@@ -68,6 +77,7 @@ export class InsightEngine {
       datasetId:   dataset.id,
       rowCount:    dataset.rows.length,
       columnCount: dataset.columns.length,
+      warnings,
     };
   }
 

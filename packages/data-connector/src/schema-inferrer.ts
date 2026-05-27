@@ -2,12 +2,14 @@
 // Unauthorized reproduction or distribution is prohibited.
 /**
  * Schema Inferrer — Auto-detect column types from sample rows.
- * Samples first 100 rows, returns Column definitions with confidence scores.
+ * Samples the first SAMPLE_SIZE rows (default 1000), returns Column definitions
+ * with confidence scores. The cap exists to keep inference fast on huge datasets.
  */
 
 import type { Column, ColumnType, Row } from '@gridstorm/analytix-core';
 
-const SAMPLE_SIZE = 100;
+/** How many rows the inferrer reads before locking in column types. */
+export const SAMPLE_SIZE = 1000;
 
 interface InferredColumn extends Column {
   /** 0-1 confidence in the inferred type */

@@ -303,22 +303,23 @@ export class ReportBuilder {
  * Top-level report generation function — resolves sections and calls
  * the appropriate renderer.
  */
+// Eager imports so callers under fake timers don't need to await a dynamic import.
+import { renderToPdf, renderToHtml } from './pdf-renderer.js';
+import { renderToExcel } from './excel-renderer.js';
+
 export async function generateReport(
   config: ReportConfig,
   engine: import('@gridstorm/analytix-core').AnalyticsEngine,
   format: ReportFormat = 'pdf'
 ): Promise<import('@gridstorm/analytix-core').ReportRunResult> {
-  const { renderToPdf } = await import('./pdf-renderer.js');
-  const { renderToExcel } = await import('./excel-renderer.js');
 
   // Resolve all sections to HTML
   const resolvedSections = await resolveSections(config, engine);
 
   const ctx = buildRenderContext(config, engine);
 
-  if (format === 'pdf' || format === 'html') {
-    return renderToPdf(config, resolvedSections, ctx);
-  }
+  if (format === 'pdf')  return await renderToPdf(config, resolvedSections, ctx);
+  if (format === 'html') return renderToHtml(config, resolvedSections, ctx);
 
   if (format === 'excel' || format === 'csv') {
     // Gather data for Excel renderer

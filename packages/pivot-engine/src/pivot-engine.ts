@@ -30,9 +30,28 @@ import {
   ValueBucket,
 } from './types.js';
 
+/**
+ * Backwards-compat normalizer. Older docs (and the README example) used
+ * `fieldId` instead of `columnId` on PivotValueField. Quietly accept either
+ * so consumers copying the README don't get all-null cells.
+ */
+function normalizePivotConfig(config: PivotConfig): PivotConfig {
+  let mutated = false;
+  const valueFields = config.valueFields.map((vf) => {
+    const legacy = vf as PivotConfig['valueFields'][number] & { fieldId?: string };
+    if (!vf.columnId && legacy.fieldId) {
+      mutated = true;
+      return { ...vf, columnId: legacy.fieldId };
+    }
+    return vf;
+  });
+  return mutated ? { ...config, valueFields } : config;
+}
+
 export class PivotEngine {
   /** Compute a pivot table result from a dataset and config */
-  compute(config: PivotConfig, dataset: Dataset): PivotResult {
+  compute(rawConfig: PivotConfig, dataset: Dataset): PivotResult {
+    const config = normalizePivotConfig(rawConfig);
     const start = performance.now();
 
     // 1. Filter rows

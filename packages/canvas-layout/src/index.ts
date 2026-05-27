@@ -7,7 +7,7 @@
  * Like Figma for dashboards — place widgets anywhere, resize freely, snap to guides.
  */
 
-export { CanvasEngine }           from './canvas-engine.js';
+export { CanvasEngine, LATEST_LAYOUT_VERSION, LAYOUT_MIGRATIONS, migrateLayout } from './canvas-engine.js';
 export { WidgetRegistry, defaultWidgetRegistry } from './widget-registry.js';
 export { snapPosition, snapSize } from './snap-engine.js';
 

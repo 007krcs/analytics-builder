@@ -8,7 +8,23 @@
 import type { Dataset, Row } from '@gridstorm/analytix-core';
 import type { Insight } from '../types.js';
 
-export function detectSegments(dataset: Dataset): Insight[] {
+/** Display label for a column — prefers displayName but falls back to id. */
+const label = (c: { displayName?: string; id: string }): string => c.displayName ?? c.id;
+
+export interface DetectSegmentsOptions {
+  /** Maximum number of dimension columns to inspect (default 2). */
+  maxDims?: number;
+  /** Maximum number of numeric columns to inspect (default 2). */
+  maxNums?: number;
+  /** Optional sink that receives a warning when extra columns are dropped. */
+  onWarning?: (msg: string) => void;
+}
+
+export function detectSegments(
+  dataset: Dataset,
+  options: DetectSegmentsOptions = {}
+): Insight[] {
+  const { maxDims = 2, maxNums = 2, onWarning } = options;
   const insights: Insight[] = [];
 
   const dimCols = dataset.columns.filter((c) => c.dimensional && c.type === 'string');
@@ -18,9 +34,25 @@ export function detectSegments(dataset: Dataset): Insight[] {
 
   if (dimCols.length === 0 || numCols.length === 0) return insights;
 
-  // Only use the first 2 dimension columns and first 2 numeric columns to avoid explosion
-  const useDims = dimCols.slice(0, 2);
-  const useNums = numCols.slice(0, 2);
+  // Cap to avoid Cartesian explosion when a dataset has many dim/num columns.
+  // The caps are configurable; surface a warning if columns were dropped.
+  const useDims = dimCols.slice(0, maxDims);
+  const useNums = numCols.slice(0, maxNums);
+
+  if (onWarning) {
+    if (dimCols.length > maxDims) {
+      onWarning(
+        `Segment detector inspected ${maxDims} of ${dimCols.length} dimension columns; ` +
+        `the rest were skipped. Raise maxDims to inspect more.`
+      );
+    }
+    if (numCols.length > maxNums) {
+      onWarning(
+        `Segment detector inspected ${maxNums} of ${numCols.length} numeric columns; ` +
+        `the rest were skipped. Raise maxNums to inspect more.`
+      );
+    }
+  }
 
   for (const dim of useDims) {
     for (const num of useNums) {
@@ -52,12 +84,12 @@ export function detectSegments(dataset: Dataset): Insight[] {
       insights.push({
         id: `seg-top-${dim.id}-${num.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         type: 'top-segment',
-        title: `Top ${dim.displayName}: ${topLabel}`,
+        title: `Top ${label(dim)}: ${topLabel}`,
         description:
-          `"${topLabel}" leads all ${dim.displayName} segments in ${num.displayName} ` +
+          `"${topLabel}" leads all ${label(dim)} segments in ${label(num)} ` +
           `with ${topValue.toLocaleString(undefined, { maximumFractionDigits: 0 })} ` +
           `(${(total > 0 ? topValue / total * 100 : 0).toFixed(1)}% of total). ` +
-          `The top 3 segments together account for ${topShare.toFixed(1)}% of total ${num.displayName}.`,
+          `The top 3 segments together account for ${topShare.toFixed(1)}% of total ${label(num)}.`,
         severity: topShare > 80 ? 'warning' : 'info',
         affectedColumns: [dim.id, num.id],
         confidence: 0.85,
@@ -75,10 +107,10 @@ export function detectSegments(dataset: Dataset): Insight[] {
         insights.push({
           id: `seg-dom-${dim.id}-${num.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
           type: 'segment-dominance',
-          title: `${topLabel} dominates ${dim.displayName} (${(topValue / total * 100).toFixed(0)}%)`,
+          title: `${topLabel} dominates ${label(dim)} (${(topValue / total * 100).toFixed(0)}%)`,
           description:
             `A single segment "${topLabel}" accounts for ${(topValue / total * 100).toFixed(1)}% ` +
-            `of all ${num.displayName} across ${segMap.size} ${dim.displayName} segments. ` +
+            `of all ${label(num)} across ${segMap.size} ${label(dim)} segments. ` +
             `This concentration may indicate dependency risk or an opportunity to expand other segments.`,
           severity: (topValue / total) > 0.7 ? 'critical' : 'warning',
           affectedColumns: [dim.id, num.id],
@@ -97,9 +129,9 @@ export function detectSegments(dataset: Dataset): Insight[] {
       insights.push({
         id: `seg-bot-${dim.id}-${num.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         type: 'bottom-segment',
-        title: `Lowest ${dim.displayName}: ${botLabel}`,
+        title: `Lowest ${label(dim)}: ${botLabel}`,
         description:
-          `"${botLabel}" has the lowest ${num.displayName} among all ${dim.displayName} segments ` +
+          `"${botLabel}" has the lowest ${label(num)} among all ${label(dim)} segments ` +
           `(${botValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}, ` +
           `only ${(total > 0 ? botValue / total * 100 : 0).toFixed(1)}% of total). ` +
           `Consider investigating whether this represents underperformance or a smaller market.`,

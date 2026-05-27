@@ -28,6 +28,9 @@ export type { DropZoneProps, DropZoneField, DropZoneRole } from './components/Dr
 export { ReportScheduler } from './components/ReportScheduler.js';
 export type { ReportSchedulerProps } from './components/ReportScheduler.js';
 
+export { CollaborativeDashboard } from './components/CollaborativeDashboard.js';
+export type { CollaborativeDashboardProps, DashboardComment } from './components/CollaborativeDashboard.js';
+
 // Hooks
 export { useAnalyticsEngine } from './hooks/useAnalyticsEngine.js';
 export type { UseAnalyticsEngineResult } from './hooks/useAnalyticsEngine.js';

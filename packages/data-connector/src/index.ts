@@ -8,10 +8,12 @@
  *  - REST API with auto-pagination
  *  - WebSocket streaming
  *  - Clipboard paste from Excel
+ *  - Google Sheets (public sheets via CSV export)
+ *  - Excel / XLSX file reading (via SheetJS)
  */
 
 // Connectors
-export { parseCsvString, parseCsvFile, streamCsvString } from './connectors/csv-connector.js';
+export { parseCsvString, parseCsvFile, streamCsvString, parseCsvRecords } from './connectors/csv-connector.js';
 export type { CsvParseOptions }                          from './connectors/csv-connector.js';
 
 export { fetchRestApi }                                  from './connectors/rest-connector.js';
@@ -31,6 +33,20 @@ export {
   readFromClipboard,
 }                                                        from './connectors/clipboard-connector.js';
 export type { ClipboardConnectorOptions }                from './connectors/clipboard-connector.js';
+
+export {
+  fetchGoogleSheet,
+  extractSheetId,
+  extractGid,
+  buildCsvExportUrl,
+}                                                        from './connectors/google-sheets-connector.js';
+export type { GoogleSheetsConnectorOptions }             from './connectors/google-sheets-connector.js';
+
+export {
+  parseExcelFile,
+  parseExcelBuffer,
+}                                                        from './connectors/excel-connector.js';
+export type { ExcelConnectorOptions }                    from './connectors/excel-connector.js';
 
 // Schema inference & transformation
 export { inferSchema, coerceValue }                      from './schema-inferrer.js';

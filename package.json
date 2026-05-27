@@ -4,37 +4,17 @@
   "private": true,
   "description": "Drag-and-drop analytics builder powered by GridStorm",
   "scripts": {
-    "build": "pnpm --filter './packages/**' build && pnpm --filter demo build",
+    "build": "pnpm -r build",
     "dev": "pnpm --filter demo dev",
-    "preview": "pnpm --filter demo preview",
-    "start:prod": "pnpm --filter demo exec vite preview --host --port ${PORT:-3000}",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "tsc -b",
+    "lint": "pnpm -r --filter \"@gridstorm/analytix-*\" exec tsc --noEmit",
+    "typecheck": "pnpm -r --filter \"@gridstorm/analytix-*\" exec tsc --noEmit",
     "clean": "pnpm -r --parallel exec rm -rf dist"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.4.0",
-    "@testing-library/react": "^16.0.0",
-    "@testing-library/user-event": "^14.5.0",
-    "@types/node": "^20.0.0",
-    "@vitest/coverage-v8": "^2.1.0",
-    "eslint": "^9.0.0",
-    "eslint-plugin-jsx-a11y": "^6.8.0",
-    "eslint-plugin-no-unsanitized": "^4.0.0",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-security": "^3.0.0",
-    "javascript-obfuscator": "^5.4.1",
-    "jsdom": "^25.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
     "typescript": "^5.4.0",
-    "typescript-eslint": "^8.0.0",
-    "vitest": "^2.1.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "react-is": "^19.0.0"
-    }
+    "vitest": "^2.1.0",
+    "@types/node": "^20.0.0"
   }
 }

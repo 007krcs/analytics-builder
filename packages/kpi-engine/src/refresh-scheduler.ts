@@ -4,17 +4,24 @@
  * RefreshScheduler — manages periodic and cron-style KPI refresh.
  *
  * Features:
- * - setInterval-based refresh with backoff on errors
- * - Cron expression parsing (5-field) with timezone support
- * - Pause-on-hidden (document.visibilityState)
- * - MaxRefreshes cap
- * - Cancellation via returned handles
+ *  - setTimeout-based tick loop (per-tick delay) so we can apply per-handle
+ *    exponential backoff on failures (1×, 2×, 4×, …, up to 30× interval).
+ *  - Cron expression parsing (5-field) with REAL timezone support via
+ *    Intl.DateTimeFormat.
+ *  - Hierarchical cron walker (climbs month → day → hour → minute) rather than
+ *    a 525,600-minute brute-force loop.
+ *  - Pause-on-hidden via document.visibilityState.
+ *  - MaxRefreshes cap.
+ *  - Cancellation via stop(kpiId).
  */
 
 import type { RefreshPolicy } from '@gridstorm/analytix-core';
 import type { RefreshHandle } from './types.js';
 
 export type RefreshCallback = (kpiId: string) => void | Promise<void>;
+
+/** Multiplier sequence applied to the base interval after consecutive failures. */
+const BACKOFF_MULTIPLIERS = [1, 2, 4, 8, 16, 30];
 
 /**
  * Manages interval-based refresh schedules for KPIs.
@@ -25,7 +32,6 @@ export class RefreshScheduler {
   private _visibilityPaused = false;
 
   constructor() {
-    // Listen for visibility changes in browser environment
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', this._handleVisibility);
     }
@@ -38,89 +44,83 @@ export class RefreshScheduler {
   }
 
   /**
-   * Schedule a KPI for auto-refresh based on its RefreshPolicy.
-   * Returns the handle ID; call stop(kpiId) to cancel.
+   * Schedule a KPI for auto-refresh. Returns the kpiId; call stop(kpiId) to cancel.
    */
   schedule(kpiId: string, policy: RefreshPolicy): string {
     if (!policy.enabled) return kpiId;
-    this.stop(kpiId); // Cancel any existing schedule
+    this.stop(kpiId);
 
-    const intervalMs = policy.intervalSeconds * 1000;
-    let refreshCount = 0;
+    const intervalMs = Math.max(50, policy.intervalSeconds * 1000);
 
     const tick = async () => {
-      if (this._visibilityPaused && policy.pauseWhenHidden) return;
+      const handle = this.handles.get(kpiId);
+      if (!handle) return;
 
-      refreshCount++;
+      if (this._visibilityPaused && policy.pauseWhenHidden) {
+        // Skip work but keep the loop alive on the base interval.
+        handle.timeoutId = setTimeout(tick, intervalMs);
+        return;
+      }
 
-      // Invoke all registered callbacks
+      handle.refreshCount++;
+      let anyError = false;
       for (const cb of this.callbacks) {
         try {
           await cb(kpiId);
-        } catch (_e) {
-          // Individual callback errors should not stop the scheduler
+        } catch {
+          anyError = true;
         }
       }
 
-      // Auto-stop if max refreshes reached
-      if (policy.maxRefreshes !== undefined && refreshCount >= policy.maxRefreshes) {
-        this.stop(kpiId);
+      if (anyError) {
+        handle.consecutiveErrors++;
+      } else {
+        handle.consecutiveErrors = 0;
       }
+
+      if (policy.maxRefreshes !== undefined && handle.refreshCount >= policy.maxRefreshes) {
+        this.stop(kpiId);
+        return;
+      }
+
+      const idx = Math.min(handle.consecutiveErrors, BACKOFF_MULTIPLIERS.length - 1);
+      const delay = intervalMs * BACKOFF_MULTIPLIERS[idx];
+      handle.timeoutId = setTimeout(tick, delay);
     };
 
-    const intervalId = setInterval(tick, intervalMs);
+    const timeoutId = setTimeout(tick, intervalMs);
     this.handles.set(kpiId, {
       kpiId,
-      intervalId,
+      timeoutId,
       refreshCount: 0,
       startedAt: new Date(),
+      consecutiveErrors: 0,
     });
 
     return kpiId;
   }
 
-  /**
-   * Schedule multiple KPIs at once. Returns map of kpiId → handle.
-   */
   scheduleMany(entries: Array<{ kpiId: string; policy: RefreshPolicy }>): void {
-    for (const { kpiId, policy } of entries) {
-      this.schedule(kpiId, policy);
-    }
+    for (const { kpiId, policy } of entries) this.schedule(kpiId, policy);
   }
 
-  /** Stop a scheduled refresh */
   stop(kpiId: string): void {
     const handle = this.handles.get(kpiId);
     if (handle) {
-      clearInterval(handle.intervalId);
+      clearTimeout(handle.timeoutId);
       this.handles.delete(kpiId);
     }
   }
 
-  /** Stop all scheduled refreshes */
   stopAll(): void {
-    for (const handle of this.handles.values()) {
-      clearInterval(handle.intervalId);
-    }
+    for (const handle of this.handles.values()) clearTimeout(handle.timeoutId);
     this.handles.clear();
   }
 
-  /** Get active handle info */
-  getHandle(kpiId: string): RefreshHandle | undefined {
-    return this.handles.get(kpiId);
-  }
+  getHandle(kpiId: string): RefreshHandle | undefined { return this.handles.get(kpiId); }
+  getScheduledIds(): string[] { return Array.from(this.handles.keys()); }
+  get count(): number { return this.handles.size; }
 
-  /** List all scheduled KPI IDs */
-  getScheduledIds(): string[] {
-    return Array.from(this.handles.keys());
-  }
-
-  /** How many KPIs are currently scheduled */
-  get count(): number {
-    return this.handles.size;
-  }
-
-  /** Destroy scheduler and release all handles */
   destroy(): void {
     this.stopAll();
     this.callbacks.clear();
@@ -134,9 +134,8 @@ export class RefreshScheduler {
   };
 }
 
-// ─── Cron parsing utilities ───────────────────────────────────────────────────
+// ─── Cron parsing ─────────────────────────────────────────────────────────────
 
-/** Very simple 5-field cron expression interpreter */
 export interface ParsedCron {
   minute: number[];
   hour: number[];
@@ -147,22 +146,20 @@ export interface ParsedCron {
 
 /**
  * Parse a 5-field cron expression into arrays of matching values.
- * Supports: wildcard (*), step (star/n), ranges (a-b), lists (a,b,c)
+ * Supports: wildcard (*), step (∗/n), ranges (a-b), lists (a,b,c).
  */
 export function parseCronExpression(expr: string): ParsedCron {
   const fields = expr.trim().split(/\s+/);
   if (fields.length !== 5) {
     throw new Error(`Invalid cron expression: "${expr}". Expected 5 fields.`);
   }
-
   const [minuteStr, hourStr, domStr, monthStr, dowStr] = fields;
-
   return {
-    minute: parseCronField(minuteStr, 0, 59),
-    hour: parseCronField(hourStr, 0, 23),
+    minute:     parseCronField(minuteStr, 0, 59),
+    hour:       parseCronField(hourStr, 0, 23),
     dayOfMonth: parseCronField(domStr, 1, 31),
-    month: parseCronField(monthStr, 1, 12),
-    dayOfWeek: parseCronField(dowStr, 0, 6),
+    month:      parseCronField(monthStr, 1, 12),
+    dayOfWeek:  parseCronField(dowStr, 0, 6),
   };
 }
 
@@ -170,7 +167,6 @@ function parseCronField(field: string, min: number, max: number): number[] {
   if (field === '*') {
     return Array.from({ length: max - min + 1 }, (_, i) => min + i);
   }
-
   if (field.startsWith('*/')) {
     const step = parseInt(field.slice(2), 10);
     if (isNaN(step) || step <= 0) throw new Error(`Invalid step in cron field: ${field}`);
@@ -178,8 +174,6 @@ function parseCronField(field: string, min: number, max: number): number[] {
     for (let i = min; i <= max; i += step) result.push(i);
     return result;
   }
-
-  // Lists and ranges
   const result: number[] = [];
   for (const part of field.split(',')) {
     if (part.includes('-')) {
@@ -193,33 +187,176 @@ function parseCronField(field: string, min: number, max: number): number[] {
   return result.filter((v) => v >= min && v <= max);
 }
 
+// ─── Timezone-aware cron walker ───────────────────────────────────────────────
+//
+// We compute the next match in the target timezone's *wall clock*. The
+// algorithm climbs hierarchically — year → month → day → hour → minute — and
+// only iterates the field set, never 525,600 minutes.
+//
+// The candidate is stored as a UTC instant. Whenever we need to inspect its
+// "local" components in the target timezone, we use Intl.DateTimeFormat. To
+// snap a wall-clock combination back to a UTC instant we do a coarse search:
+// take the candidate's UTC ms and try ±14h offsets (the maximum standard TZ
+// offset range) by re-formatting until the wall-clock fields line up.
+
+const WALL_FMT_CACHE = new Map<string, Intl.DateTimeFormat>();
+function getFormatter(tz: string): Intl.DateTimeFormat {
+  let f = WALL_FMT_CACHE.get(tz);
+  if (!f) {
+    f = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz, hour12: false,
+      year:'numeric', month:'2-digit', day:'2-digit',
+      hour:'2-digit', minute:'2-digit', weekday:'short',
+    });
+    WALL_FMT_CACHE.set(tz, f);
+  }
+  return f;
+}
+
+interface WallClock {
+  year: number; month: number; day: number;
+  hour: number; minute: number; weekday: number; // 0=Sunday
+}
+
+const WEEKDAY_MAP: Record<string, number> = { Sun:0, Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6 };
+
+function wallClockIn(date: Date, tz?: string): WallClock {
+  if (!tz) {
+    return {
+      year:    date.getFullYear(),
+      month:   date.getMonth() + 1,
+      day:     date.getDate(),
+      hour:    date.getHours(),
+      minute:  date.getMinutes(),
+      weekday: date.getDay(),
+    };
+  }
+  const parts = getFormatter(tz).formatToParts(date);
+  const pick = (t: string) => parts.find((p) => p.type === t)?.value ?? '0';
+  return {
+    year:    +pick('year'),
+    month:   +pick('month'),
+    day:     +pick('day'),
+    hour:    +pick('hour') % 24, // en-US sometimes emits "24" for midnight
+    minute:  +pick('minute'),
+    weekday: WEEKDAY_MAP[pick('weekday')] ?? 0,
+  };
+}
+
+/** Days in `month` of `year`, accounting for leap years. */
+function daysInMonth(year: number, month: number): number {
+  return new Date(year, month, 0).getDate();
+}
+
+/** Snap a target wall-clock (year/month/day/hour/minute) in `tz` back to a UTC Date. */
+function wallToInstant(target: { year: number; month: number; day: number; hour: number; minute: number }, tz?: string): Date {
+  // First guess: interpret as local-time UTC
+  let guess = new Date(Date.UTC(target.year, target.month - 1, target.day, target.hour, target.minute, 0));
+  if (!tz) {
+    // No timezone: use local Date constructor instead
+    return new Date(target.year, target.month - 1, target.day, target.hour, target.minute, 0);
+  }
+  // Adjust by the offset between the guess's wall-clock-in-TZ and the target.
+  for (let iter = 0; iter < 4; iter++) {
+    const wc = wallClockIn(guess, tz);
+    const diffMinutes =
+      (target.year   - wc.year)   * 525_600 +
+      (target.month  - wc.month)  * 43_200  +
+      (target.day    - wc.day)    * 1_440   +
+      (target.hour   - wc.hour)   * 60      +
+      (target.minute - wc.minute);
+    if (diffMinutes === 0) return guess;
+    guess = new Date(guess.getTime() + diffMinutes * 60_000);
+  }
+  return guess;
+}
+
 /**
- * Given a parsed cron, compute the next Date after `from`.
- * Timezone is applied by shifting timestamps.
+ * Given a parsed cron, compute the next Date strictly *after* `from` in `tz`.
+ * Walks the field hierarchy — typically <100 iterations regardless of cron sparsity.
  */
-export function nextCronDate(cron: ParsedCron, from: Date, _timezone?: string): Date {
-  const candidate = new Date(from.getTime() + 60000); // Start 1 minute after `from`
-  candidate.setSeconds(0, 0);
+export function nextCronDate(cron: ParsedCron, from: Date, tz?: string): Date {
+  // Start one minute after `from`.
+  const start = new Date(from.getTime() + 60_000);
 
-  // Iterate forward up to 4 years to find the next match
-  for (let i = 0; i < 525600; i++) {
-    const month = candidate.getMonth() + 1; // 1-12
-    const dom = candidate.getDate(); // 1-31
-    const hour = candidate.getHours();
-    const minute = candidate.getMinutes();
-    const dow = candidate.getDay(); // 0=Sunday
+  const sortedMonths   = [...cron.month].sort((a,b)=>a-b);
+  const sortedHours    = [...cron.hour].sort((a,b)=>a-b);
+  const sortedMinutes  = [...cron.minute].sort((a,b)=>a-b);
 
-    if (
-      cron.month.includes(month) &&
-      cron.dayOfMonth.includes(dom) &&
-      cron.dayOfWeek.includes(dow) &&
-      cron.hour.includes(hour) &&
-      cron.minute.includes(minute)
-    ) {
-      return new Date(candidate);
+  let wc = wallClockIn(start, tz);
+  wc = { ...wc, minute: wc.minute };  // zero seconds implicit
+
+  // Cap year search to 4 years out — same contract as the old implementation.
+  const yearLimit = wc.year + 4;
+
+  while (wc.year <= yearLimit) {
+    // Find next month >= current
+    const nextMonth = sortedMonths.find((m) => m >= wc.month);
+    if (nextMonth === undefined) {
+      wc = { year: wc.year + 1, month: sortedMonths[0], day: 1, hour: 0, minute: 0, weekday: 0 };
+      continue;
+    }
+    if (nextMonth !== wc.month) {
+      wc = { year: wc.year, month: nextMonth, day: 1, hour: 0, minute: 0, weekday: 0 };
     }
 
-    candidate.setMinutes(candidate.getMinutes() + 1);
+    const dim = daysInMonth(wc.year, wc.month);
+    const validDoms = cron.dayOfMonth.filter((d) => d <= dim).sort((a,b)=>a-b);
+    const nextDom = validDoms.find((d) => d >= wc.day);
+    if (nextDom === undefined) {
+      // No valid DOM this month — advance month
+      wc = { year: wc.year, month: wc.month + 1, day: 1, hour: 0, minute: 0, weekday: 0 };
+      if (wc.month > 12) { wc.year++; wc.month = 1; }
+      continue;
+    }
+    if (nextDom !== wc.day) {
+      wc = { year: wc.year, month: wc.month, day: nextDom, hour: 0, minute: 0, weekday: 0 };
+    }
+
+    // Compute the day-of-week for this candidate by snapping to an instant
+    const dayInstant = wallToInstant({ year: wc.year, month: wc.month, day: wc.day, hour: 0, minute: 0 }, tz);
+    const dayWc = wallClockIn(dayInstant, tz);
+    if (!cron.dayOfWeek.includes(dayWc.weekday)) {
+      // Advance day by 1
+      wc = { year: wc.year, month: wc.month, day: wc.day + 1, hour: 0, minute: 0, weekday: 0 };
+      if (wc.day > dim) {
+        wc.day = 1; wc.month++;
+        if (wc.month > 12) { wc.year++; wc.month = 1; }
+      }
+      continue;
+    }
+
+    const nextHour = sortedHours.find((h) => h >= wc.hour);
+    if (nextHour === undefined) {
+      // Advance to next day
+      wc = { year: wc.year, month: wc.month, day: wc.day + 1, hour: 0, minute: 0, weekday: 0 };
+      if (wc.day > dim) {
+        wc.day = 1; wc.month++;
+        if (wc.month > 12) { wc.year++; wc.month = 1; }
+      }
+      continue;
+    }
+    if (nextHour !== wc.hour) {
+      wc = { year: wc.year, month: wc.month, day: wc.day, hour: nextHour, minute: 0, weekday: 0 };
+    }
+
+    const nextMinute = sortedMinutes.find((m) => m >= wc.minute);
+    if (nextMinute === undefined) {
+      // Advance to next hour
+      wc = { year: wc.year, month: wc.month, day: wc.day, hour: wc.hour + 1, minute: 0, weekday: 0 };
+      if (wc.hour > 23) {
+        wc.hour = 0; wc.day++;
+        if (wc.day > dim) {
+          wc.day = 1; wc.month++;
+          if (wc.month > 12) { wc.year++; wc.month = 1; }
+        }
+      }
+      continue;
+    }
+    wc.minute = nextMinute;
+
+    // Found a candidate — snap to UTC instant and return
+    return wallToInstant({ year: wc.year, month: wc.month, day: wc.day, hour: wc.hour, minute: wc.minute }, tz);
   }
 
   throw new Error('Could not find next cron date within 4 years');

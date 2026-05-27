@@ -12,7 +12,7 @@
  * No Tailwind, no Bootstrap. All styles in styles.css.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnalyticsEngine } from '@gridstorm/analytix-core';
 import type { KpiConfig, Row } from '@gridstorm/analytix-core';
 import { computePivot as _computePivot } from '@gridstorm/analytix-pivot-engine';
@@ -25,8 +25,6 @@ import {
 } from '@gridstorm/analytix-react';
 
 // ── New differentiators ────────────────────────────────────────
-import { InsightEngine }       from '@gridstorm/analytix-insight-engine';
-import type { Insight, InsightResult } from '@gridstorm/analytix-insight-engine';
 import { CrossFilterProvider } from '@gridstorm/analytix-crossfilter';
 import { DashboardCanvas, CanvasEngine } from '@gridstorm/analytix-canvas-layout';
 import type { CanvasWidget } from '@gridstorm/analytix-canvas-layout';
@@ -35,6 +33,9 @@ import { SALES_DATA, EMPLOYEE_DATA, SALES_STATS } from './data/sample-data.js';
 import { SqlEditor } from '@gridstorm/analytix-sql-connector';
 import { MARKETPLACE_PLUGINS, searchPlugins } from '@gridstorm/analytix-core';
 import type { MarketplacePlugin } from '@gridstorm/analytix-core';
+import { fetchGoogleSheet, parseExcelFile } from '@gridstorm/analytix-data-connector';
+import { CollaborativeDashboard } from '@gridstorm/analytix-react';
+import { AIInsightsPanel } from './AIInsightsPanel.js';
 
 import './styles.css';
 
@@ -124,7 +125,7 @@ const KPI_UNITS: KpiConfig = {
 
 // ─── Tab config ───────────────────────────────────────────────
 
-type DemoTab = 'pivot' | 'charts' | 'kpis' | 'reports' | 'insights' | 'canvas' | 'docs' | 'sql' | 'marketplace';
+type DemoTab = 'pivot' | 'charts' | 'kpis' | 'reports' | 'insights' | 'canvas' | 'docs' | 'sql' | 'marketplace' | 'connectors' | 'collaborate';
 
 const TAB_CONFIG: Array<{ id: DemoTab; label: string; icon: string }> = [
   { id: 'pivot',       label: 'Pivot Builder',    icon: '⊞' },
@@ -134,6 +135,8 @@ const TAB_CONFIG: Array<{ id: DemoTab; label: string; icon: string }> = [
   { id: 'insights',    label: 'AI Insights',      icon: '🤖' },
   { id: 'canvas',      label: 'Live Canvas',      icon: '🎨' },
   { id: 'sql',         label: 'SQL Query',        icon: '🗄️' },
+  { id: 'connectors',  label: 'Connectors',       icon: '🔌' },
+  { id: 'collaborate', label: 'Collaborate',      icon: '💬' },
   { id: 'marketplace', label: 'Marketplace',      icon: '🏪' },
   { id: 'docs',        label: 'How It Works',     icon: '📖' },
 ];
@@ -225,6 +228,14 @@ export default function App() {
           <SqlQueryTab engine={engine} />
         )}
 
+        {activeTab === 'connectors' && (
+          <ConnectorsTab engine={engine} />
+        )}
+
+        {activeTab === 'collaborate' && (
+          <CollaborateTab engine={engine} />
+        )}
+
         {activeTab === 'marketplace' && (
           <MarketplaceTab />
         )}
@@ -243,7 +254,7 @@ export default function App() {
 function PivotBuilderTab({ engine }: { engine: AnalyticsEngine }) {
   const salesDataset = engine.getDataset('sales') ?? undefined;
   return (
-    <section className="demo-section" aria-labelledby="pivot-heading">
+    <section className="demo-section demo-section--builder" aria-labelledby="pivot-heading">
       <div className="demo-section-header">
         <h2 id="pivot-heading">Pivot Builder</h2>
         <p>
@@ -275,7 +286,7 @@ function ChartBuilderTab({
   salesDataset: ReturnType<AnalyticsEngine['getDataset']>;
 }) {
   return (
-    <section className="demo-section" aria-labelledby="charts-heading">
+    <section className="demo-section demo-section--builder" aria-labelledby="charts-heading">
       <div className="demo-section-header">
         <h2 id="charts-heading">Analytics Builder</h2>
         <p>
@@ -627,195 +638,38 @@ function ReportSchedulerWidget() {
 
 // ─── AI Insights tab ──────────────────────────────────────────
 
-const insightEngineInstance = new InsightEngine();
-
-const SEVERITY_COLOR: Record<string, string> = {
-  info:     'var(--brand)',
-  warning:  'var(--warning)',
-  critical: 'var(--danger)',
+// Build the demo dataset once (same shape as the engine expects)
+const INSIGHTS_DATASET = {
+  id:        'sales-insights',
+  name:      'Sales Data',
+  columns: [
+    { id: 'revenue',               displayName: 'Revenue',               type: 'float'   as const, aggregatable: true,  dimensional: false, nullable: false },
+    { id: 'profit',                displayName: 'Profit',                type: 'float'   as const, aggregatable: true,  dimensional: false, nullable: false },
+    { id: 'profit_margin',         displayName: 'Profit Margin',         type: 'float'   as const, aggregatable: true,  dimensional: false, nullable: false },
+    { id: 'units',                 displayName: 'Units Sold',            type: 'integer' as const, aggregatable: true,  dimensional: false, nullable: false },
+    { id: 'customer_satisfaction', displayName: 'Customer Satisfaction', type: 'float'   as const, aggregatable: true,  dimensional: false, nullable: false },
+    { id: 'days_to_close',         displayName: 'Days to Close',         type: 'integer' as const, aggregatable: true,  dimensional: false, nullable: false },
+    { id: 'region',                displayName: 'Region',                type: 'string'  as const, aggregatable: false, dimensional: true,  nullable: false },
+    { id: 'category',              displayName: 'Category',              type: 'string'  as const, aggregatable: false, dimensional: true,  nullable: false },
+  ],
+  rows:      SALES_DATA as unknown as Row[],
+  source:    { id: 'src-sales', name: 'Sales Data', type: 'inline' as const, rowCount: SALES_DATA.length },
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };
-
-const SEVERITY_BG: Record<string, string> = {
-  info:     'var(--brand-50)',
-  warning:  'var(--warning-light)',
-  critical: 'var(--danger-light)',
-};
-
-function InsightCard({ insight }: { insight: Insight }) {
-  const borderColor = SEVERITY_COLOR[insight.severity] ?? 'var(--brand)';
-  const bgColor     = SEVERITY_BG[insight.severity]    ?? 'var(--brand-50)';
-
-  return (
-    <article
-      className="insight-card"
-      style={{ borderLeftColor: borderColor, background: bgColor }}
-      aria-label={insight.title}
-    >
-      <div className="insight-card__header">
-        <span
-          className="insight-badge"
-          style={{ background: borderColor }}
-          aria-label={`Type: ${insight.type}`}
-        >
-          {insight.type}
-        </span>
-        <span
-          className="insight-badge insight-badge--severity"
-          style={{ background: borderColor }}
-          aria-label={`Severity: ${insight.severity}`}
-        >
-          {insight.severity}
-        </span>
-        {insight.chartSuggestion && (
-          <span className="insight-badge insight-badge--chart" aria-label={`Suggested chart: ${insight.chartSuggestion}`}>
-            {insight.chartSuggestion}
-          </span>
-        )}
-      </div>
-
-      <h3 className="insight-card__title">{insight.title}</h3>
-      <p className="insight-card__desc">{insight.description}</p>
-
-      <div className="insight-card__footer">
-        <div className="insight-card__confidence" aria-label={`Confidence: ${(insight.confidence * 100).toFixed(0)}%`}>
-          <span className="insight-card__confidence-label">
-            Confidence: {(insight.confidence * 100).toFixed(0)}%
-          </span>
-          <div className="insight-card__confidence-track" role="progressbar"
-            aria-valuenow={insight.confidence * 100}
-            aria-valuemin={0}
-            aria-valuemax={100}>
-            <div
-              className="insight-card__confidence-bar"
-              style={{ width: `${insight.confidence * 100}%`, background: borderColor }}
-            />
-          </div>
-        </div>
-
-        <span className="insight-card__cols">
-          Columns: {insight.affectedColumns.join(', ')}
-        </span>
-      </div>
-    </article>
-  );
-}
 
 function AiInsightsTab() {
-  const [result,  setResult]  = useState<InsightResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState<string | null>(null);
-  const [filter,  setFilter]  = useState<'all' | 'critical' | 'warning' | 'info'>('all');
-  const ran = useRef(false);
-
-  useEffect(() => {
-    if (ran.current) return;
-    ran.current = true;
-    setLoading(true);
-
-    // Build a dataset from SALES_DATA for insight analysis
-    const dataset = {
-      id:         'sales-insights',
-      name:       'Sales Data',
-      columns:    [
-        { id: 'revenue',               displayName: 'Revenue',              type: 'float' as const,     aggregatable: true,  dimensional: false, nullable: false },
-        { id: 'profit',                displayName: 'Profit',               type: 'float' as const,     aggregatable: true,  dimensional: false, nullable: false },
-        { id: 'profit_margin',         displayName: 'Profit Margin',        type: 'float' as const,     aggregatable: true,  dimensional: false, nullable: false },
-        { id: 'units',                 displayName: 'Units Sold',           type: 'integer' as const,   aggregatable: true,  dimensional: false, nullable: false },
-        { id: 'customer_satisfaction', displayName: 'Customer Satisfaction',type: 'float' as const,     aggregatable: true,  dimensional: false, nullable: false },
-        { id: 'days_to_close',         displayName: 'Days to Close',        type: 'integer' as const,   aggregatable: true,  dimensional: false, nullable: false },
-        { id: 'region',                displayName: 'Region',               type: 'string' as const,    aggregatable: false, dimensional: true,  nullable: false },
-        { id: 'category',              displayName: 'Category',             type: 'string' as const,    aggregatable: false, dimensional: true,  nullable: false },
-      ],
-      rows:       SALES_DATA as unknown as Row[],
-      source:     { id: 'src-sales', name: 'Sales Data', type: 'inline' as const, rowCount: SALES_DATA.length },
-      createdAt:  new Date(),
-      updatedAt:  new Date(),
-    };
-
-    insightEngineInstance
-      .analyze(dataset, { maxInsights: 15, minConfidence: 0.3 })
-      .then((r) => { setResult(r); setLoading(false); })
-      .catch((e: Error) => { setError(e.message); setLoading(false); });
-  }, []);
-
-  const visibleInsights = result?.insights.filter(
-    (i: Insight) => filter === 'all' || i.severity === filter
-  ) ?? [];
-
-  const criticalCount = result?.insights.filter((i: Insight) => i.severity === 'critical').length ?? 0;
-  const warningCount  = result?.insights.filter((i: Insight) => i.severity === 'warning').length  ?? 0;
-  const infoCount     = result?.insights.filter((i: Insight) => i.severity === 'info').length     ?? 0;
-
   return (
     <section className="demo-section" aria-labelledby="insights-heading">
       <div className="demo-section-header">
         <h2 id="insights-heading">AI Insights</h2>
         <p>
-          Zero-dependency pattern detection — no API key needed. Pure TypeScript statistics:
-          linear regression, Z-score anomaly detection, Pearson correlation, segment analysis, and forecasting.
+          <strong>Left:</strong> zero-dependency pure TypeScript statistics — runs locally, no API key needed.{' '}
+          <strong>Right:</strong> Claude claude-opus-4-6 interprets those findings with business context,
+          executive summaries, and actionable recommendations (enter your Anthropic API key to enable).
         </p>
       </div>
-
-      {loading && (
-        <div className="insights-loading" role="status" aria-live="polite">
-          <span className="insights-loading__spinner" aria-hidden="true" />
-          Analysing {SALES_DATA.length.toLocaleString()} records…
-        </div>
-      )}
-
-      {error && (
-        <div className="demo-error" role="alert">Analysis error: {error}</div>
-      )}
-
-      {result && (
-        <>
-          {/* Executive narrative */}
-          <div className="insights-narrative" role="region" aria-label="Executive summary">
-            <div className="insights-narrative__icon" aria-hidden="true">🤖</div>
-            <div>
-              <h3 className="insights-narrative__title">Executive Summary</h3>
-              <p className="insights-narrative__text">{result.narrative}</p>
-              <p className="insights-narrative__meta">
-                Analysed {result.rowCount.toLocaleString()} rows × {result.columnCount} columns
-                in {new Date(result.analyzedAt).toLocaleTimeString()}
-              </p>
-            </div>
-          </div>
-
-          {/* Severity filter tabs */}
-          <div className="insights-filter-tabs" role="tablist" aria-label="Filter insights by severity">
-            {(['all', 'critical', 'warning', 'info'] as const).map((f) => {
-              const count =
-                f === 'all'      ? result.insights.length :
-                f === 'critical' ? criticalCount :
-                f === 'warning'  ? warningCount  : infoCount;
-              return (
-                <button
-                  key={f}
-                  role="tab"
-                  className={`insights-filter-tab insights-filter-tab--${f}${filter === f ? ' insights-filter-tab--active' : ''}`}
-                  aria-selected={filter === f}
-                  onClick={() => setFilter(f)}
-                >
-                  {f.charAt(0).toUpperCase() + f.slice(1)}
-                  <span className="insights-filter-tab__count">{count}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Insight cards grid */}
-          <div className="insights-grid" role="list" aria-label="Detected insights">
-            {visibleInsights.length === 0 ? (
-              <p className="insights-empty">No {filter === 'all' ? '' : filter} insights detected.</p>
-            ) : (
-              visibleInsights.map((insight) => (
-                <InsightCard key={insight.id} insight={insight} />
-              ))
-            )}
-          </div>
-        </>
-      )}
+      <AIInsightsPanel dataset={INSIGHTS_DATASET as unknown as import('@gridstorm/analytix-core').Dataset} />
     </section>
   );
 }
@@ -1373,21 +1227,173 @@ function RevenueBar({ datasetId, rows }) {
         </details>
       </div>
 
+      {/* AI provider setup + production deployment */}
+      <h3 className="docs-section-title">AI Analysis — Setup Guide</h3>
+      <div className="docs-code-examples">
+
+        <details className="docs-code-block" open>
+          <summary>🦙 Option A — Ollama (Free, local, private)</summary>
+          <pre>{`# 1. Install Ollama
+#    macOS:
+brew install ollama
+#    Linux:
+curl -fsSL https://ollama.com/install.sh | sh
+#    Windows: download the installer from https://ollama.com
+
+# 2. Pull a model (one-time download)
+ollama pull llama3.2        # ~2 GB — recommended
+ollama pull mistral         # ~4 GB — higher quality
+ollama pull phi3            # ~2 GB — fast & small
+ollama pull qwen2.5         # ~4 GB — multilingual
+
+# 3. Start the server
+ollama serve                # runs on http://localhost:11434
+
+# 4. Use it in the AI Insights tab
+#    Select "Ollama (Free)" as provider → click Analyse.
+#    No API key needed. Data never leaves your machine.
+
+# Tip: Ollama only allows connections from localhost by default.
+# If you deploy the app to production, users must run Ollama locally.
+# You can change OLLAMA_HOST to allow other origins if needed:
+OLLAMA_HOST=0.0.0.0 ollama serve`}</pre>
+        </details>
+
+        <details className="docs-code-block">
+          <summary>🤖 Option B — Claude (Anthropic API, cloud)</summary>
+          <pre>{`# 1. Create an Anthropic account at console.anthropic.com
+# 2. Go to API Keys → Create Key
+# 3. Copy the key (starts with sk-ant-api03-...)
+
+# 4. Paste it into the AI Insights tab → "Anthropic API Key" field.
+#    The key is saved in localStorage on your device only.
+
+# Model pricing (per analysis run, ~2k tokens in + ~1k out):
+#   claude-haiku-4-5  — ~$0.004   Fastest, great for quick reports
+#   claude-sonnet-4-6 — ~$0.025   Balanced quality/cost
+#   claude-opus-4-6   — ~$0.050   Highest quality reasoning
+
+# Prompt caching is enabled automatically — if you run analysis
+# multiple times on the same dataset the system instructions are
+# read from cache (~10× cheaper on repeated runs).
+
+# For production use, set the API key as an environment variable:
+#   VITE_ANTHROPIC_API_KEY=sk-ant-api03-...
+# Then load it in your app:
+const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY ?? '';`}</pre>
+        </details>
+
+        <details className="docs-code-block">
+          <summary>☁️ Production deployment — Vercel (recommended)</summary>
+          <pre>{`# Prerequisites: Node 18+, pnpm, a Vercel account
+
+# 1. Build the demo
+cd analytics-builder
+pnpm install
+pnpm -r build            # builds all workspace packages first
+cd examples/demo
+pnpm build               # outputs to examples/demo/dist/
+
+# 2. Deploy to Vercel (one command)
+npx vercel --prod        # follow the prompts
+
+# Or connect your GitHub repo to Vercel for automatic deploys:
+#   vercel.com → New Project → Import Git Repository
+
+# 3. Add environment variables in Vercel dashboard:
+#   VITE_ANTHROPIC_API_KEY  (optional — users can also enter their own)
+#
+# Vercel → Project Settings → Environment Variables → Add
+
+# vercel.json (place in examples/demo/):
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}`}</pre>
+        </details>
+
+        <details className="docs-code-block">
+          <summary>🐳 Production deployment — Docker</summary>
+          <pre>{`# Dockerfile (place in examples/demo/):
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Copy monorepo root
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY packages/ packages/
+COPY examples/demo/ examples/demo/
+
+RUN corepack enable && pnpm install --frozen-lockfile
+RUN pnpm -r build && cd examples/demo && pnpm build
+
+FROM nginx:alpine
+COPY --from=builder /app/examples/demo/dist /usr/share/nginx/html
+COPY examples/demo/nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+
+# nginx.conf:
+server {
+  listen 80;
+  root /usr/share/nginx/html;
+  index index.html;
+  location / { try_files $uri $uri/ /index.html; }
+  gzip on;
+  gzip_types text/css application/javascript application/json;
+}
+
+# Build and run:
+docker build -t analytix-demo .
+docker run -p 8080:80 analytix-demo`}</pre>
+        </details>
+
+        <details className="docs-code-block">
+          <summary>🔒 Security — API key handling in production</summary>
+          <pre>{`// Option 1: User supplies their own key (current demo approach)
+// Key stored in localStorage — never sent to your server.
+// Each user pays for their own usage. Zero backend required.
+
+// Option 2: Server-side proxy (recommended for team deployments)
+// Create a lightweight API route that holds your key server-side:
+
+// pages/api/analyse.ts  (Next.js example)
+import Anthropic from '@anthropic-ai/sdk';
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+export async function POST(req: Request) {
+  const { dataset, result } = await req.json();
+  // Add your own auth / rate-limit checks here
+  const stream = client.messages.stream({
+    model: 'claude-haiku-4-5',
+    max_tokens: 2048,
+    messages: [{ role: 'user', content: buildPrompt(dataset, result) }],
+  });
+  // Return as Server-Sent Events
+  return new Response(stream.toReadableStream(), {
+    headers: { 'Content-Type': 'text/event-stream' },
+  });
+}
+
+// Rate limiting recommendations:
+// - 10 requests / user / day for free tier
+// - Track usage in Redis / Upstash
+// - Use Anthropic's usage reports at console.anthropic.com/usage`}</pre>
+        </details>
+      </div>
+
       {/* Roadmap */}
-      <h3 className="docs-section-title">Roadmap — Q3 2026 GA</h3>
+      <h3 className="docs-section-title">Shipped — Q1 2026</h3>
       <div className="docs-roadmap">
         <div className="docs-roadmap-items">
           {[
-            'Collaborative editing (CRDT via Yjs)',
+            'Google Sheets connector — fetch public sheets via CSV export URL',
+            'Excel (.xlsx) connector — read spreadsheet files with SheetJS',
+            'Collaborative dashboards — shareable URLs + comment threads',
+            'Mobile-responsive layout — media queries for phones and tablets',
             'SQL connector — DuckDB WASM, query CSV/Parquet with SQL',
-            'Mobile-responsive layout with touch drag-and-drop',
             'Plugin marketplace — community chart types and connectors',
             '@gridstorm/analytix-vue and @gridstorm/analytix-svelte adapter packages',
             'WCAG 2.1 AA accessibility audit and compliance',
             'Native time-series axis with zoom and pan gestures',
             'Snapshot alerts — compare KPI values across periods',
-            'PDF report designer with drag-and-drop sections',
-            'Delta Lake / Parquet file connector',
           ].map((item) => (
             <div key={item} className="docs-roadmap-item">
               <div className="docs-roadmap-check" aria-hidden="true" />
@@ -1397,6 +1403,218 @@ function RevenueBar({ datasetId, rows }) {
         </div>
       </div>
 
+    </section>
+  );
+}
+
+// ─── Connectors tab ───────────────────────────────────────────
+
+function ConnectorsTab({ engine }: { engine: AnalyticsEngine }) {
+  const [sheetsUrl,    setSheetsUrl]    = useState('');
+  const [sheetsStatus, setSheetsStatus] = useState<string | null>(null);
+  const [sheetsError,  setSheetsError]  = useState<string | null>(null);
+
+  const [excelFile,    setExcelFile]    = useState<File | null>(null);
+  const [excelStatus,  setExcelStatus]  = useState<string | null>(null);
+  const [excelError,   setExcelError]   = useState<string | null>(null);
+
+  async function handleSheetsLoad() {
+    if (!sheetsUrl.trim()) return;
+    setSheetsStatus('Fetching…');
+    setSheetsError(null);
+    try {
+      const ds = await fetchGoogleSheet(sheetsUrl.trim(), { datasetName: 'Google Sheet' });
+      engine.addDataset(ds);
+      setSheetsStatus(`Loaded ${ds.source.rowCount.toLocaleString()} rows · ${ds.columns.length} columns`);
+    } catch (err) {
+      setSheetsError(String(err));
+      setSheetsStatus(null);
+    }
+  }
+
+  async function handleExcelLoad() {
+    if (!excelFile) return;
+    setExcelStatus('Parsing…');
+    setExcelError(null);
+    try {
+      const ds = await parseExcelFile(excelFile, { datasetName: excelFile.name.replace(/\.[^.]+$/, '') });
+      engine.addDataset(ds);
+      setExcelStatus(`Loaded ${ds.source.rowCount.toLocaleString()} rows · ${ds.columns.length} columns`);
+    } catch (err) {
+      setExcelError(String(err));
+      setExcelStatus(null);
+    }
+  }
+
+  return (
+    <section className="demo-section" aria-labelledby="connectors-heading">
+      <div className="demo-section-header">
+        <h2 id="connectors-heading">Data Connectors</h2>
+        <p>
+          Import data from Google Sheets, Excel files, CSV, REST APIs, and WebSockets.
+          Loaded datasets appear in all other tabs.
+        </p>
+      </div>
+
+      <div className="connectors-grid">
+
+        {/* Google Sheets */}
+        <div className="connector-card">
+          <div className="connector-card-header">
+            <span className="connector-icon">📊</span>
+            <h3>Google Sheets</h3>
+          </div>
+          <p className="connector-desc">
+            Paste any public Google Sheets URL. The sheet is fetched as CSV — no OAuth required.
+          </p>
+          <div className="connector-form">
+            <input
+              className="connector-input"
+              type="url"
+              placeholder="https://docs.google.com/spreadsheets/d/…"
+              value={sheetsUrl}
+              onChange={(e) => setSheetsUrl(e.target.value)}
+              aria-label="Google Sheets URL"
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSheetsLoad(); }}
+            />
+            <button className="connector-btn" onClick={handleSheetsLoad} disabled={!sheetsUrl.trim()}>
+              Load Sheet
+            </button>
+          </div>
+          {sheetsStatus && <p className="connector-status connector-status--ok">{sheetsStatus}</p>}
+          {sheetsError  && <p className="connector-status connector-status--err">{sheetsError}</p>}
+          <p className="connector-hint">
+            The sheet must be shared publicly ("Anyone with the link can view").
+          </p>
+        </div>
+
+        {/* Excel */}
+        <div className="connector-card">
+          <div className="connector-card-header">
+            <span className="connector-icon">📗</span>
+            <h3>Excel / XLSX</h3>
+          </div>
+          <p className="connector-desc">
+            Drop an <code>.xlsx</code> or <code>.xls</code> file. All columns and data types
+            are inferred automatically.
+          </p>
+          <div className="connector-form">
+            <label className="connector-file-label">
+              <input
+                type="file"
+                accept=".xlsx,.xls,.ods"
+                style={{ display: 'none' }}
+                onChange={(e) => setExcelFile(e.target.files?.[0] ?? null)}
+              />
+              {excelFile ? excelFile.name : 'Choose .xlsx file…'}
+            </label>
+            <button className="connector-btn" onClick={handleExcelLoad} disabled={!excelFile}>
+              Load File
+            </button>
+          </div>
+          {excelStatus && <p className="connector-status connector-status--ok">{excelStatus}</p>}
+          {excelError  && <p className="connector-status connector-status--err">{excelError}</p>}
+        </div>
+
+        {/* CSV (already exists — just info card) */}
+        <div className="connector-card connector-card--info">
+          <div className="connector-card-header">
+            <span className="connector-icon">📄</span>
+            <h3>CSV / TSV</h3>
+          </div>
+          <p className="connector-desc">
+            Drag &amp; drop a CSV file onto the Pivot Builder or Chart Builder tab.
+            Auto-detects delimiter, header row, and column types.
+          </p>
+          <span className="connector-badge">Available in all builder tabs</span>
+        </div>
+
+        {/* REST API */}
+        <div className="connector-card connector-card--info">
+          <div className="connector-card-header">
+            <span className="connector-icon">🌐</span>
+            <h3>REST API</h3>
+          </div>
+          <p className="connector-desc">
+            Fetch JSON from any public endpoint with <code>fetchRestApi()</code>. Supports
+            auto-pagination, custom headers, and periodic refresh.
+          </p>
+          <span className="connector-badge">@gridstorm/analytix-data-connector</span>
+        </div>
+
+        {/* WebSocket */}
+        <div className="connector-card connector-card--info">
+          <div className="connector-card-header">
+            <span className="connector-icon">⚡</span>
+            <h3>WebSocket (Real-time)</h3>
+          </div>
+          <p className="connector-desc">
+            Stream live data with <code>connectWebSocket()</code>. Supports JSON/NDJSON framing,
+            automatic reconnection, and visibility-aware pause.
+          </p>
+          <span className="connector-badge">Live in Canvas tab</span>
+        </div>
+
+        {/* SQL */}
+        <div className="connector-card connector-card--info">
+          <div className="connector-card-header">
+            <span className="connector-icon">🗄️</span>
+            <h3>SQL (In-browser)</h3>
+          </div>
+          <p className="connector-desc">
+            Run SELECT queries over any loaded dataset using the pure-JS SQL engine.
+            Supports WHERE, GROUP BY, ORDER BY, and aggregate functions.
+          </p>
+          <span className="connector-badge">SQL Query tab</span>
+        </div>
+
+      </div>
+    </section>
+  );
+}
+
+// ─── Collaborate tab ──────────────────────────────────────────
+
+function CollaborateTab({ engine }: { engine: AnalyticsEngine }) {
+  const { result: revenueResult }      = useKpi(engine, KPI_REVENUE);
+  const { result: profitResult }       = useKpi(engine, KPI_PROFIT);
+  const { result: satisfactionResult } = useKpi(engine, KPI_AVG_SATISFACTION);
+  const { result: unitsResult }        = useKpi(engine, KPI_UNITS);
+
+  const sharePayload = { tab: 'collaborate', ts: Date.now() };
+
+  return (
+    <section className="demo-section" aria-labelledby="collab-heading">
+      <div className="demo-section-header">
+        <h2 id="collab-heading">Collaborative Dashboards</h2>
+        <p>
+          Share a live link to any dashboard state. Team members can leave comments that
+          persist across sessions. Click <strong>Share</strong> to copy the URL, or
+          <strong> Comments</strong> to open the thread.
+        </p>
+      </div>
+
+      <CollaborativeDashboard dashboardId="kpi-dashboard" sharePayload={sharePayload}>
+        <article aria-label="Shared KPI cards">
+          <div className="kpi-demo-grid">
+            {[
+              { config: KPI_REVENUE,          result: revenueResult,      prev: KPI_REVENUE_PREV  },
+              { config: KPI_PROFIT,           result: profitResult,       prev: KPI_PROFIT_PREV   },
+              { config: KPI_AVG_SATISFACTION, result: satisfactionResult, prev: KPI_SAT_PREV      },
+              { config: KPI_UNITS,            result: unitsResult,        prev: KPI_UNITS_PREV    },
+            ].map(({ config, result, prev }) => (
+              <KpiCard
+                key={config.id}
+                config={config}
+                result={result}
+                size="medium"
+                variant="default"
+                previousPeriodValue={prev}
+              />
+            ))}
+          </div>
+        </article>
+      </CollaborativeDashboard>
     </section>
   );
 }

@@ -20,6 +20,7 @@ import type { Row } from '@gridstorm/analytix-core';
 
 interface ParsedSelect {
   expressions: SelectExpr[];
+  selectStar: boolean;
   from: string;
   where: WhereClause | null;
   groupBy: string[];
@@ -133,7 +134,24 @@ function parseWhere(whereStr: string): WhereClause {
   return { conditions, operators };
 }
 
+/** Detect a subquery: balanced (...) containing a leading SELECT. */
+function containsSubquery(s: string): boolean {
+  return /\(\s*SELECT\b/i.test(s);
+}
+
 function parseSql(sql: string): ParsedSelect {
+  // Reject features the parser does not actually support, instead of silently
+  // dropping the predicate and returning wrong rows.
+  if (/\bJOIN\b/i.test(sql)) {
+    throw new Error('SQL parse error: JOIN is not supported by this connector');
+  }
+  if (containsSubquery(sql)) {
+    throw new Error('SQL parse error: subqueries are not supported by this connector');
+  }
+  if (/;.+\S/.test(sql.trim())) {
+    throw new Error('SQL parse error: multiple statements per query are not supported');
+  }
+
   const normalised = tokenizeSql(sql);
 
   // Extract LIMIT
@@ -194,25 +212,30 @@ function parseSql(sql: string): ParsedSelect {
   if (!selectMatch) {
     throw new Error('SQL parse error: missing SELECT clause');
   }
-  const colsStr = selectMatch[1];
+  const colsStr = selectMatch[1].trim();
+
+  // SELECT * — pass through every source-row key during projection
+  const selectStar = colsStr === '*';
 
   // Split cols respecting parentheses
   const expressions: SelectExpr[] = [];
-  let depth = 0;
-  let current = '';
-  for (const ch of colsStr) {
-    if (ch === '(') depth++;
-    else if (ch === ')') depth--;
-    if (ch === ',' && depth === 0) {
-      expressions.push(parseSelectExpr(current));
-      current = '';
-    } else {
-      current += ch;
+  if (!selectStar) {
+    let depth = 0;
+    let current = '';
+    for (const ch of colsStr) {
+      if (ch === '(') depth++;
+      else if (ch === ')') depth--;
+      if (ch === ',' && depth === 0) {
+        expressions.push(parseSelectExpr(current));
+        current = '';
+      } else {
+        current += ch;
+      }
     }
+    if (current.trim()) expressions.push(parseSelectExpr(current));
   }
-  if (current.trim()) expressions.push(parseSelectExpr(current));
 
-  return { expressions, from, where, groupBy, orderBy, limit };
+  return { expressions, selectStar, from, where, groupBy, orderBy, limit };
 }
 
 // ─── Evaluator ───────────────────────────────────────────────────────────────
@@ -317,7 +340,10 @@ function executeSql(rows: Row[], parsed: ParsedSelect): Row[] {
   let result: Row[];
   const hasAggregates = parsed.expressions.some((e) => e.aggregate !== null);
 
-  if (hasAggregates || parsed.groupBy.length > 0) {
+  // SELECT * — return shallow copies of the source rows preserving all keys
+  if (parsed.selectStar && !hasAggregates && parsed.groupBy.length === 0) {
+    result = filtered.map((row) => ({ ...row }));
+  } else if (hasAggregates || parsed.groupBy.length > 0) {
     const groups = parsed.groupBy.length > 0
       ? groupRows(filtered, parsed.groupBy)
       : new Map([['*', filtered]]);

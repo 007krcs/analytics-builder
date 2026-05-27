@@ -27,6 +27,48 @@ export interface RestConnectorOptions extends TransformOptions {
   headers?: Record<string, string>;
   /** If true, fetch all pages until no more data */
   fetchAll?: boolean;
+  /** Per-request timeout in ms (default 30 000). Set 0 to disable. */
+  timeoutMs?: number;
+  /** Number of retry attempts for 5xx / network errors (default 2 → 3 total). */
+  retries?: number;
+  /** Base backoff delay between retries in ms (default 500; exponential). */
+  retryBackoffMs?: number;
+  /** Hard cap on total rows accumulated across all pages (default 1 000 000). */
+  maxRows?: number;
+  /** Optional fetch override (used in tests; defaults to globalThis.fetch). */
+  fetchImpl?: typeof fetch;
+}
+
+/** Internal — fetch a single URL with timeout + retry/backoff. */
+async function fetchWithRetry(
+  url: string,
+  init: RequestInit,
+  opts: { timeoutMs: number; retries: number; backoffMs: number; fetchImpl: typeof fetch }
+): Promise<Response> {
+  const { timeoutMs, retries, backoffMs, fetchImpl } = opts;
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const t = timeoutMs > 0 ? setTimeout(() => controller.abort(), timeoutMs) : null;
+    try {
+      const res = await fetchImpl(url, { ...init, signal: controller.signal });
+      if (t) clearTimeout(t);
+      // Retry on 5xx, surface 4xx immediately
+      if (res.status >= 500 && attempt < retries) {
+        await new Promise((r) => setTimeout(r, backoffMs * 2 ** attempt));
+        continue;
+      }
+      return res;
+    } catch (err) {
+      if (t) clearTimeout(t);
+      lastErr = err;
+      if (attempt >= retries) break;
+      await new Promise((r) => setTimeout(r, backoffMs * 2 ** attempt));
+    }
+  }
+  throw lastErr instanceof Error
+    ? lastErr
+    : new Error(`REST request failed after ${retries + 1} attempts`);
 }
 
 // ── Array path detection ─────────────────────────────────────────────────────
@@ -81,13 +123,20 @@ export async function fetchRestApi(
   options: RestConnectorOptions = {}
 ): Promise<Dataset> {
   const {
-    maxPages    = 20,
-    pageSize    = 100,
-    pageSizeParam = 'limit',
-    offsetParam   = 'offset',
-    fetchAll      = false,
-    headers       = {},
+    maxPages       = 20,
+    pageSize       = 100,
+    pageSizeParam  = 'limit',
+    offsetParam    = 'offset',
+    fetchAll       = false,
+    headers        = {},
+    timeoutMs      = 30_000,
+    retries        = 2,
+    retryBackoffMs = 500,
+    maxRows        = 1_000_000,
+    fetchImpl      = (globalThis as { fetch: typeof fetch }).fetch,
   } = options;
+
+  if (!fetchImpl) throw new Error('No global fetch available; pass options.fetchImpl');
 
   const allRows: Record<string, unknown>[] = [];
   let   currentUrl = url;
@@ -101,12 +150,13 @@ export async function fetchRestApi(
       currentUrl = `${currentUrl}${sep}${pageSizeParam}=${pageSize}&${offsetParam}=${page * pageSize}`;
     }
 
-    const response = await fetch(currentUrl, { headers });
+    const response = await fetchWithRetry(currentUrl, { headers }, {
+      timeoutMs, retries, backoffMs: retryBackoffMs, fetchImpl,
+    });
     if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText} — ${currentUrl}`);
 
     const raw = (await response.json()) as unknown;
 
-    // Auto-detect array path on first page
     if (arrayPath === undefined) {
       const detected = findArrayPath(raw);
       arrayPath = detected ?? '';
@@ -119,6 +169,14 @@ export async function fetchRestApi(
     if (!Array.isArray(rows) || rows.length === 0) break;
 
     allRows.push(...(rows as Record<string, unknown>[]));
+
+    // Enforce maxRows cap — refuse to silently accumulate gigabytes
+    if (allRows.length >= maxRows) {
+      throw new Error(
+        `REST connector hit maxRows=${maxRows} (got ${allRows.length}). ` +
+        `Raise maxRows or set fetchAll=false to scope this request.`
+      );
+    }
 
     if (!fetchAll || rows.length < pageSize) break;
 

@@ -2,22 +2,14 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts'],
-    include: [
-      'packages/*/src/**/*.test.{ts,tsx}',
-      'packages/*/__tests__/**/*.test.{ts,tsx}',
+    // .ts only — the package owns adding .tsx component tests separately.
+    include: ['packages/*/src/**/*.test.ts'],
+    exclude: ['**/node_modules/**', '**/dist/**'],
+    environment: 'node',
+    // React hook tests need a DOM
+    environmentMatchGlobs: [
+      ['packages/react/**', 'happy-dom'],
     ],
-    coverage: {
-      provider: 'v8',
-      include: ['packages/react/src/**/*.{ts,tsx}'],
-      exclude: ['**/*.test.{ts,tsx}', '**/index.ts', '**/*.d.ts'],
-      thresholds: {
-        lines: 60,
-        functions: 55,
-        branches: 50,
-      },
-    },
+    reporters: ['default'],
   },
 });

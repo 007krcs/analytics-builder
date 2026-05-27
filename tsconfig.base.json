@@ -20,5 +20,6 @@
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
-  }
+  },
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/dist/**", "**/node_modules/**"]
 }

@@ -6,7 +6,10 @@
 
 export interface RefreshHandle {
   kpiId: string;
-  intervalId: ReturnType<typeof setInterval>;
+  /** Active setTimeout id for the next tick (we use setTimeout, not setInterval, for backoff). */
+  timeoutId: ReturnType<typeof setTimeout>;
   refreshCount: number;
   startedAt: Date;
+  /** Consecutive errors since the last successful tick — drives exponential backoff. */
+  consecutiveErrors: number;
 }

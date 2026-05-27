@@ -333,12 +333,46 @@ export function getChartsByCategory(): Record<string, ChartTypeMetadata[]> {
 
 // ─── Data transformation dispatch ────────────────────────────────────────────
 
+/**
+ * Backwards-compat normalizer for `ChartConfig`. The README example uses
+ * `yFields: [{ fieldId, label, color }]`; the engine reads `series: [{
+ * columnId, label, color }]`. Quietly accept either so README copy-pastes work.
+ */
+function normalizeChartConfig(config: ChartConfig): ChartConfig {
+  const legacy = config as ChartConfig & {
+    yFields?: Array<{ fieldId?: string; columnId?: string; label?: string; color?: string }>;
+  };
+  if (!config.series && legacy.yFields) {
+    return {
+      ...config,
+      series: legacy.yFields.map((f, i) => ({
+        id:       `s-${i}`,
+        columnId: f.columnId ?? f.fieldId ?? '',
+        label:    f.label,
+        color:    f.color,
+      })),
+    };
+  }
+  // Also accept per-series fieldId alias
+  if (config.series?.some((s) => !s.columnId && (s as { fieldId?: string }).fieldId)) {
+    return {
+      ...config,
+      series: config.series.map((s) => {
+        const legacyS = s as typeof s & { fieldId?: string };
+        return !s.columnId && legacyS.fieldId ? { ...s, columnId: legacyS.fieldId } : s;
+      }),
+    };
+  }
+  return config;
+}
+
 /** Prepare chart data from raw dataset rows */
 export function prepareChartData(
-  config: ChartConfig,
+  rawConfig: ChartConfig,
   rows: Row[],
   _dataset: Dataset
 ): PreparedChartData {
+  const config = normalizeChartConfig(rawConfig);
   switch (config.type) {
     case 'bar':
     case 'bar-horizontal':
