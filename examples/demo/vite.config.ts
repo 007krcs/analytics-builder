@@ -15,26 +15,15 @@ export default defineConfig({
     open: true,
   },
   build: {
-    chunkSizeWarningLimit: 600,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('xlsx'))                 return 'xlsx';
-            if (id.includes('recharts') ||
-                id.includes('victory-vendor') ||
-                id.includes('d3-'))                  return 'recharts';
-            if (id.includes('react-dom') ||
-                id.includes('scheduler') ||
-                id.includes('react/'))               return 'react';
-            if (id.includes('@dnd-kit'))             return 'dnd';
-            if (id.includes('pdf-lib'))              return 'pdf';
-          }
-          if (id.includes('packages/') && id.includes('@analytix')) {
-            return 'analytix';
-          }
-        },
-      },
-    },
+    // Bundle size note: a previous manualChunks split (react / dnd / recharts /
+    // xlsx / pdf) caused a runtime "Cannot read properties of undefined
+    // (reading 'useLayoutEffect')" because Rollup placed React's runtime in a
+    // separate chunk that evaluated AFTER its consumers. We now let Rollup
+    // auto-chunk, which produces a single ~1.7MB bundle that loads correctly.
+    //
+    // If bundle size becomes a problem, prefer LAZY-LOADED routes
+    // (`React.lazy(() => import('./HeavyPage'))`) rather than vendor
+    // manualChunks — they don't fight the dependency graph.
+    chunkSizeWarningLimit: 2000,
   },
 });
