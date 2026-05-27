@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-data-connector",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Zero-config data ingestion: CSV, REST API, WebSocket streaming, clipboard paste",
   "type": "module",
   "main": "./dist/index.cjs",

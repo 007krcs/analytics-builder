@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-report-builder",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Builder-pattern report composer with PDF and Excel export",
   "type": "module",
   "main": "./dist/index.cjs",

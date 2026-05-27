@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-svelte",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "Svelte stores adapter for Analytics Builder",
   "type": "module",
   "main": "./dist/index.cjs",

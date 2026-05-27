@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-insight-engine",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Zero-dependency AI insights engine — auto-generates natural language insights from data patterns",
   "type": "module",
   "main": "./dist/index.cjs",

@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-sql-connector",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "In-browser SQL query engine for Analytics Builder (pure-JS, no WASM)",
   "type": "module",
   "main": "./dist/index.cjs",

@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-react",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "React components for the drag-and-drop analytics builder",
   "type": "module",
   "main": "./dist/index.cjs",

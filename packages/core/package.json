@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-core",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "Core types, engine, store and event bus for Analytics Builder",
   "type": "module",
   "main": "./dist/index.cjs",

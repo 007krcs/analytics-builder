@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-canvas-layout",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Freeform drag-and-drop dashboard canvas with snap guides, undo/redo, and minimap",
   "type": "module",
   "main": "./dist/index.cjs",

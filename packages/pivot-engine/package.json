@@ -1,6 +1,6 @@
 {
   "name": "@gridstorm/analytix-pivot-engine",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "Pivot table computation engine for Analytics Builder",
   "type": "module",
   "main": "./dist/index.cjs",
