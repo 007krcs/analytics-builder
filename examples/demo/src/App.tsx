@@ -36,6 +36,7 @@ import type { MarketplacePlugin } from '@gridstorm/analytix-core';
 import { fetchGoogleSheet, parseExcelFile } from '@gridstorm/analytix-data-connector';
 import { CollaborativeDashboard } from '@gridstorm/analytix-react';
 import { AIInsightsPanel } from './AIInsightsPanel.js';
+import LandingPage from './LandingPage.js';
 
 import './styles.css';
 
@@ -143,7 +144,17 @@ const TAB_CONFIG: Array<{ id: DemoTab; label: string; icon: string }> = [
 
 // ─── Root App ─────────────────────────────────────────────────
 
+type View = 'landing' | 'app';
+
 export default function App() {
+  // The marketing landing page is the default. Hash routing lets
+  // ?# or #demo deep-link straight into the demo, e.g. shared links from sales.
+  const initialView: View =
+    typeof window !== 'undefined' && /^#(demo|app)/.test(window.location.hash)
+      ? 'app'
+      : 'landing';
+
+  const [view, setView] = useState<View>(initialView);
   const [activeTab, setActiveTab] = useState<DemoTab>('pivot');
   const { engine, loadDataset, version: _version } = useAnalyticsEngine();
 
@@ -152,10 +163,37 @@ export default function App() {
     loadDataset('employees', 'Employee Data', EMPLOYEE_DATA as unknown as Row[]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const target = view === 'app' ? '#demo' : '';
+    if (window.location.hash !== target) {
+      window.history.replaceState(null, '', `${window.location.pathname}${target}`);
+    }
+  }, [view]);
+
+  if (view === 'landing') {
+    return <LandingPage onLaunch={() => { setView('app'); window.scrollTo({ top: 0 }); }} />;
+  }
+
   const salesDataset = engine.getDataset('sales') ?? undefined;
 
   return (
     <div className="app">
+
+      {/* ── Back-to-landing bar ─────────────────────────────── */}
+      <div className="lp-back-bar" role="region" aria-label="Demo session header">
+        <div className="lp-back-bar__brand">
+          <span className="lp-nav__logo lp-nav__logo--sm" aria-hidden="true">A</span>
+          <span>Analytix — interactive demo</span>
+        </div>
+        <button
+          className="lp-back-bar__btn"
+          onClick={() => { setView('landing'); window.scrollTo({ top: 0 }); }}
+          aria-label="Return to product overview"
+        >
+          ← Back to overview
+        </button>
+      </div>
 
       {/* ── Header ───────────────────────────────────────────── */}
       <header className="app-header" role="banner">
