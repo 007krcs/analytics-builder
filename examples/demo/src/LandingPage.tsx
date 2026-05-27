@@ -43,7 +43,6 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
           </nav>
 
           <div className="lp-nav__cta">
-            <button className="lp-btn lp-btn--ghost" onClick={onLaunch}>Sign in</button>
             <button className="lp-btn lp-btn--primary" onClick={onLaunch}>Launch demo →</button>
           </div>
         </div>
