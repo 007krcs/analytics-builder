@@ -5,24 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
   <!-- ── Primary Meta ──────────────────────────────────────────────────── -->
-  <title>Analytics Studio — Drag-and-Drop BI & Analytics Platform | Tekivex</title>
-  <meta name="description" content="Analytics Studio is a free, open-source BI platform: drag-and-drop pivot builder, 26+ interactive charts, in-browser SQL engine, KPI dashboards with auto-thresholds, and scheduled PDF/Excel reports. No backend required." />
-  <meta name="keywords" content="analytics platform, business intelligence tool, drag drop BI, pivot table builder, data visualization, in-browser SQL, KPI dashboard, chart builder, open source analytics, free BI software, Analytics Studio, Tekivex" />
+  <title>Analytics Studio — Free Open-Source Drag-and-Drop BI & Analytics Platform</title>
+  <meta name="description" content="Analytics Studio is a free, open-source, in-browser BI platform: drag-and-drop pivot builder, 26 chart types, in-browser SQL, KPI dashboards, offline AI insights, and real PDF/Excel reports. No backend, no database, no data leaves the browser. Built on the open-source Analytix engine (@gridstorm/analytix)." />
+  <meta name="keywords" content="open source BI, embeddable analytics React, drag and drop pivot table, in-browser SQL, KPI dashboard, data visualization library, free business intelligence, Tableau alternative, Power BI alternative, Metabase alternative, Analytix, Analytics Studio, react analytics component, vue analytics, svelte analytics" />
   <meta name="author" content="Tekivex" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#4f46e5" />
   <link rel="canonical" href="https://analytics.tekivex.com/" />
 
   <!-- ── Open Graph ─────────────────────────────────────────────────────── -->
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Analytics Studio — Tekivex" />
-  <meta property="og:title" content="Analytics Studio — Drag-and-Drop BI & Analytics Platform" />
-  <meta property="og:description" content="Free, open-source BI platform with 26+ charts, drag-drop pivot builder, in-browser SQL, KPI dashboards, and scheduled reports. No backend required." />
+  <meta property="og:site_name" content="Analytics Studio" />
+  <meta property="og:title" content="Analytics Studio — Free Open-Source Drag-and-Drop BI Platform" />
+  <meta property="og:description" content="Embeddable analytics for React: drag-and-drop pivot, 26 charts, in-browser SQL, KPI dashboards, offline AI insights, real PDF/Excel export. No backend. MIT licensed." />
   <meta property="og:image" content="https://analytics.tekivex.com/og-analytics-studio.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-    <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:alt" content="Analytics Studio — Visual BI Platform" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="Analytics Studio — drag-and-drop BI platform dashboard" />
   <meta property="og:url" content="https://analytics.tekivex.com/" />
   <meta property="og:locale" content="en_US" />
 
@@ -31,16 +31,18 @@
   <meta name="twitter:site" content="@tekivex" />
   <meta name="twitter:creator" content="@tekivex" />
   <meta name="twitter:title" content="Analytics Studio — Free Drag-and-Drop BI Platform" />
-  <meta name="twitter:description" content="26+ charts, pivot tables, in-browser SQL, KPI dashboards — all in the browser, no backend, free forever." />
+  <meta name="twitter:description" content="26 charts, pivot tables, in-browser SQL, KPI dashboards, offline AI insights — all in the browser, no backend, MIT licensed." />
   <meta name="twitter:image" content="https://analytics.tekivex.com/og-analytics-studio.png" />
   <meta name="twitter:image:alt" content="Analytics Studio BI Platform" />
 
-  <!-- ── Icons & Manifest ───────────────────────────────────────────────── -->
+  <!-- ── Icons & Manifest (SVG — scalable, no raster 404s) ──────────────── -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="mask-icon" href="/favicon.svg" color="#4f46e5" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
   <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- ── AI crawler hint (llms.txt) ─────────────────────────────────────── -->
+  <link rel="alternate" type="text/markdown" title="LLM-readable summary" href="/llms.txt" />
 
   <!-- ── Fonts ──────────────────────────────────────────────────────────── -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -53,70 +55,145 @@
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "Analytics Studio",
-    "description": "Open-source drag-and-drop analytics platform with 26+ interactive charts, in-browser SQL engine, pivot tables, KPI dashboards, and scheduled PDF/Excel reports. No backend required.",
+    "alternateName": "Analytix",
+    "description": "Free, open-source, in-browser business intelligence and analytics platform with a drag-and-drop pivot builder, 26 chart types, an in-browser SQL engine, KPI dashboards, offline AI insight detection, and real PDF/Excel report export. No backend or database required.",
     "url": "https://analytics.tekivex.com",
     "applicationCategory": "BusinessApplication",
-    "operatingSystem": "All",
+    "applicationSubCategory": "Business Intelligence",
+    "operatingSystem": "Any (web browser)",
+    "browserRequirements": "Requires a modern web browser with JavaScript",
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD",
       "availability": "https://schema.org/InStock"
     },
+    "isAccessibleForFree": true,
+    "license": "https://opensource.org/licenses/MIT",
+    "softwareVersion": "0.2.0",
+    "author": {
+      "@type": "Organization",
+      "name": "GridStorm",
+      "url": "https://github.com/007krcs/analytics-builder"
+    },
     "publisher": {
       "@type": "Organization",
       "name": "Tekivex",
       "url": "https://tekivex.com"
     },
-    "softwareVersion": "0.2.0",
-    "license": "https://opensource.org/licenses/MIT",
+    "downloadUrl": "https://www.npmjs.com/package/@gridstorm/analytix-react",
+    "softwareHelp": "https://github.com/007krcs/analytics-builder#readme",
     "featureList": [
-      "26+ interactive chart types (bar, line, scatter, radar, heatmap, treemap, sankey)",
-      "Drag-and-drop pivot builder with group, aggregate, and filter",
-      "In-browser SQL engine — SELECT, WHERE, GROUP BY, JOIN, no server",
-      "KPI dashboard with auto-thresholds and alert rules",
-      "Scheduled report designer — export PDF and Excel on cron schedule",
-      "AI natural-language query parser — no API key required",
-      "React, Vue, Svelte framework adapters",
-      "Full responsive layout for desktop, tablet, and mobile"
+      "Drag-and-drop pivot table builder with grouping, aggregation, and filtering",
+      "26 interactive chart types (bar, line, area, scatter, bubble, pie, donut, radar, heatmap, treemap, funnel, sankey)",
+      "In-browser SQL engine: SELECT, WHERE, GROUP BY, ORDER BY, LIMIT, aggregate functions",
+      "KPI dashboard with threshold-based status and period-over-period deltas",
+      "Offline AI insight engine: trend, anomaly, correlation, segment, and forecast detection with plain-English narration — no API key",
+      "Real PDF export (pdf-lib) and real .xlsx export (SheetJS), on demand or scheduled",
+      "Cross-widget filtering and a freeform drag-and-drop dashboard canvas",
+      "Data connectors: CSV, REST, WebSocket streaming, Google Sheets, Excel",
+      "React component library plus Vue 3 and Svelte adapters",
+      "Runs entirely in the browser — no backend, no database, data never leaves the client"
     ],
     "screenshot": "https://analytics.tekivex.com/og-analytics-studio.png"
   }
   </script>
 
-  <!-- ── JSON-LD: WebSite ───────────────────────────────────────────────── -->
+  <!-- ── JSON-LD: Organization ─────────────────────────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Tekivex",
+    "url": "https://tekivex.com",
+    "logo": "https://analytics.tekivex.com/favicon.svg",
+    "sameAs": [
+      "https://github.com/007krcs/analytics-builder",
+      "https://www.npmjs.com/org/gridstorm"
+    ]
+  }
+  </script>
+
+  <!-- ── JSON-LD: WebSite ──────────────────────────────────────────────── -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Analytics Studio",
     "url": "https://analytics.tekivex.com",
-    "description": "Free drag-and-drop BI and analytics platform by Tekivex.",
-    "publisher": {
-      "@type": "Organization",
-      "name": "Tekivex",
-      "url": "https://tekivex.com"
-    }
+    "description": "Free, open-source, in-browser BI and analytics platform.",
+    "inLanguage": "en",
+    "publisher": { "@type": "Organization", "name": "Tekivex", "url": "https://tekivex.com" }
   }
   </script>
 
-  <!-- ── JSON-LD: BreadcrumbList ────────────────────────────────────────── -->
+  <!-- ── JSON-LD: BreadcrumbList ───────────────────────────────────────── -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Tekivex", "item": "https://tekivex.com" },
+      { "@type": "ListItem", "position": 2, "name": "Analytics Studio", "item": "https://analytics.tekivex.com" }
+    ]
+  }
+  </script>
+
+  <!-- ── JSON-LD: FAQPage (mirrors the visible FAQ below) ──────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
       {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Tekivex",
-        "item": "https://tekivex.com"
+        "@type": "Question",
+        "name": "What is Analytics Studio?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Analytics Studio is a free, open-source, drag-and-drop business intelligence (BI) and analytics platform that runs entirely in the browser. It is the hosted demo of Analytix, the open-source analytics builder published on npm as @gridstorm/analytix-*. There is no backend, no database, and your data never leaves the browser." }
       },
       {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Analytics Studio",
-        "item": "https://analytics.tekivex.com"
+        "@type": "Question",
+        "name": "Is Analytics Studio free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. All 13 packages are MIT-licensed and free for unlimited developers and deployments. There is no paid tier and no per-seat licence." }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need a server, backend, or database?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. CSV parsing, pivoting, charting, the SQL engine, AI insights, and PDF/Excel export all run client-side in the browser. There is nothing to deploy and no database to manage." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does my data leave the browser?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. All processing happens locally in the browser. Your data is never uploaded to a vendor server, which keeps PII and PHI inside your own trust boundary by default." }
+      },
+      {
+        "@type": "Question",
+        "name": "What chart types does it support?",
+        "acceptedAnswer": { "@type": "Answer", "text": "26 chart types, including bar, horizontal bar, stacked bar, line, smooth line, area, scatter, bubble, pie, donut, sunburst, radar, heatmap, calendar heatmap, treemap, funnel, gauge, waterfall, box plot, violin, and sankey." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can Analytics Studio export PDF and Excel?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. It generates real PDF files using pdf-lib and real .xlsx workbooks using SheetJS, either on demand or on a cron/interval/one-time schedule." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it support SQL?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. It includes a pure-JavaScript, in-browser SQL engine supporting SELECT, WHERE, GROUP BY, ORDER BY, LIMIT, and aggregate functions over any loaded dataset. Joins and subqueries are not supported." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Analytics Studio include AI?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. It ships an offline insight engine that detects trends, anomalies, correlations, segments, and forecasts using pure-TypeScript statistics and narrates them in plain English — with no API key and no network call. An optional LLM provider can add richer narrative summaries." }
+      },
+      {
+        "@type": "Question",
+        "name": "Which frameworks does it work with?",
+        "acceptedAnswer": { "@type": "Answer", "text": "It ships a full React component library plus Vue 3 composables and Svelte store adapters. The underlying engines are framework-agnostic TypeScript and can be used from any JavaScript application." }
+      },
+      {
+        "@type": "Question",
+        "name": "How is it different from Tableau, Power BI, or Metabase?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Analytics Studio embeds natively inside a React application instead of an iframe, requires no SQL modelling layer and no backend, is MIT-licensed and free for unlimited developers, runs entirely in the browser, and keeps all data on the client." }
       }
     ]
   }
@@ -124,14 +201,32 @@
 
   <style>
     *, *::before, *::after { box-sizing: border-box; }
-    html, body, #root {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      background: #f3f4f6;
-      color: #111827;
+    html, body, #root { margin: 0; padding: 0; min-height: 100%; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #ffffff; color: #0b1220;
     }
+    /* Pre-render styles: a clean, readable hero shown to crawlers and to users
+       for the brief moment before the React app mounts and replaces #root. */
+    .seo-prerender { max-width: 880px; margin: 0 auto; padding: 56px 24px 72px; }
+    .seo-prerender__brand { display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; }
+    .seo-prerender__logo { width:34px; height:34px; border-radius:8px;
+      background:linear-gradient(135deg,#6366f1,#4338ca); color:#fff; display:grid; place-items:center; font-size:16px; }
+    .seo-prerender h1 { font-size: clamp(30px, 5vw, 46px); line-height:1.1; letter-spacing:-0.02em; margin: 28px 0 12px; }
+    .seo-prerender h2 { font-size: 22px; letter-spacing:-0.01em; margin: 40px 0 10px; }
+    .seo-prerender h3 { font-size: 16px; margin: 18px 0 4px; }
+    .seo-prerender p, .seo-prerender li { font-size: 16px; line-height: 1.6; color: #334155; }
+    .seo-prerender .lede { font-size: 18px; color:#1e293b; }
+    .seo-prerender ul { padding-left: 20px; }
+    .seo-prerender a { color: #4f46e5; }
+    .seo-prerender table { border-collapse: collapse; width: 100%; margin-top: 12px; font-size: 14px; }
+    .seo-prerender th, .seo-prerender td { border: 1px solid #e2e8f0; padding: 8px 10px; text-align: left; }
+    .seo-prerender th { background:#f8fafc; }
+    .seo-prerender .stats { display:flex; flex-wrap:wrap; gap:24px; margin: 20px 0; }
+    .seo-prerender .stats b { font-size: 26px; color:#4338ca; display:block; }
+    .seo-prerender .cta { display:inline-block; margin-top:18px; background:#4f46e5; color:#fff;
+      padding:11px 20px; border-radius:8px; font-weight:600; }
+    .seo-prerender footer { margin-top:48px; padding-top:20px; border-top:1px solid #e2e8f0; font-size:14px; color:#64748b; }
   </style>
 
   <!-- Google AdSense -->
@@ -150,7 +245,109 @@
   </script>
 </head>
 <body>
-  <div id="root"></div>
+  <!--
+    The #root div contains a complete, semantic, static rendering of the page.
+    This is what non-JavaScript crawlers — Googlebot's raw fetch, GPTBot,
+    OAI-SearchBot, ClaudeBot, PerplexityBot, Bingbot, etc. — read and index.
+    When the React bundle loads, createRoot().render() replaces this content
+    with the interactive application. This is progressive enhancement, not
+    cloaking: the static content is a faithful summary of the live product.
+    Keep the facts here in sync with src/LandingPage.tsx.
+  -->
+  <div id="root">
+    <main class="seo-prerender">
+      <div class="seo-prerender__brand">
+        <span class="seo-prerender__logo" aria-hidden="true">A</span>
+        Analytics Studio
+      </div>
+
+      <h1>Free, open-source, embeddable analytics for React — without the BI vendor</h1>
+      <p class="lede">
+        <strong>Analytics Studio</strong> is a free, open-source, drag-and-drop business
+        intelligence platform that runs entirely in your browser. Drop in a CSV, Google Sheet,
+        or Excel file and build pivot tables, 26 chart types, KPI dashboards, and scheduled
+        PDF/Excel reports — with no backend, no database, and no data leaving the browser.
+        It is the hosted demo of <strong>Analytix</strong>, the open-source analytics builder
+        published on npm as <code>@gridstorm/analytix-*</code> under the MIT licence.
+      </p>
+      <a class="cta" href="https://github.com/007krcs/analytics-builder">View the source on GitHub →</a>
+
+      <div class="stats" role="list">
+        <div role="listitem"><b>13</b> npm packages, all MIT</div>
+        <div role="listitem"><b>$0</b> per-developer cost</div>
+        <div role="listitem"><b>424&nbsp;ms</b> pivot on 1M rows</div>
+        <div role="listitem"><b>135</b> automated tests</div>
+      </div>
+
+      <h2>What Analytics Studio does</h2>
+      <h3>Drag-and-drop pivot, charts, and KPI canvases</h3>
+      <p>Compose dashboards visually — no SQL editor, no formula language, no data modelling. 26 chart types, cross-widget filtering, a snap-to-grid freeform canvas, and undo/redo.</p>
+      <h3>Offline AI insights — no API key</h3>
+      <p>Trend, anomaly, correlation, segment, and forecast detectors run locally in TypeScript and narrate findings in plain English. An optional LLM provider can add richer summaries.</p>
+      <h3>Connect any data source</h3>
+      <p>CSV, REST, WebSocket streaming, Google Sheets, Excel, and an in-browser SQL engine (SELECT, WHERE, GROUP BY, ORDER BY, LIMIT) — all with zero-config schema inference.</p>
+      <h3>Real PDF and Excel reports</h3>
+      <p>Compose multi-section reports and export real PDF files (pdf-lib) and real .xlsx workbooks (SheetJS), on demand or on a cron, interval, or one-time schedule.</p>
+      <h3>Real-time streaming</h3>
+      <p>WebSocket batches with auto-reconnect and page-visibility-aware refresh keep dashboards live without thrashing the browser.</p>
+      <h3>React, Vue, and Svelte</h3>
+      <p>A full React component library plus Vue 3 composables and Svelte stores. The engines are framework-agnostic TypeScript.</p>
+
+      <h2>How Analytics Studio compares</h2>
+      <table>
+        <thead>
+          <tr><th>Capability</th><th>Analytics Studio</th><th>Tableau</th><th>Power BI</th><th>Metabase</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Embeds natively in a React app</td><td>Yes</td><td>No</td><td>iframe</td><td>iframe</td></tr>
+          <tr><td>No SQL modelling required</td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+          <tr><td>Offline AI insights</td><td>Yes</td><td>No</td><td>Paid add-on</td><td>No</td></tr>
+          <tr><td>Real PDF + .xlsx export</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td>Data stays in the browser</td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+          <tr><td>Self-hosted, MIT licensed</td><td>Yes</td><td>No</td><td>No</td><td>Yes</td></tr>
+          <tr><td>Per-developer price</td><td>Free</td><td>$999/yr</td><td>$10/user/mo</td><td>$500+/mo</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Who it is for</h2>
+      <ul>
+        <li><strong>SaaS product teams</strong> shipping customer-facing, embeddable analytics without an iframe.</li>
+        <li><strong>Financial services</strong> teams needing real-time KPIs and audit-ready PDF reports without a BI vendor.</li>
+        <li><strong>Healthcare and regulated</strong> teams that need data to stay inside their own trust boundary.</li>
+        <li><strong>Manufacturing and operations</strong> streaming WebSocket telemetry into live dashboards.</li>
+      </ul>
+
+      <h2>Frequently asked questions</h2>
+      <h3>What is Analytics Studio?</h3>
+      <p>A free, open-source, drag-and-drop BI and analytics platform that runs entirely in the browser. It is the hosted demo of Analytix, the open-source analytics builder on npm (<code>@gridstorm/analytix-*</code>). No backend, no database, and your data never leaves the browser.</p>
+      <h3>Is it free?</h3>
+      <p>Yes — all 13 packages are MIT-licensed and free for unlimited developers and deployments. There is no paid tier.</p>
+      <h3>Do I need a server, backend, or database?</h3>
+      <p>No. Parsing, pivoting, charting, SQL, AI insights, and exports all run client-side in the browser.</p>
+      <h3>Does my data leave the browser?</h3>
+      <p>No. Everything is processed locally; nothing is uploaded to a vendor server.</p>
+      <h3>What chart types are supported?</h3>
+      <p>26 — including bar, line, area, scatter, bubble, pie, donut, radar, heatmap, treemap, funnel, gauge, waterfall, box plot, violin, and sankey.</p>
+      <h3>Can it export PDF and Excel?</h3>
+      <p>Yes — real PDF files via pdf-lib and real .xlsx workbooks via SheetJS, on demand or on a schedule.</p>
+      <h3>Does it support SQL?</h3>
+      <p>Yes — an in-browser SQL engine supporting SELECT, WHERE, GROUP BY, ORDER BY, LIMIT, and aggregate functions. Joins and subqueries are not supported.</p>
+      <h3>Does it include AI?</h3>
+      <p>Yes — an offline insight engine (trend, anomaly, correlation, segment, forecast) that narrates findings in plain English with no API key. An optional LLM provider can add richer narrative.</p>
+      <h3>Which frameworks does it work with?</h3>
+      <p>React (full component library), Vue 3, and Svelte. The engines are framework-agnostic TypeScript.</p>
+      <h3>How is it different from Tableau, Power BI, or Metabase?</h3>
+      <p>It embeds natively in React (no iframe), needs no SQL modelling or backend, is MIT-licensed and free, runs in the browser, and keeps all data on the client.</p>
+
+      <footer>
+        Analytics Studio — the hosted demo of the open-source Analytix analytics builder.
+        MIT licensed.
+        <a href="https://github.com/007krcs/analytics-builder">GitHub</a> ·
+        <a href="https://www.npmjs.com/package/@gridstorm/analytix-react">npm</a> ·
+        <a href="https://tekivex.com">Tekivex</a>
+      </footer>
+    </main>
+  </div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

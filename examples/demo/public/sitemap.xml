@@ -1,49 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sitemap for analytics.tekivex.com
+  Hash routes (#demo, #/charts …) are NOT separate crawlable URLs — search
+  engines and AI crawlers ignore the fragment. The site is a single indexable
+  page, so we list only the canonical root URL.
+-->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-          http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
   <url>
     <loc>https://analytics.tekivex.com/</loc>
-    <lastmod>2026-04-03</lastmod>
+    <lastmod>2026-05-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-  </url>
-
-  <url>
-    <loc>https://analytics.tekivex.com/#/pivot</loc>
-    <lastmod>2026-04-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://analytics.tekivex.com/#/charts</loc>
-    <lastmod>2026-04-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://analytics.tekivex.com/#/sql</loc>
-    <lastmod>2026-04-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://analytics.tekivex.com/#/kpi</loc>
-    <lastmod>2026-04-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://analytics.tekivex.com/#/reports</loc>
-    <lastmod>2026-04-03</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://analytics.tekivex.com/og-analytics-studio.png</image:loc>
+      <image:title>Analytics Studio — drag-and-drop BI and analytics platform</image:title>
+    </image:image>
   </url>
 
 </urlset>

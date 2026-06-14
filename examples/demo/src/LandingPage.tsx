@@ -39,6 +39,7 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
             <a href="#solutions">Use cases</a>
             <a href="#security">Security</a>
             <a href="#open-source">Open source</a>
+            <a href="#faq">FAQ</a>
             <a href="https://github.com/007krcs/analytics-builder" target="_blank" rel="noopener noreferrer">GitHub</a>
           </nav>
 
@@ -324,6 +325,35 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
                 Star on GitHub
               </a>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ (mirrors index.html static FAQ + FAQPage schema) ─────────── */}
+      <section className="lp-section lp-faq" id="faq">
+        <div className="lp-container">
+          <div className="lp-section__head">
+            <span className="lp-section__eyebrow">FAQ</span>
+            <h2 className="lp-section__title">Frequently asked questions</h2>
+          </div>
+          <div className="lp-faq__list">
+            {[
+              ['What is Analytics Studio?', 'A free, open-source, drag-and-drop BI and analytics platform that runs entirely in the browser. It is the hosted demo of Analytix, the open-source analytics builder on npm (@gridstorm/analytix-*). No backend, no database, and your data never leaves the browser.'],
+              ['Is it free?', 'Yes — all 13 packages are MIT-licensed and free for unlimited developers and deployments. There is no paid tier.'],
+              ['Do I need a server, backend, or database?', 'No. Parsing, pivoting, charting, SQL, AI insights, and exports all run client-side in the browser.'],
+              ['Does my data leave the browser?', 'No. Everything is processed locally; nothing is uploaded to a vendor server.'],
+              ['What chart types are supported?', '26 — including bar, line, area, scatter, bubble, pie, donut, radar, heatmap, treemap, funnel, gauge, waterfall, box plot, violin, and sankey.'],
+              ['Can it export PDF and Excel?', 'Yes — real PDF files via pdf-lib and real .xlsx workbooks via SheetJS, on demand or on a schedule.'],
+              ['Does it support SQL?', 'Yes — an in-browser SQL engine supporting SELECT, WHERE, GROUP BY, ORDER BY, LIMIT, and aggregate functions. Joins and subqueries are not supported.'],
+              ['Does it include AI?', 'Yes — an offline insight engine (trend, anomaly, correlation, segment, forecast) that narrates findings in plain English with no API key. An optional LLM provider can add richer narrative.'],
+              ['Which frameworks does it work with?', 'React (full component library), Vue 3, and Svelte. The engines are framework-agnostic TypeScript.'],
+              ['How is it different from Tableau, Power BI, or Metabase?', 'It embeds natively in React (no iframe), needs no SQL modelling or backend, is MIT-licensed and free, runs in the browser, and keeps all data on the client.'],
+            ].map(([q, a]) => (
+              <details key={q} className="lp-faq__item">
+                <summary className="lp-faq__q">{q}</summary>
+                <p className="lp-faq__a">{a}</p>
+              </details>
+            ))}
           </div>
         </div>
       </section>

@@ -5426,3 +5426,48 @@ button, a, [role="button"], input, select, textarea {
   .lp-os-card__price { font-size: 44px; }
   .lp-os-card__cta .lp-btn { width: 100%; }
 }
+
+
+/* FAQ section (mirrors index.html static FAQ + FAQPage schema) */
+.lp-faq { background: linear-gradient(180deg, #ffffff, #f8fafc); }
+.lp-faq__list {
+  max-width: 760px;
+  margin: 0 auto;
+  display: grid;
+  gap: 10px;
+}
+.lp-faq__item {
+  background: #ffffff;
+  border: 1px solid var(--lp-line);
+  border-radius: 12px;
+  padding: 4px 18px;
+}
+.lp-faq__item[open] { border-color: #c7d2fe; box-shadow: 0 8px 24px -18px rgba(79, 70, 229, 0.4); }
+.lp-faq__q {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--lp-ink);
+  padding: 14px 0;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.lp-faq__q::-webkit-details-marker { display: none; }
+.lp-faq__q::after {
+  content: "+";
+  font-size: 20px;
+  color: var(--lp-brand);
+  font-weight: 400;
+  line-height: 1;
+}
+.lp-faq__item[open] .lp-faq__q::after { content: "\2212"; }
+.lp-faq__a {
+  font-size: 14px;
+  color: var(--lp-ink-soft);
+  line-height: 1.6;
+  padding: 0 0 16px;
+  margin: 0;
+}

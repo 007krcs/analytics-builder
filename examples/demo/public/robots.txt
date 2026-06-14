@@ -1,24 +1,100 @@
+# robots.txt — analytics.tekivex.com
+# Goal: maximum discoverability by every search engine AND AI/LLM crawler.
+# We explicitly WELCOME both training and citation/search AI bots so the
+# product can be indexed, learned, and cited in AI answers.
+
+# ── Default: allow everything ──────────────────────────────────────────────
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://analytics.tekivex.com/sitemap.xml
+# ── Traditional search engines ─────────────────────────────────────────────
+User-agent: Googlebot
+Allow: /
 
-# Crawl-delay
-Crawl-delay: 1
+User-agent: Bingbot
+Allow: /
 
-# Block AI training crawlers
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# ── OpenAI / ChatGPT ───────────────────────────────────────────────────────
+# GPTBot = training; OAI-SearchBot = ChatGPT search index (required for
+# citation in ChatGPT answers); ChatGPT-User = live fetch when a user asks.
 User-agent: GPTBot
-Disallow: /
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
 
 User-agent: ChatGPT-User
-Disallow: /
+Allow: /
 
-User-agent: CCBot
-Disallow: /
+# ── Anthropic / Claude ─────────────────────────────────────────────────────
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
 
 User-agent: anthropic-ai
-Disallow: /
+Allow: /
 
+# ── Perplexity ─────────────────────────────────────────────────────────────
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# ── Google AI (Gemini / AI Overviews) ──────────────────────────────────────
 User-agent: Google-Extended
-Disallow: /
+Allow: /
+
+# ── Other AI / answer engines ──────────────────────────────────────────────
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: DuckAssistBot
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+User-agent: Timpibot
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+# ── Sitemap ────────────────────────────────────────────────────────────────
+Sitemap: https://analytics.tekivex.com/sitemap.xml

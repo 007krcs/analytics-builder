@@ -1,0 +1,67 @@
+# Analytics Studio
+
+> Analytics Studio is a free, open-source, in-browser business intelligence (BI)
+> and analytics platform. It offers a drag-and-drop pivot builder, 26 chart
+> types, an in-browser SQL engine, KPI dashboards, an offline AI insight engine,
+> and real PDF/Excel report export — with no backend, no database, and no data
+> leaving the browser. It is the hosted demo of "Analytix", the open-source
+> analytics builder published on npm as `@gridstorm/analytix-*` under the MIT
+> licence. Built by Tekivex / GridStorm.
+
+## What it is
+
+- **Type**: Open-source, embeddable analytics / BI library and hosted demo.
+- **Licence**: MIT (free for unlimited developers and deployments).
+- **Runtime**: 100% client-side in the browser. No server, no database, no data egress.
+- **Languages/frameworks**: TypeScript engines; React component library; Vue 3 and Svelte adapters.
+- **Live demo**: https://analytics.tekivex.com
+- **Source**: https://github.com/007krcs/analytics-builder
+- **npm**: https://www.npmjs.com/package/@gridstorm/analytix-react
+
+## Key capabilities
+
+- Drag-and-drop pivot table builder (grouping, aggregation, filtering).
+- 26 interactive chart types: bar, horizontal/stacked bar, line, smooth line, area, scatter, bubble, pie, donut, sunburst, radar, polar, heatmap, calendar heatmap, treemap, funnel, gauge, waterfall, box plot, violin, sankey, combo.
+- In-browser SQL engine: SELECT, WHERE, GROUP BY, ORDER BY, LIMIT, aggregate functions (no joins or subqueries).
+- KPI dashboards with threshold status and period-over-period deltas.
+- Offline AI insight engine: trend, anomaly, correlation, segment, and forecast detection, narrated in plain English, with no API key or network call. Optional LLM provider for richer narrative.
+- Real report export: PDF via pdf-lib and .xlsx via SheetJS, on demand or on a cron/interval/one-time schedule.
+- Cross-widget filtering and a freeform drag-and-drop dashboard canvas with undo/redo.
+- Data connectors: CSV (RFC 4180), REST (timeout + retry), WebSocket streaming (auto-reconnect), Google Sheets, Excel.
+
+## Packages (npm, all MIT, scope @gridstorm)
+
+- `@gridstorm/analytix-core`: engine, types, event bus.
+- `@gridstorm/analytix-pivot-engine`: pivot computation.
+- `@gridstorm/analytix-chart-engine`: 26 chart transformers.
+- `@gridstorm/analytix-kpi-engine`: KPI compute + cron refresh scheduler.
+- `@gridstorm/analytix-insight-engine`: offline AI insight detectors.
+- `@gridstorm/analytix-data-connector`: CSV/REST/WebSocket/Sheets/Excel connectors.
+- `@gridstorm/analytix-report-builder`: PDF (pdf-lib) + Excel (SheetJS) + scheduler.
+- `@gridstorm/analytix-crossfilter`: cross-widget filtering.
+- `@gridstorm/analytix-canvas-layout`: freeform dashboard canvas.
+- `@gridstorm/analytix-sql-connector`: in-browser SQL engine.
+- `@gridstorm/analytix-react`: React components and hooks.
+- `@gridstorm/analytix-vue`: Vue 3 composables.
+- `@gridstorm/analytix-svelte`: Svelte stores.
+
+## How it compares
+
+Versus Tableau, Power BI, and Metabase: Analytics Studio embeds natively in a
+React app (not an iframe), needs no SQL modelling layer and no backend, is
+MIT-licensed and free for unlimited developers, runs entirely in the browser,
+and keeps all data on the client.
+
+## FAQ
+
+- **Is it free?** Yes, MIT-licensed, no paid tier.
+- **Backend or database required?** No — everything runs in the browser.
+- **Does data leave the browser?** No.
+- **PDF/Excel export?** Yes, real files (pdf-lib + SheetJS).
+- **SQL?** Yes — SELECT/WHERE/GROUP BY/ORDER BY/LIMIT; no joins/subqueries.
+- **AI?** Offline insight detection narrated in plain English; no API key needed.
+- **Frameworks?** React, Vue 3, Svelte.
+
+## Optional
+
+- README and docs: https://github.com/007krcs/analytics-builder#readme
