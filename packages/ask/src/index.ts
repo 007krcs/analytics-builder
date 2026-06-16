@@ -15,8 +15,10 @@
  *   const answer = summarize(plan, result);   // "Widget A leads with 12,500 …"
  */
 
-export { ask, executePlan, summarize } from './ask.js';
+export { ask, executePlan, summarize, buildSchemaCard } from './ask.js';
 export type { AskOptions } from './ask.js';
+export { askLLM, validatePlan } from './llm.js';
+export type { LlmConfig, LlmProvider } from './llm.js';
 export { planToPivotConfig, planToChartConfig } from './compile.js';
 export type {
   AskIntent,

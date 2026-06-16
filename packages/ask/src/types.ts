@@ -58,6 +58,8 @@ export interface QueryPlan {
   confidence: number;
   /** Question tokens that could not be mapped to the schema (for UI hints). */
   unresolved: string[];
+  /** Which tier produced this plan. */
+  source?: 'offline' | 'llm';
 }
 
 /** A computed answer: tabular rows plus the columns that describe them. */

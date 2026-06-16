@@ -213,7 +213,26 @@ export function ask(question: string, dataset: Dataset, options: AskOptions = {}
     explanation: explain(intent, measures, dimensions, dataset, filters, limit, sort),
     confidence,
     unresolved,
+    source: 'offline',
   };
+}
+
+/** Build a compact, privacy-safe schema description — column metadata and a
+ *  few sample dimension values + measure ranges, but never the rows. */
+export function buildSchemaCard(dataset: Dataset): string {
+  const lines = dataset.columns.map((c) => {
+    const role = isMeasureCol(c) ? 'measure' : isDimCol(c) ? 'dimension' : 'attribute';
+    let extra = '';
+    if (role === 'dimension' && c.type === 'string') {
+      const vals = Array.from(distinctValues(dataset.rows, c.id, 8).values()).slice(0, 6);
+      if (vals.length) extra = ` examples: ${vals.map((v) => JSON.stringify(String(v))).join(', ')}`;
+    } else if (role === 'measure') {
+      const nums = dataset.rows.map((r) => Number(r[c.id])).filter((n) => !Number.isNaN(n));
+      if (nums.length) extra = ` range: ${Math.min(...nums)}..${Math.max(...nums)}`;
+    }
+    return `- ${c.id} "${c.displayName}" (${c.type}, ${role})${extra}`;
+  });
+  return lines.join('\n');
 }
 
 // ─── Filter resolution ────────────────────────────────────────────────────────
