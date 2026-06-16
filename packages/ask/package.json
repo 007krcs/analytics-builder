@@ -1,0 +1,39 @@
+{
+  "name": "@gridstorm/analytix-ask",
+  "version": "0.1.0",
+  "description": "Natural-language analytics for Analytics Builder — ask a question in plain English, get a typed query plan, chart, and answer. Privacy-first: runs offline with no LLM, or with a BYO-key / local LLM.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "natural language analytics",
+    "ask your data",
+    "nl to sql",
+    "text to chart",
+    "business intelligence",
+    "generative bi"
+  ],
+  "dependencies": {
+    "@gridstorm/analytix-core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  }
+}

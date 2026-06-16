@@ -32,6 +32,9 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.0.0
         version: 3.2.2(react@18.3.1)
+      '@gridstorm/analytix-ask':
+        specifier: workspace:*
+        version: link:../../packages/ask
       '@gridstorm/analytix-canvas-layout':
         specifier: workspace:*
         version: link:../../packages/canvas-layout
@@ -108,6 +111,19 @@ importers:
         version: 8.5.1(postcss@8.5.8)(typescript@5.9.3)
       typescript:
         specifier: ^5.0.0
+        version: 5.9.3
+
+  packages/ask:
+    dependencies:
+      '@gridstorm/analytix-core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(postcss@8.5.8)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.4.0
         version: 5.9.3
 
   packages/canvas-layout:

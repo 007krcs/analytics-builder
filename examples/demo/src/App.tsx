@@ -36,6 +36,7 @@ import type { MarketplacePlugin } from '@gridstorm/analytix-core';
 import { fetchGoogleSheet, parseExcelFile } from '@gridstorm/analytix-data-connector';
 import { CollaborativeDashboard } from '@gridstorm/analytix-react';
 import { AIInsightsPanel } from './AIInsightsPanel.js';
+import { AskPanel } from './AskPanel.js';
 import LandingPage from './LandingPage.js';
 
 import './styles.css';
@@ -126,9 +127,10 @@ const KPI_UNITS: KpiConfig = {
 
 // ─── Tab config ───────────────────────────────────────────────
 
-type DemoTab = 'pivot' | 'charts' | 'kpis' | 'reports' | 'insights' | 'canvas' | 'docs' | 'sql' | 'marketplace' | 'connectors' | 'collaborate';
+type DemoTab = 'ask' | 'pivot' | 'charts' | 'kpis' | 'reports' | 'insights' | 'canvas' | 'docs' | 'sql' | 'marketplace' | 'connectors' | 'collaborate';
 
 const TAB_CONFIG: Array<{ id: DemoTab; label: string; icon: string }> = [
+  { id: 'ask',         label: 'Ask your data',    icon: '✨' },
   { id: 'pivot',       label: 'Pivot Builder',    icon: '⊞' },
   { id: 'charts',      label: 'Chart Builder',    icon: '📊' },
   { id: 'kpis',        label: 'KPI Dashboard',    icon: '📈' },
@@ -155,7 +157,7 @@ export default function App() {
       : 'landing';
 
   const [view, setView] = useState<View>(initialView);
-  const [activeTab, setActiveTab] = useState<DemoTab>('pivot');
+  const [activeTab, setActiveTab] = useState<DemoTab>('ask');
   const { engine, loadDataset, version: _version } = useAnalyticsEngine();
 
   useEffect(() => {
@@ -235,6 +237,10 @@ export default function App() {
 
       {/* ── Main content ─────────────────────────────────────── */}
       <main className="app-main" role="main" id="main-content">
+
+        {activeTab === 'ask' && salesDataset && (
+          <AskPanel dataset={salesDataset} />
+        )}
 
         <CrossFilterProvider>
           {activeTab === 'pivot' && (
