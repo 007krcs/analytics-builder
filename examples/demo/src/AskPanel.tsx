@@ -112,7 +112,7 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
           <div style={{ background: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: 8, padding: '8px 12px', fontSize: 12.5, color: '#3730a3', marginBottom: 14 }}>
             🔒 Your API key stays in this browser's localStorage. Requests go directly from your browser to the endpoint you configure — never through our servers.
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          <div className="ap-two">
             <Field label="Provider">
               <select value={cfg.provider} onChange={(e) => setCfg({ ...cfg, provider: e.target.value as LlmProvider, model: '' })} style={inputStyle}>
                 {PROVIDERS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
@@ -176,7 +176,7 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
             )}
           </div>
 
-          <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: 12 }}>
+          <div className="ap-tablewrap" style={{ border: '1px solid #e2e8f0', borderRadius: 12 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead>
                 <tr>{result.columns.map((c) => (

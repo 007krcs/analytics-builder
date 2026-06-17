@@ -110,7 +110,7 @@ export function SentinelPanel() {
         </label>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+      <div className="ap-two" style={{ marginBottom: 16 }}>
         <label style={{ display: 'grid', gap: 4 }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>Alert on</span>
           <select value={alertLevel} onChange={(e) => setAlertLevel(e.target.value as Severity)} style={selStyle}>

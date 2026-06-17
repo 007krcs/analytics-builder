@@ -114,7 +114,7 @@ export function ConnectPanel() {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 20 }}>
+      <div className="ap-split">
         {/* ── Controls ── */}
         <div>
           <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid #e2e8f0' }}>
@@ -146,7 +146,7 @@ export function ConnectPanel() {
           )}
 
           {mode === 'poll' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="ap-two">
               <Field label="Method">
                 <select value={method} onChange={(e) => setMethod(e.target.value as 'GET' | 'POST')} style={inp}>
                   <option>GET</option><option>POST</option>

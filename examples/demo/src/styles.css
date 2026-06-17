@@ -16,6 +16,13 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+html, body {
+  /* Never allow the page itself to scroll horizontally. Any element that needs
+     to scroll sideways (nav, wide tables) does so within its own container. */
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
                'Helvetica Neue', Arial, sans-serif;
@@ -24,6 +31,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Let flex/grid children shrink below their content width instead of forcing
+   the parent (and the page) to grow — the classic overflow culprit. */
+.app, .app-main, .demo-section { min-width: 0; max-width: 100%; }
 
 img, svg, video { display: block; max-width: 100%; }
 input, button, textarea, select { font: inherit; }
@@ -259,7 +270,14 @@ a { color: inherit; text-decoration: none; }
   padding: 0 var(--sp-6);
   gap: 0;
   flex-shrink: 0;
+  /* Many tabs: scroll WITHIN the bar at every width so the nav never forces
+     the page wider than the viewport. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
 }
+.app-nav::-webkit-scrollbar { display: none; }
 
 .app-nav-tab {
   display: inline-flex;
@@ -277,6 +295,7 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: -1px;
   height: 100%;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .app-nav-tab:hover {
@@ -5470,4 +5489,36 @@ button, a, [role="button"], input, select, textarea {
   line-height: 1.6;
   padding: 0 0 16px;
   margin: 0;
+}
+
+/* ============================================================================
+   Responsive helpers for the Ask / Sentinel / Connect panels
+   (these panels are inline-styled; these classes add the media-query behavior
+   that inline styles cannot express).
+   ============================================================================ */
+.ap-split {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  gap: 20px;
+  min-width: 0;
+}
+.ap-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  min-width: 0;
+}
+.ap-tablewrap {
+  overflow-x: auto;
+  min-width: 0;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+.ap-split > *, .ap-two > * { min-width: 0; }
+
+@media (max-width: 880px) {
+  .ap-split { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .ap-two { grid-template-columns: 1fr; }
 }
