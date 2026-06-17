@@ -25,7 +25,7 @@ import type { Dataset } from '@gridstorm/analytix-core';
 
 export type Provider = 'ollama' | 'anthropic';
 
-export type AnthropicModel = 'claude-haiku-4-5' | 'claude-sonnet-4-6' | 'claude-opus-4-6';
+export type AnthropicModel = 'claude-haiku-4-5' | 'claude-sonnet-4-6' | 'claude-opus-4-8';
 
 export interface ProviderConfig {
   provider:        Provider;
@@ -42,7 +42,7 @@ export interface ProviderConfig {
 export const ANTHROPIC_MODELS: Array<{ id: AnthropicModel; label: string; costNote: string }> = [
   { id: 'claude-haiku-4-5',  label: 'Haiku 4.5',  costNote: '~$0.005 / run — fastest & cheapest' },
   { id: 'claude-sonnet-4-6', label: 'Sonnet 4.6', costNote: '~$0.03 / run — balanced'            },
-  { id: 'claude-opus-4-6',   label: 'Opus 4.6',   costNote: '~$0.05 / run — highest quality'     },
+  { id: 'claude-opus-4-8',   label: 'Opus 4.8',   costNote: '~$0.05 / run — highest quality'     },
 ];
 
 // Legacy export so existing code compiles
@@ -72,7 +72,7 @@ export interface TokenUsage {
 const PRICING: Record<AnthropicModel, { input: number; output: number; cacheRead: number; cacheWrite: number }> = {
   'claude-haiku-4-5':  { input: 1.00,  output: 5.00,  cacheRead: 0.10, cacheWrite: 1.25 },
   'claude-sonnet-4-6': { input: 3.00,  output: 15.00, cacheRead: 0.30, cacheWrite: 3.75 },
-  'claude-opus-4-6':   { input: 5.00,  output: 25.00, cacheRead: 0.50, cacheWrite: 6.25 },
+  'claude-opus-4-8':   { input: 5.00,  output: 25.00, cacheRead: 0.50, cacheWrite: 6.25 },
 };
 
 function calcCost(model: AnthropicModel, usage: Anthropic.Usage): number {
@@ -226,7 +226,7 @@ async function streamAnthropic(
   }
 
   const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
-  const useThinking = model === 'claude-opus-4-6';
+  const useThinking = model === 'claude-opus-4-8';
 
   try {
     const stream = client.messages.stream(

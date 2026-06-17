@@ -38,6 +38,7 @@ import { CollaborativeDashboard } from '@gridstorm/analytix-react';
 import { AIInsightsPanel } from './AIInsightsPanel.js';
 import { AskPanel } from './AskPanel.js';
 import { SentinelPanel } from './SentinelPanel.js';
+import { ConnectPanel } from './ConnectPanel.js';
 import LandingPage from './LandingPage.js';
 
 import './styles.css';
@@ -128,11 +129,12 @@ const KPI_UNITS: KpiConfig = {
 
 // ─── Tab config ───────────────────────────────────────────────
 
-type DemoTab = 'ask' | 'sentinel' | 'pivot' | 'charts' | 'kpis' | 'reports' | 'insights' | 'canvas' | 'docs' | 'sql' | 'marketplace' | 'connectors' | 'collaborate';
+type DemoTab = 'ask' | 'sentinel' | 'live' | 'pivot' | 'charts' | 'kpis' | 'reports' | 'insights' | 'canvas' | 'docs' | 'sql' | 'marketplace' | 'connectors' | 'collaborate';
 
 const TAB_CONFIG: Array<{ id: DemoTab; label: string; icon: string }> = [
   { id: 'ask',         label: 'Ask your data',    icon: '✨' },
   { id: 'sentinel',    label: 'Sentinel',         icon: '✦' },
+  { id: 'live',        label: 'Connect API',      icon: '🔴' },
   { id: 'pivot',       label: 'Pivot Builder',    icon: '⊞' },
   { id: 'charts',      label: 'Chart Builder',    icon: '📊' },
   { id: 'kpis',        label: 'KPI Dashboard',    icon: '📈' },
@@ -246,6 +248,10 @@ export default function App() {
 
         {activeTab === 'sentinel' && (
           <SentinelPanel />
+        )}
+
+        {activeTab === 'live' && (
+          <ConnectPanel />
         )}
 
         <CrossFilterProvider>
@@ -715,7 +721,7 @@ function AiInsightsTab() {
         <h2 id="insights-heading">AI Insights</h2>
         <p>
           <strong>Left:</strong> zero-dependency pure TypeScript statistics — runs locally, no API key needed.{' '}
-          <strong>Right:</strong> Claude claude-opus-4-6 interprets those findings with business context,
+          <strong>Right:</strong> Claude claude-opus-4-8 interprets those findings with business context,
           executive summaries, and actionable recommendations (enter your Anthropic API key to enable).
         </p>
       </div>
@@ -1321,7 +1327,7 @@ OLLAMA_HOST=0.0.0.0 ollama serve`}</pre>
 # Model pricing (per analysis run, ~2k tokens in + ~1k out):
 #   claude-haiku-4-5  — ~$0.004   Fastest, great for quick reports
 #   claude-sonnet-4-6 — ~$0.025   Balanced quality/cost
-#   claude-opus-4-6   — ~$0.050   Highest quality reasoning
+#   claude-opus-4-8   — ~$0.050   Highest quality reasoning
 
 # Prompt caching is enabled automatically — if you run analysis
 # multiple times on the same dataset the system instructions are

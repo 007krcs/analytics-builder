@@ -27,6 +27,13 @@ export type {
   CellChangeTracker,
 }                                                        from './connectors/websocket-connector.js';
 
+export { connectSSE }                                    from './connectors/sse-connector.js';
+export type {
+  SseConnectorOptions,
+  SseConnector,
+  EventSourceLike,
+}                                                        from './connectors/sse-connector.js';
+
 export {
   parseClipboardEvent,
   parseClipboardText,
