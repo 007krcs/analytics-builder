@@ -56,6 +56,9 @@ importers:
       '@gridstorm/analytix-kpi-engine':
         specifier: workspace:*
         version: link:../../packages/kpi-engine
+      '@gridstorm/analytix-monitor':
+        specifier: workspace:*
+        version: link:../../packages/monitor
       '@gridstorm/analytix-pivot-engine':
         specifier: workspace:*
         version: link:../../packages/pivot-engine
@@ -219,6 +222,19 @@ importers:
         version: 5.9.3
 
   packages/kpi-engine:
+    dependencies:
+      '@gridstorm/analytix-core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(postcss@8.5.8)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
+  packages/monitor:
     dependencies:
       '@gridstorm/analytix-core':
         specifier: workspace:*

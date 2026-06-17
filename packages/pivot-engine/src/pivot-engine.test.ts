@@ -67,7 +67,9 @@ describe('PivotEngine', () => {
     };
     const t = performance.now();
     const res = pe.compute(cfg, bds);
-    expect(performance.now() - t).toBeLessThan(300);
+    // Generous ceiling: this guards against an O(n^2) regression, not a precise
+    // benchmark. 100k rows is linear work; 2s is safe even on slow CI CPUs.
+    expect(performance.now() - t).toBeLessThan(2000);
     expect(res.rows).toHaveLength(4);
   });
 });

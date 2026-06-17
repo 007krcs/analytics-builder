@@ -22,6 +22,7 @@
     "@gridstorm/analytix-canvas-layout": "workspace:*",
     "@gridstorm/analytix-sql-connector": "workspace:*",
     "@gridstorm/analytix-ask": "workspace:*",
+    "@gridstorm/analytix-monitor": "workspace:*",
     "@dnd-kit/core": "^6.0.0",
     "@dnd-kit/sortable": "^8.0.0",
     "@dnd-kit/utilities": "^3.0.0",

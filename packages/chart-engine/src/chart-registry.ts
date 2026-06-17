@@ -342,7 +342,7 @@ function normalizeChartConfig(config: ChartConfig): ChartConfig {
   const legacy = config as ChartConfig & {
     yFields?: Array<{ fieldId?: string; columnId?: string; label?: string; color?: string }>;
   };
-  if (!config.series && legacy.yFields) {
+  if (!Array.isArray(config.series) && Array.isArray(legacy.yFields)) {
     return {
       ...config,
       series: legacy.yFields.map((f, i) => ({
@@ -353,8 +353,13 @@ function normalizeChartConfig(config: ChartConfig): ChartConfig {
       })),
     };
   }
+  // Defensive: a non-array `series` (bad caller input) degrades to empty rather
+  // than throwing "config.series.some is not a function".
+  if (!Array.isArray(config.series)) {
+    return { ...config, series: [] };
+  }
   // Also accept per-series fieldId alias
-  if (config.series?.some((s) => !s.columnId && (s as { fieldId?: string }).fieldId)) {
+  if (config.series.some((s) => !s.columnId && (s as { fieldId?: string }).fieldId)) {
     return {
       ...config,
       series: config.series.map((s) => {

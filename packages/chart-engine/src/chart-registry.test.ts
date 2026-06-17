@@ -52,4 +52,10 @@ describe('prepareChartData', () => {
     const out = prepareChartData(cfg, rows, ds);
     expect(out.data).toHaveLength(3);
   });
+
+  it('does not throw when series is a non-array (bad caller input)', () => {
+    const cfg = baseCfg('bar');
+    cfg.series = 'oops' as unknown as ChartConfig['series'];
+    expect(() => prepareChartData(cfg, rows, ds)).not.toThrow();
+  });
 });
