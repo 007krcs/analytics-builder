@@ -84,7 +84,7 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
           </div>
 
           <p className="lp-hero__legal">
-            13 npm packages · 135 automated tests · 100% TypeScript · No data leaves the browser.
+            13 npm packages · 312 automated tests · 100% TypeScript · No data leaves the browser.
           </p>
 
           {/* Visual: dashboard preview */}
@@ -120,7 +120,7 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
             <OutcomeCard value="13" label="npm packages, all MIT" sub="@gridstorm/analytix-* on npmjs.com" />
             <OutcomeCard value="$0" label="per-developer cost"   sub="Self-host or embed, no licence fees" />
             <OutcomeCard value="424ms" label="pivot on 1M rows"  sub="Measured in the audit harness, single thread" />
-            <OutcomeCard value="135"  label="automated tests"    sub="Run pnpm test to see them all pass" />
+            <OutcomeCard value="312"  label="automated tests"    sub="Run pnpm test to see them all pass" />
           </div>
         </div>
       </section>

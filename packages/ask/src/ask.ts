@@ -203,7 +203,15 @@ export function ask(question: string, dataset: Dataset, options: AskOptions = {}
   const STOPWORDS = new Set(['the', 'a', 'an', 'of', 'by', 'per', 'for', 'each', 'in', 'on', 'and',
     'me', 'show', 'what', 'is', 'are', 'how', 'many', 'much', 'give', 'across', 'with', 'to', 'top',
     'bottom', 'highest', 'lowest', 'best', 'worst', 'total', 'sum', 'average', 'avg', 'count', 'trend',
-    'over', 'time', 'share', 'vs', 'versus', 'compare', 'group', 'grouped']);
+    'over', 'time', 'share', 'vs', 'versus', 'compare', 'group', 'grouped',
+    // Generic question filler / entity words — these aren't columns, so they
+    // should never surface in the "couldn't map" hint (esp. for count queries).
+    'there', 'here', 'record', 'records', 'row', 'rows', 'entry', 'entries', 'data',
+    'dataset', 'datasets', 'item', 'items', 'value', 'values', 'number', 'numbers',
+    'do', 'does', 'did', 'we', 'i', 'my', 'our', 'us', 'you', 'your', 'have', 'has', 'had',
+    'all', 'any', 'list', 'find', 'get', 'show', 'display', 'between', 'from', 'as', 'than',
+    'then', 'them', 'this', 'that', 'these', 'those', 'about', 'into', 'out', 'was', 'were',
+    'which', 'where', 'when', 'who', 'whom', 'and', 'or', 'not', 'most', 'least', 'more', 'less']);
   const unresolved = tokens.filter(
     (t) => t.length >= 3 && !/^\d+$/.test(t) && !recognised.has(t) && !STOPWORDS.has(t)
   );
@@ -339,7 +347,8 @@ export function summarize(plan: QueryPlan, result: AskResult): string {
     const pct = a !== 0 ? (((b - a) / Math.abs(a)) * 100).toFixed(1) : '—';
     return `${stripAgg(m.label)} trends ${dir} from ${fmt(first[m.label])} to ${fmt(last[m.label])} (${pct}%) over ${result.rows.length} periods.`;
   }
-  return `${lead} leads with ${leadVal} in ${stripAgg(m.label)} (of ${result.rows.length} ${dimKey.toLowerCase()} shown).`;
+  const n = result.rows.length;
+  return `${lead} leads with ${leadVal} in ${stripAgg(m.label)} (of ${n} ${pluralize(dimKey, n).toLowerCase()} shown).`;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -416,6 +425,14 @@ function explain(
   }
   return s;
 }
+
+/** English pluralise for the answer narration: Region→Regions, Category→Categories. */
+const pluralize = (s: string, n: number): string =>
+  n === 1 ? s
+  : /[^aeiou]y$/i.test(s) ? s.replace(/y$/i, 'ies')
+  : /(s|x|z|ch|sh)$/i.test(s) ? `${s}es`
+  : /s$/i.test(s) ? s
+  : `${s}s`;
 
 const round = (n: number) => Math.round(n * 100) / 100;
 const num = (s: string) => parseFloat(s.replace(/,/g, ''));

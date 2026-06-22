@@ -143,6 +143,36 @@ describe('summarize() — narration', () => {
     const s = summarize(p, executePlan(p, ds));
     expect(s).toMatch(/lowest/);
   });
+
+  it('pluralises the dimension noun in the breakdown narration', () => {
+    const p = ask('total revenue by region', ds);
+    const s = summarize(p, executePlan(p, ds));
+    // 3 regions → "of 3 regions shown", not "of 3 region shown".
+    expect(s).toMatch(/of 3 regions shown/);
+    expect(s).not.toMatch(/region shown/);
+  });
+
+  it('keeps the singular noun when only one group is shown', () => {
+    const p = ask('top 1 product by revenue', ds);
+    const s = summarize(p, executePlan(p, ds));
+    expect(s).toMatch(/of 1 product shown/);
+  });
+});
+
+describe('unresolved tokens — no generic filler leaks into the hint', () => {
+  it('"how many records are there" resolves cleanly (count query, no leftovers)', () => {
+    const p = ask('how many records are there', ds);
+    expect(p.intent).toBe('count');
+    // "records" and "there" are filler, not columns — must NOT appear as unmapped.
+    expect(p.unresolved).not.toContain('records');
+    expect(p.unresolved).not.toContain('there');
+    expect(p.unresolved).toEqual([]);
+  });
+
+  it('still flags a genuinely unknown column token', () => {
+    const p = ask('total blorptspace by region', ds);
+    expect(p.unresolved).toContain('blorptspace');
+  });
 });
 
 describe('compile helpers', () => {
