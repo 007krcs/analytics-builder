@@ -34,49 +34,63 @@ export function useAnalyticsEngine(
   options?: AnalyticsEngineOptions
 ): UseAnalyticsEngineResult {
   const engineRef = useRef<AnalyticsEngine | null>(null);
+  const optionsRef = useRef(options);
   const [version, setVersion] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Create engine on mount
-  if (!engineRef.current) {
-    const engine = new AnalyticsEngine(options);
-    engine.registerPivotEngine(computePivot);
-    engine.registerKpiEngine(computeKpi);
-    engineRef.current = engine;
-  }
+  // Lazy factory. React 18 StrictMode (dev) unmounts and remounts effects
+  // WITHOUT re-rendering: our unmount cleanup destroys the engine, then
+  // effects re-run against the render-phase closure. Anything that grabs the
+  // engine must therefore go through this factory, which revives a destroyed
+  // instance on demand instead of handing back a dead one (the old behaviour
+  // threw "AnalyticsEngine has been destroyed" and blank-paged every dev run).
+  const getEngine = useCallback((): AnalyticsEngine => {
+    if (!engineRef.current) {
+      const e = new AnalyticsEngine(optionsRef.current);
+      e.registerPivotEngine(computePivot);
+      e.registerKpiEngine(computeKpi);
+      engineRef.current = e;
+    }
+    return engineRef.current;
+  }, []);
 
-  const engine = engineRef.current;
+  const engine = getEngine();
 
   // Subscribe to events to trigger re-renders
   useEffect(() => {
+    const live = getEngine();
     const unsubs = [
-      engine.eventBus.on('dataset:added', () => setVersion((v) => v + 1)),
-      engine.eventBus.on('dataset:removed', () => setVersion((v) => v + 1)),
-      engine.eventBus.on('pivot:computed', () => setVersion((v) => v + 1)),
-      engine.eventBus.on('kpi:computed', () => setVersion((v) => v + 1)),
-      engine.eventBus.on('kpi:refreshed', () => {
+      live.eventBus.on('dataset:added', () => setVersion((v) => v + 1)),
+      live.eventBus.on('dataset:removed', () => setVersion((v) => v + 1)),
+      live.eventBus.on('pivot:computed', () => setVersion((v) => v + 1)),
+      live.eventBus.on('kpi:computed', () => setVersion((v) => v + 1)),
+      live.eventBus.on('kpi:refreshed', () => {
         setRefreshing(false);
         setVersion((v) => v + 1);
       }),
-      engine.eventBus.on('chart:config:changed', () => setVersion((v) => v + 1)),
-      engine.eventBus.on('pivot:config:changed', () => setVersion((v) => v + 1)),
+      live.eventBus.on('chart:config:changed', () => setVersion((v) => v + 1)),
+      live.eventBus.on('pivot:config:changed', () => setVersion((v) => v + 1)),
     ];
     return () => unsubs.forEach((fn) => fn());
-  }, [engine]);
+  }, [engine, getEngine]);
 
-  // Cleanup on unmount
+  // Cleanup on unmount (and StrictMode revive on dev remount)
   useEffect(() => {
+    // On a StrictMode remount the cleanup below already destroyed the
+    // render-phase instance. Revive and re-render so every consumer of
+    // `engine` picks up the live replacement.
+    if (getEngine() !== engine) setVersion((v) => v + 1);
     return () => {
       engineRef.current?.destroy();
       engineRef.current = null;
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadDataset = useCallback(
     (id: string, name: string, rows: Row[]): Dataset => {
-      return engine.addDatasetFromRows(id, name, rows);
+      return getEngine().addDatasetFromRows(id, name, rows);
     },
-    [engine]
+    [getEngine]
   );
 
   const refresh = useCallback(() => setVersion((v) => v + 1), []);

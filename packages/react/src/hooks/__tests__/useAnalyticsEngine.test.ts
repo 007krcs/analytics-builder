@@ -1,6 +1,7 @@
 // ─── useAnalyticsEngine Tests ─────────────────────────────────────────────────
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { StrictMode, createElement, type ReactNode } from 'react';
 import { AnalyticsEngine } from '@gridstorm/analytix-core';
 import { useAnalyticsEngine } from '../useAnalyticsEngine';
 
@@ -45,6 +46,37 @@ describe('useAnalyticsEngine', () => {
     const engine1 = result.current.engine;
     rerender();
     expect(result.current.engine).toBe(engine1);
+  });
+
+  // ── React 18 StrictMode (regression) ───────────────────────────────────────
+  // StrictMode dev remount runs cleanup (destroy) then re-runs effects WITHOUT
+  // re-rendering. The old implementation handed effects the destroyed instance,
+  // throwing "AnalyticsEngine has been destroyed" and blank-paging `vite dev`.
+
+  it('survives a StrictMode double-mount: loadDataset works after remount', () => {
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(StrictMode, null, children);
+    const { result } = renderHook(() => useAnalyticsEngine(), { wrapper });
+    // In StrictMode this executes against the post-remount engine — the old
+    // code threw here because the ref still pointed at the destroyed instance.
+    expect(() =>
+      act(() => {
+        result.current.loadDataset('sm-ds', 'StrictMode DS', [{ a: 1, b: 2 }]);
+      })
+    ).not.toThrow();
+    expect(result.current.engine.getDataset('sm-ds')?.rows).toHaveLength(1);
+  });
+
+  it('StrictMode remount leaves a LIVE engine (not the destroyed first instance)', () => {
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(StrictMode, null, children);
+    const { result } = renderHook(() => useAnalyticsEngine(), { wrapper });
+    // Any engine method guarded by _assertAlive must not throw.
+    expect(() =>
+      act(() => {
+        result.current.engine.addDatasetFromRows('sm-live', 'Live', [{ x: 1 }]);
+      })
+    ).not.toThrow();
   });
 
   it('engine is not null after mount', () => {

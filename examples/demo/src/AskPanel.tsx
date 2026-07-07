@@ -8,8 +8,9 @@
  *    typed QueryPlan. Any failure silently falls back to the offline engine.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Dataset } from '@gridstorm/analytix-core';
+import { parseCsvFile } from '@gridstorm/analytix-data-connector';
 import {
   ask,
   askLLM,
@@ -20,15 +21,50 @@ import {
   type LlmProvider,
   type QueryPlan,
 } from '@gridstorm/analytix-ask';
+import {
+  Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart,
+  Pie, PieChart, Tooltip, XAxis, YAxis,
+} from 'recharts';
 
-const SAMPLES = [
-  'total revenue by region',
-  'top 5 products by revenue',
-  'revenue trend over time',
-  'average units per region',
-  'revenue share by category',
-  'how many records are there',
-];
+const TIME_TYPES = ['date', 'datetime', 'time'];
+
+/** Identifier-ish columns (id, order_id, uuid…) — numeric but meaningless to SUM. */
+const IDENT_RE = /(^|[_\s-])(id|key|uuid|guid|code|index)s?$/i;
+/** Calendar-part columns (year, quarter…) — numeric but meaningless to AVG. */
+const CALENDAR_RE = /^(year|quarter|month|week|day|date|time|hour)s?$/i;
+
+/** Build suggestion chips from the ACTIVE dataset's schema, so an uploaded
+ *  CSV gets questions about ITS columns instead of sales-specific ones. */
+function buildSamples(ds: Dataset): string[] {
+  const nameOf = (c: Dataset['columns'][number]) => c.displayName || c.id;
+  // Real measures only: numeric + aggregatable, but never identifiers,
+  // calendar parts, or all-unique columns ("total id by quarter" is garbage).
+  const measures = ds.columns.filter(
+    (c) => c.aggregatable
+      && ['number', 'integer', 'float', 'currency', 'percentage'].includes(c.type)
+      && !IDENT_RE.test(c.id) && !IDENT_RE.test(nameOf(c))
+      && !CALENDAR_RE.test(c.id) && !CALENDAR_RE.test(nameOf(c))
+      // `unique` is set by some connectors but absent from the core type.
+      && (c as { unique?: boolean }).unique !== true,
+  );
+  // Categorical dims first; calendar-named dims last (the trend chip covers time).
+  const dims = ds.columns
+    .filter((c) => c.dimensional && !TIME_TYPES.includes(c.type) && !IDENT_RE.test(c.id))
+    .sort((a, b) => Number(CALENDAR_RE.test(a.id)) - Number(CALENDAR_RE.test(b.id)));
+  const timeCol = ds.columns.find((c) => TIME_TYPES.includes(c.type) || CALENDAR_RE.test(c.id));
+  const lc = (s: string) => s.toLowerCase();
+
+  const out: string[] = [];
+  const m0 = measures[0], m1 = measures[1] ?? measures[0];
+  const d0 = dims[0], d1 = dims[1] ?? dims[0];
+  if (m0 && d0) out.push(`total ${lc(nameOf(m0))} by ${lc(nameOf(d0))}`);
+  if (m0 && d1) out.push(`top 5 ${lc(nameOf(d1))} by ${lc(nameOf(m0))}`);
+  if (m0 && timeCol) out.push(`${lc(nameOf(m0))} trend over time`);
+  if (m1 && d0) out.push(`average ${lc(nameOf(m1))} per ${lc(nameOf(d0))}`);
+  if (m0 && d1) out.push(`${lc(nameOf(m0))} share by ${lc(nameOf(d1))}`);
+  out.push('how many records are there');
+  return Array.from(new Set(out)).slice(0, 6);
+}
 
 const PROVIDERS: Array<{ id: LlmProvider; label: string; model: string; needsKey: boolean }> = [
   { id: 'openai',    label: 'OpenAI',            model: 'gpt-4o-mini',      needsKey: true },
@@ -55,6 +91,13 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
   const [plan, setPlan] = useState<QueryPlan | null>(null);
   const [result, setResult] = useState<AskResult | null>(null);
   const [answer, setAnswer] = useState('');
+  // "Ask your OWN data" — an uploaded CSV replaces the sample dataset.
+  const [uploaded, setUploaded] = useState<Dataset | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const activeDs = uploaded ?? dataset;
+  const samples = useMemo(() => (activeDs ? buildSamples(activeDs) : []), [activeDs]);
 
   const provider = PROVIDERS.find((p) => p.id === cfg.provider) ?? PROVIDERS[0];
   const llmReady = provider.needsKey ? !!cfg.apiKey : true;
@@ -63,20 +106,45 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
     try { localStorage.setItem(LS_KEY, JSON.stringify(cfg)); } catch { /* ignore */ }
   }, [cfg]);
 
-  async function run(q: string) {
+  async function run(q: string, dsOverride?: Dataset) {
+    const ds = dsOverride ?? activeDs;
     const text = q.trim();
-    if (!text || !dataset) return;
+    if (!text || !ds) return;
     setQuestion(text);
     let p: QueryPlan;
     if (llmReady) {
       setLoading(true);
-      try { p = await askLLM(text, dataset, cfg); }
+      try { p = await askLLM(text, ds, cfg); }
       finally { setLoading(false); }
     } else {
-      p = ask(text, dataset);
+      p = ask(text, ds);
     }
-    const r = executePlan(p, dataset);
+    const r = executePlan(p, ds);
     setPlan(p); setResult(r); setAnswer(summarize(p, r));
+  }
+
+  async function onFilePicked(file: File | undefined) {
+    if (!file) return;
+    setUploadError(null);
+    try {
+      const parsed = await parseCsvFile(file);
+      if (!parsed.rows.length) { setUploadError('No rows found in that file — is it a valid CSV?'); return; }
+      setUploaded(parsed);
+      // Prove it works instantly with a question that fits ANY schema,
+      // computed against the freshly parsed dataset (state not yet applied).
+      const firstChip = buildSamples(parsed)[0] ?? 'how many records are there';
+      void run(firstChip, parsed);
+    } catch (e) {
+      setUploadError(`Could not parse that file: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      if (fileRef.current) fileRef.current.value = ''; // allow re-picking the same file
+    }
+  }
+
+  function resetToSample() {
+    setUploaded(null);
+    setUploadError(null);
+    void run('total revenue by region', dataset);
   }
 
   // First render: answer the default question once.
@@ -98,12 +166,42 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
             phrasing; it only ever sees the schema, never the rows.
           </p>
         </div>
-        <button
-          onClick={() => setShowConfig((s) => !s)}
-          style={{ flexShrink: 0, background: 'none', border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 12px', fontSize: 13, color: '#4338ca', cursor: 'pointer' }}
-        >
-          {showConfig ? '▼ Hide AI config' : '⚙ Configure AI'}
-        </button>
+        <div style={{ flexShrink: 0, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button
+            onClick={() => fileRef.current?.click()}
+            style={{ background: 'none', border: '1px solid #c7d2fe', borderRadius: 8, padding: '6px 12px', fontSize: 13, fontWeight: 600, color: '#4338ca', cursor: 'pointer' }}
+          >
+            📁 Upload CSV
+          </button>
+          <button
+            onClick={() => setShowConfig((s) => !s)}
+            style={{ background: 'none', border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 12px', fontSize: 13, color: '#4338ca', cursor: 'pointer' }}
+          >
+            {showConfig ? '▼ Hide AI config' : '⚙ Configure AI'}
+          </button>
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".csv,text/csv"
+          onChange={(e) => void onFilePicked(e.target.files?.[0])}
+          style={{ display: 'none' }}
+          aria-label="Upload a CSV file to ask questions about"
+        />
+      </div>
+
+      {/* Active dataset strip — which data are we asking? */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 14 }}>
+        <span style={{ fontSize: 12.5, fontWeight: 700, padding: '4px 11px', borderRadius: 999, background: uploaded ? '#dcfce7' : '#eef2ff', color: uploaded ? '#15803d' : '#4338ca', border: `1px solid ${uploaded ? '#86efac' : '#c7d2fe'}` }}>
+          {uploaded ? `📄 ${uploaded.name}` : '📊 Sample sales data'}
+          {' · '}{activeDs.rows.length.toLocaleString()} rows · {activeDs.columns.length} columns
+        </span>
+        {uploaded && (
+          <button onClick={resetToSample} style={{ background: 'none', border: 'none', fontSize: 12.5, color: '#64748b', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>
+            ✕ Back to sample data
+          </button>
+        )}
+        {uploadError && <span role="alert" style={{ fontSize: 12.5, color: '#b91c1c' }}>{uploadError}</span>}
       </div>
 
       {/* LLM provider config — mirrors a "bring your own key" setup */}
@@ -147,7 +245,7 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
       </form>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 22 }}>
-        {SAMPLES.map((s) => (
+        {samples.map((s) => (
           <button key={s} onClick={() => void run(s)} style={{ padding: '6px 12px', fontSize: 13, borderRadius: 999, border: '1px solid #e2e8f0', background: s === question ? '#eef2ff' : '#fff', color: s === question ? '#4338ca' : '#475569', cursor: 'pointer' }}>
             {s}
           </button>
@@ -175,6 +273,16 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
               </div>
             )}
           </div>
+
+          {/* The suggested chart, actually rendered — not just named. */}
+          {plan.dimensions.length > 0 && result.rows.length > 1 && (
+            <div style={{ border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px 8px', minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', marginBottom: 8 }}>
+                {plan.chartType === 'pie' ? 'Share' : plan.chartType === 'line' ? 'Trend' : 'Comparison'} · {plan.chartType} chart
+              </div>
+              <AnswerChart plan={plan} result={result} />
+            </div>
+          )}
 
           <div className="ap-tablewrap" style={{ border: '1px solid #e2e8f0', borderRadius: 12 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
@@ -215,6 +323,94 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
       )}
     </section>
   );
+}
+
+// ── Chart rendering ───────────────────────────────────────────
+
+const CHART_COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#14b8a6', '#3b82f6', '#ef4444', '#84cc16'];
+
+/**
+ * Own container measurement instead of recharts' <ResponsiveContainer>:
+ * inside this CSS-grid layout, ResponsiveContainer captured its very first
+ * measurement (mid-layout, 122px) and its observer never re-fired — pinning
+ * every chart to a sliver. A plain ResizeObserver on our own div is
+ * deterministic and tracks viewport changes correctly.
+ */
+function useContainerWidth(): [React.RefObject<HTMLDivElement>, number] {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => setWidth(Math.floor(el.getBoundingClientRect().width));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, width];
+}
+
+/** Render the plan's suggested chart from the computed result rows. */
+function AnswerChart({ plan, result }: { plan: QueryPlan; result: AskResult }) {
+  const [wrapRef, width] = useContainerWidth();
+  const dimKey = result.columns[0];
+  const measureKey = result.columns[result.columns.length - 1];
+
+  let data = result.rows.slice(0, 20).map((r) => ({
+    name: String(r[dimKey] ?? '—'),
+    value: Number(r[measureKey] ?? 0),
+  }));
+
+  const fmtTick = (v: number) =>
+    Math.abs(v) >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M`
+    : Math.abs(v) >= 1_000 ? `${(v / 1_000).toFixed(0)}k`
+    : String(v);
+  const fmtTip = (v: number | string) => [Number(v).toLocaleString(), measureKey] as [string, string];
+
+  let chart: React.ReactNode = null;
+  if (width > 0 && plan.chartType === 'pie') {
+    // Cap slices so the pie stays readable; fold the tail into "Other".
+    if (data.length > 8) {
+      const head = data.slice(0, 7);
+      const other = data.slice(7).reduce((a, d) => a + d.value, 0);
+      data = [...head, { name: 'Other', value: other }];
+    }
+    chart = (
+      <PieChart width={width} height={280}>
+        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={95} label={({ percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`}>
+          {data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+        </Pie>
+        <Tooltip formatter={fmtTip} />
+        <Legend wrapperStyle={{ fontSize: 12 }} />
+      </PieChart>
+    );
+  } else if (width > 0 && plan.chartType === 'line') {
+    chart = (
+      <LineChart width={width} height={280} data={data} margin={{ top: 8, right: 16, bottom: 4, left: 4 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+        <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+        <YAxis tickFormatter={fmtTick} tick={{ fontSize: 11 }} width={48} />
+        <Tooltip formatter={fmtTip} />
+        <Line type="monotone" dataKey="value" name={measureKey} stroke="#6366f1" strokeWidth={2.5} dot={{ r: 3 }} />
+      </LineChart>
+    );
+  } else if (width > 0) {
+    // Default: bar (also covers any other suggestion when a dimension exists).
+    chart = (
+      <BarChart width={width} height={280} data={data} margin={{ top: 8, right: 16, bottom: 4, left: 4 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+        <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+        <YAxis tickFormatter={fmtTick} tick={{ fontSize: 11 }} width={48} />
+        <Tooltip formatter={fmtTip} />
+        <Bar dataKey="value" name={measureKey} radius={[6, 6, 0, 0]}>
+          {data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+        </Bar>
+      </BarChart>
+    );
+  }
+
+  return <div ref={wrapRef} style={{ width: '100%', minHeight: 280 }}>{chart}</div>;
 }
 
 const inputStyle: React.CSSProperties = {
