@@ -378,7 +378,7 @@ function AnswerChart({ plan, result }: { plan: QueryPlan; result: AskResult }) {
     }
     chart = (
       <PieChart width={width} height={280}>
-        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={95} label={({ percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`}>
+        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={95} label={({ percent }: { percent?: number }) => `${((percent ?? 0) * 100).toFixed(0)}%`}>
           {data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
         </Pie>
         <Tooltip formatter={fmtTip} />
