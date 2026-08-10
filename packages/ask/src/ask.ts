@@ -98,6 +98,13 @@ function distinctValues(rows: Row[], colId: string, cap = 500): Map<string, Cell
 export interface AskOptions {
   /** Default row cap for top/bottom questions when no number is given (default 5). */
   defaultLimit?: number;
+  /**
+   * The previous question's plan, enabling follow-up refinements. When the new
+   * question resolves no measure/dimension/aggregation of its own but DOES
+   * resolve filters ("now just Europe", "only 2024"), the previous plan is
+   * reused with the new filters merged in.
+   */
+  context?: QueryPlan;
 }
 
 export function ask(question: string, dataset: Dataset, options: AskOptions = {}): QueryPlan {
@@ -124,9 +131,38 @@ export function ask(question: string, dataset: Dataset, options: AskOptions = {}
   const wantsTop = TOP_WORDS.test(q);
   const wantsBottom = BOTTOM_WORDS.test(q);
   const wantsShare = SHARE_WORDS.test(q);
-  const wantsTrend = TREND_WORDS.test(q);
+  // "revenue 2023 vs 2024" — year-over-year comparison on the time column.
+  const yearVsMatch = q.match(/\b((?:19|20)\d{2})\s*(?:vs\.?|versus)\s*((?:19|20)\d{2})\b/);
+  const wantsTrend = TREND_WORDS.test(q) || (yearVsMatch != null && timeCols.length > 0);
   const wantsGroup = GROUP_WORDS.test(q) || mentionedDims.length > 0;
   const wantsCount = aggregation === 'count' || /\bhow many\b/.test(q);
+
+  // ── Follow-up refinement ("now just Europe") ────────────────────────────
+  // No measure, no dimension, no aggregation of its own — but filters DO
+  // resolve: refine the previous plan instead of building a nonsense new one.
+  if (
+    options.context
+    && mentionedMeasures.length === 0 && mentionedDims.length === 0
+    && !aggExplicit && !wantsTop && !wantsBottom && !wantsShare && !wantsTrend && !wantsCount
+  ) {
+    const newFilters = resolveFilters(q, tokens, dataset, options.context.dimensions, false);
+    if (newFilters.length > 0) {
+      const ctx = options.context;
+      // Replace any existing filter on the same column; keep the rest.
+      const merged = [
+        ...ctx.filters.filter((f) => !newFilters.some((nf) => nf.columnId === f.columnId)),
+        ...newFilters,
+      ];
+      return {
+        ...ctx,
+        filters: merged,
+        explanation: explain(ctx.intent, ctx.measures, ctx.dimensions, dataset, merged, ctx.limit, ctx.sort),
+        confidence: Math.min(0.9, ctx.confidence),
+        unresolved: [],
+        source: 'offline',
+      };
+    }
+  }
 
   // ── Pick measure(s) ─────────────────────────────────────────────────────
   const measures: AskMeasure[] = [];
@@ -158,7 +194,14 @@ export function ask(question: string, dataset: Dataset, options: AskOptions = {}
   }
 
   // ── Filters resolved from the question ──────────────────────────────────
-  const filters = resolveFilters(q, tokens, dataset, dimensions);
+  // For "2023 vs 2024" the single-year filter is suppressed and replaced by an
+  // 'in' filter over both years, with the time axis bucketed by year.
+  const filters = resolveFilters(q, tokens, dataset, dimensions, yearVsMatch != null);
+  let timeGranularity: QueryPlan['timeGranularity'];
+  if (yearVsMatch && timeCols.length > 0) {
+    timeGranularity = 'year';
+    filters.push({ columnId: (mentionedDims.find(isTimeCol) ?? timeCols[0]).id, operator: 'in', value: [yearVsMatch[1], yearVsMatch[2]] });
+  }
 
   // ── Top / bottom limit + sort ───────────────────────────────────────────
   const limitMatch = q.match(/\b(?:top|bottom|first|last)\s+(\d{1,3})\b/) ?? q.match(/\b(\d{1,3})\s+(?:highest|lowest|best|worst)\b/);
@@ -184,7 +227,8 @@ export function ask(question: string, dataset: Dataset, options: AskOptions = {}
     : 'aggregate';
 
   // ── Chart suggestion ────────────────────────────────────────────────────
-  const chartType = suggestChart(intent, dimensions, dataset);
+  // A two-bucket year comparison reads better as bars than a two-point line.
+  const chartType = yearVsMatch ? 'bar' : suggestChart(intent, dimensions, dataset);
 
   // ── Confidence + unresolved tokens ──────────────────────────────────────
   const resolvedMeasure = mentionedMeasures.length > 0 || wantsCount;
@@ -211,13 +255,15 @@ export function ask(question: string, dataset: Dataset, options: AskOptions = {}
     'do', 'does', 'did', 'we', 'i', 'my', 'our', 'us', 'you', 'your', 'have', 'has', 'had',
     'all', 'any', 'list', 'find', 'get', 'show', 'display', 'between', 'from', 'as', 'than',
     'then', 'them', 'this', 'that', 'these', 'those', 'about', 'into', 'out', 'was', 'were',
-    'which', 'where', 'when', 'who', 'whom', 'and', 'or', 'not', 'most', 'least', 'more', 'less']);
+    'which', 'where', 'when', 'who', 'whom', 'and', 'or', 'not', 'most', 'least', 'more', 'less',
+    // Refinement filler ("now just Europe", "only 2024")
+    'now', 'just', 'only', 'instead', 'again']);
   const unresolved = tokens.filter(
     (t) => t.length >= 3 && !/^\d+$/.test(t) && !recognised.has(t) && !STOPWORDS.has(t)
   );
 
   return {
-    intent, measures, dimensions, filters, sort, limit, chartType,
+    intent, measures, dimensions, filters, sort, limit, chartType, timeGranularity,
     explanation: explain(intent, measures, dimensions, dataset, filters, limit, sort),
     confidence,
     unresolved,
@@ -245,7 +291,7 @@ export function buildSchemaCard(dataset: Dataset): string {
 
 // ─── Filter resolution ────────────────────────────────────────────────────────
 
-function resolveFilters(q: string, _tokens: string[], dataset: Dataset, dims: string[]): DataFilter[] {
+function resolveFilters(q: string, _tokens: string[], dataset: Dataset, dims: string[], skipYear: boolean): DataFilter[] {
   const filters: DataFilter[] = [];
 
   // 1. Numeric comparisons: "<col> over/above/greater than N", "under/below/less than N".
@@ -257,9 +303,10 @@ function resolveFilters(q: string, _tokens: string[], dataset: Dataset, dims: st
     if (lt) filters.push({ columnId: c.id, operator: 'lt', value: num(lt[1]) });
   }
 
-  // 2. Year filter: "in 2024" against a date/time column.
+  // 2. Year filter: "in 2024" against a date/time column. Skipped for
+  //    "2023 vs 2024" questions, which build an 'in' filter over both years.
   const yearMatch = q.match(/\b(in|during|for)\s+(20\d{2}|19\d{2})\b/) ?? q.match(/\b(20\d{2}|19\d{2})\b/);
-  if (yearMatch) {
+  if (yearMatch && !skipYear) {
     const year = yearMatch[yearMatch.length - 1];
     const timeCol = dataset.columns.find(isTimeCol);
     if (timeCol) filters.push({ columnId: timeCol.id, operator: 'contains', value: year });
@@ -294,8 +341,25 @@ export function executePlan(plan: QueryPlan, dataset: Dataset): AskResult {
     for (const m of plan.measures) row[m.label] = aggregate(filtered, m);
     rows = [row];
   } else {
+    const isTimeSeries = plan.intent === 'trend' || plan.timeGranularity != null;
+
+    // ── Time bucketing ────────────────────────────────────────────────────
+    // Trends group by calendar bucket (day/month/year), not raw date values:
+    // a year of daily data becomes 12 month buckets, not 365 groups.
+    let sourceRows: Row[] = filtered;
+    if (isTimeSeries && plan.dimensions.length === 1) {
+      const dim = plan.dimensions[0];
+      const parsed = filtered.map((r) => ({ r, t: parseTime(r[dim]) }));
+      const valid = parsed.filter((p) => p.t != null);
+      // Only bucket when the column is actually parseable as time.
+      if (valid.length > 0 && valid.length >= filtered.length / 2) {
+        const gran = plan.timeGranularity ?? autoGranularity(valid.map((p) => p.t as number));
+        sourceRows = valid.map(({ r, t }) => ({ ...r, [dim]: bucketLabel(t as number, gran) }));
+      }
+    }
+
     const groups = new Map<string, Row[]>();
-    for (const r of filtered) {
+    for (const r of sourceRows) {
       const key = plan.dimensions.map((d) => String(r[d] ?? '∅')).join(' ');
       (groups.get(key) ?? groups.set(key, []).get(key)!).push(r);
     }
@@ -306,7 +370,13 @@ export function executePlan(plan: QueryPlan, dataset: Dataset): AskResult {
       return o;
     });
 
-    if (plan.sort) {
+    if (isTimeSeries) {
+      // Chronological order — bucket labels (YYYY / YYYY-MM / YYYY-MM-DD) and
+      // ISO date strings both sort correctly as strings; other values at least
+      // get a deterministic ascending order instead of insertion order.
+      const dimLabel = label(dataset, plan.dimensions[0]);
+      rows.sort((a, b) => String(a[dimLabel] ?? '').localeCompare(String(b[dimLabel] ?? '')));
+    } else if (plan.sort) {
       // plan.sort.columnId holds the measure label to rank by.
       const key = plan.sort.columnId;
       const dir = plan.sort.direction === 'asc' ? 1 : -1;
@@ -390,6 +460,12 @@ function applyFilters(rows: Row[], filters: DataFilter[]): Row[] {
         case 'lt': return typeof v === 'number' && v < Number(f.value);
         case 'lte': return typeof v === 'number' && v <= Number(f.value);
         case 'contains': return String(v ?? '').toLowerCase().includes(String(f.value).toLowerCase());
+        case 'in': {
+          // Substring semantics per element — "2023" matches "2023-04-15".
+          const arr = Array.isArray(f.value) ? f.value : [f.value];
+          const s = String(v ?? '').toLowerCase();
+          return arr.some((x) => s.includes(String(x).toLowerCase()));
+        }
         default: return true;
       }
     })
@@ -433,6 +509,35 @@ const pluralize = (s: string, n: number): string =>
   : /(s|x|z|ch|sh)$/i.test(s) ? `${s}es`
   : /s$/i.test(s) ? s
   : `${s}s`;
+
+// ── Time-bucketing helpers ────────────────────────────────────────────────────
+
+/** Parse a cell as a point in time; null when it isn't one. */
+function parseTime(v: CellValue): number | null {
+  if (v instanceof Date) return v.getTime();
+  if (typeof v === 'number') return v > 10_000_000 ? v : null; // epoch millis/seconds-ish only
+  if (typeof v === 'string') {
+    const t = Date.parse(v);
+    return Number.isNaN(t) ? null : t;
+  }
+  return null;
+}
+
+/** Pick a bucket size from the data's span: ≤2 months → day, ≤3 years → month, else year. */
+function autoGranularity(ts: number[]): 'day' | 'month' | 'year' {
+  const days = (Math.max(...ts) - Math.min(...ts)) / 86_400_000;
+  if (days > 1100) return 'year';
+  if (days > 62) return 'month';
+  return 'day';
+}
+
+function bucketLabel(t: number, g: 'day' | 'month' | 'year'): string {
+  const d = new Date(t);
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return g === 'year' ? String(y) : g === 'month' ? `${y}-${m}` : `${y}-${m}-${day}`;
+}
 
 const round = (n: number) => Math.round(n * 100) / 100;
 const num = (s: string) => parseFloat(s.replace(/,/g, ''));

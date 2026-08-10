@@ -11,6 +11,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Sentinel, type Finding, type Severity } from '@gridstorm/analytix-monitor';
 import type { LlmConfig } from '@gridstorm/analytix-ask';
+import { liveFeed } from './liveFeed.js';
+
+type FeedSource = 'sim' | 'live';
+const SIM_COLUMNS = ['requests_per_sec', 'latency_ms'];
 
 const SEV_COLOR: Record<Severity, { bg: string; fg: string; bd: string }> = {
   info:     { bg: '#eff6ff', fg: '#1d4ed8', bd: '#bfdbfe' },
@@ -43,11 +47,15 @@ async function llmExplain(text: string, cfg: LlmConfig): Promise<string> {
 
 export function SentinelPanel() {
   const [on, setOn] = useState(false);
+  const [source, setSource] = useState<FeedSource>('sim');
   const [alertLevel, setAlertLevel] = useState<Severity>('info');
   const [webhookUrl, setWebhookUrl] = useState('');
   const [enrich, setEnrich] = useState(false);
   const [findings, setFindings] = useState<Finding[]>([]);
   const [tick, setTick] = useState(0);
+  // Which numeric columns Sentinel watches — fixed for the simulation,
+  // auto-detected from the first batch when watching the live feed.
+  const [watchCols, setWatchCols] = useState<string[]>(SIM_COLUMNS);
 
   const sentinelRef = useRef<Sentinel | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -58,7 +66,7 @@ export function SentinelPanel() {
     const cfgRaw = (() => { try { return JSON.parse(localStorage.getItem('analytix-ask-llm') ?? 'null') as LlmConfig | null; } catch { return null; } })();
     const llmReady = !!cfgRaw && (cfgRaw.provider === 'ollama' || !!cfgRaw.apiKey);
     sentinelRef.current = new Sentinel({
-      numericColumns: ['requests_per_sec', 'latency_ms'],
+      numericColumns: watchCols,
       windowSize: 20,
       minSamples: 8,
       zThreshold: 3,
@@ -69,11 +77,32 @@ export function SentinelPanel() {
         : undefined,
       onFinding: (f) => setFindings((prev) => [f, ...prev].slice(0, 40)),
     });
-  }, [alertLevel, webhookUrl, enrich]);
+  }, [alertLevel, webhookUrl, enrich, watchCols]);
+
+  // Live feed from the Connect API tab.
+  useEffect(() => {
+    if (!on || source !== 'live') return;
+    const unsub = liveFeed.subscribe((rows) => {
+      const first = rows[0] ?? {};
+      const cols = Object.keys(first).filter((k) => typeof first[k] === 'number');
+      // Auto-(re)target the watched columns when the feed's shape changes.
+      if (cols.length && (cols.length !== watchCols.length || cols.some((c) => !watchCols.includes(c)))) {
+        setWatchCols(cols);
+      }
+      void sentinelRef.current?.push(rows);
+      setTick((t) => t + rows.length);
+    });
+    return unsub;
+  }, [on, source, watchCols]);
+
+  // Reset watched columns when switching back to the simulation.
+  useEffect(() => {
+    if (source === 'sim') setWatchCols(SIM_COLUMNS);
+  }, [source]);
 
   // Simulated live stream.
   useEffect(() => {
-    if (!on) {
+    if (!on || source !== 'sim') {
       if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
       return;
     }
@@ -90,7 +119,7 @@ export function SentinelPanel() {
       setTick((t) => t + 1);
     }, 700);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [on]);
+  }, [on, source]);
 
   return (
     <section className="demo-section" aria-labelledby="sentinel-heading">
@@ -111,6 +140,19 @@ export function SentinelPanel() {
       </div>
 
       <div className="ap-two" style={{ marginBottom: 16 }}>
+        <label style={{ display: 'grid', gap: 4 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>Watch</span>
+          <select value={source} onChange={(e) => setSource(e.target.value as FeedSource)} style={selStyle}>
+            <option value="sim">Simulated demo stream</option>
+            <option value="live">Live feed (Connect API tab)</option>
+          </select>
+          {source === 'live' && (
+            <span style={{ fontSize: 11.5, color: '#94a3b8' }}>
+              Watches rows arriving in the Connect API tab; numeric columns are detected automatically
+              ({watchCols.length ? watchCols.join(', ') : 'none yet'}).
+            </span>
+          )}
+        </label>
         <label style={{ display: 'grid', gap: 4 }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>Alert on</span>
           <select value={alertLevel} onChange={(e) => setAlertLevel(e.target.value as Severity)} style={selStyle}>
@@ -138,8 +180,10 @@ export function SentinelPanel() {
             <div style={{ fontWeight: 600, color: '#1e293b' }}>{on ? 'Watching…' : 'Sentinel is off'}</div>
             <div style={{ fontSize: 13, color: '#64748b' }}>
               {on
-                ? `No findings yet — Sentinel investigates anomalies the moment the engine detects them (${tick} readings observed).`
-                : 'Toggle it On to start watching the live stream.'}
+                ? source === 'live' && tick === 0
+                  ? 'Waiting for live rows — connect a source in the Connect API tab and they will stream in here.'
+                  : `No findings yet — Sentinel investigates anomalies the moment the engine detects them (${tick} readings observed).`
+                : 'Toggle it On to start watching the stream.'}
             </div>
           </div>
         </div>

@@ -10,7 +10,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Dataset } from '@gridstorm/analytix-core';
-import { parseCsvFile } from '@gridstorm/analytix-data-connector';
+import { parseCsvFile, parseExcelFile } from '@gridstorm/analytix-data-connector';
 import {
   ask,
   askLLM,
@@ -83,8 +83,25 @@ function loadConfig(): LlmConfig {
   return { provider: 'openai', model: '', apiKey: '', endpoint: '' };
 }
 
-export function AskPanel({ dataset }: { dataset: Dataset }) {
-  const [question, setQuestion] = useState('total revenue by region');
+const MAX_UPLOAD_BYTES = 50 * 1024 * 1024; // 50 MB
+
+/** Question deep-linked in the URL: /#demo?q=… */
+function questionFromHash(): string | null {
+  try {
+    const m = window.location.hash.match(/[?&]q=([^&]+)/);
+    return m ? decodeURIComponent(m[1]) : null;
+  } catch { return null; }
+}
+
+export interface AskPanelProps {
+  dataset: Dataset;
+  /** Called when the user uploads a file, so the app can register it with the
+   *  engine and make it explorable in the Pivot/Chart/KPI tabs too. */
+  onDatasetUploaded?: (ds: Dataset) => void;
+}
+
+export function AskPanel({ dataset, onDatasetUploaded }: AskPanelProps) {
+  const [question, setQuestion] = useState(() => questionFromHash() ?? 'total revenue by region');
   const [cfg, setCfg] = useState<LlmConfig>(loadConfig);
   const [showConfig, setShowConfig] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -117,19 +134,32 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
       try { p = await askLLM(text, ds, cfg); }
       finally { setLoading(false); }
     } else {
-      p = ask(text, ds);
+      // Offline tier gets the previous plan as context so refinements like
+      // "now just Europe" work. Not carried across a dataset switch.
+      p = ask(text, ds, { context: dsOverride ? undefined : plan ?? undefined });
     }
     const r = executePlan(p, ds);
     setPlan(p); setResult(r); setAnswer(summarize(p, r));
+    // Deep-linkable question: /#demo?q=…
+    try {
+      window.history.replaceState(null, '', `${window.location.pathname}#demo?q=${encodeURIComponent(text)}`);
+    } catch { /* ignore */ }
   }
 
   async function onFilePicked(file: File | undefined) {
     if (!file) return;
     setUploadError(null);
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setUploadError(`That file is ${(file.size / 1024 / 1024).toFixed(0)} MB — the in-browser limit is 50 MB.`);
+      if (fileRef.current) fileRef.current.value = '';
+      return;
+    }
     try {
-      const parsed = await parseCsvFile(file);
-      if (!parsed.rows.length) { setUploadError('No rows found in that file — is it a valid CSV?'); return; }
+      const isExcel = /\.(xlsx|xls)$/i.test(file.name);
+      const parsed = isExcel ? await parseExcelFile(file) : await parseCsvFile(file);
+      if (!parsed.rows.length) { setUploadError('No rows found in that file — is it a valid CSV or Excel sheet?'); return; }
       setUploaded(parsed);
+      onDatasetUploaded?.(parsed);
       // Prove it works instantly with a question that fits ANY schema,
       // computed against the freshly parsed dataset (state not yet applied).
       const firstChip = buildSamples(parsed)[0] ?? 'how many records are there';
@@ -147,8 +177,8 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
     void run('total revenue by region', dataset);
   }
 
-  // First render: answer the default question once.
-  useEffect(() => { if (dataset && !plan) void run('total revenue by region'); /* eslint-disable-line */ }, [dataset]);
+  // First render: answer the default (or deep-linked ?q=) question once.
+  useEffect(() => { if (dataset && !plan) void run(question); /* eslint-disable-line */ }, [dataset]);
 
   const measureCol = result?.columns[result.columns.length - 1] ?? '';
   const dimCol = result && result.columns.length > 1 ? result.columns[0] : null;
@@ -171,7 +201,7 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
             onClick={() => fileRef.current?.click()}
             style={{ background: 'none', border: '1px solid #c7d2fe', borderRadius: 8, padding: '6px 12px', fontSize: 13, fontWeight: 600, color: '#4338ca', cursor: 'pointer' }}
           >
-            📁 Upload CSV
+            📁 Upload CSV / Excel
           </button>
           <button
             onClick={() => setShowConfig((s) => !s)}
@@ -183,10 +213,10 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
         <input
           ref={fileRef}
           type="file"
-          accept=".csv,text/csv"
+          accept=".csv,.xlsx,.xls,text/csv"
           onChange={(e) => void onFilePicked(e.target.files?.[0])}
           style={{ display: 'none' }}
-          aria-label="Upload a CSV file to ask questions about"
+          aria-label="Upload a CSV or Excel file to ask questions about"
         />
       </div>
 
@@ -197,9 +227,16 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
           {' · '}{activeDs.rows.length.toLocaleString()} rows · {activeDs.columns.length} columns
         </span>
         {uploaded && (
-          <button onClick={resetToSample} style={{ background: 'none', border: 'none', fontSize: 12.5, color: '#64748b', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>
-            ✕ Back to sample data
-          </button>
+          <>
+            <button onClick={resetToSample} style={{ background: 'none', border: 'none', fontSize: 12.5, color: '#64748b', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>
+              ✕ Back to sample data
+            </button>
+            {onDatasetUploaded && (
+              <span style={{ fontSize: 12, color: '#64748b' }}>
+                Also available in the Pivot Builder and Chart Builder tabs.
+              </span>
+            )}
+          </>
         )}
         {uploadError && <span role="alert" style={{ fontSize: 12.5, color: '#b91c1c' }}>{uploadError}</span>}
       </div>
@@ -279,6 +316,11 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
             <div style={{ border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px 8px', minWidth: 0 }}>
               <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', marginBottom: 8 }}>
                 {plan.chartType === 'pie' ? 'Share' : plan.chartType === 'line' ? 'Trend' : 'Comparison'} · {plan.chartType} chart
+                {' · '}
+                {plan.chartType === 'pie'
+                  ? plan.measures[0]?.label
+                  : plan.measures.map((m) => m.label).join(' & ')}
+                {result.rows.length > 20 && ` · showing 20 of ${result.rows.length}`}
               </div>
               <AnswerChart plan={plan} result={result} />
             </div>
@@ -316,6 +358,7 @@ export function AskPanel({ dataset }: { dataset: Dataset }) {
           </div>
 
           <p style={{ fontSize: 12.5, color: '#64748b', margin: 0 }}>
+            {result.rows.length > 20 && `Table shows the first 20 of ${result.rows.length.toLocaleString()} groups. `}
             Computed from {result.matchedRows.toLocaleString()} matching rows.
             {plan.source === 'llm' ? ' Only the schema was sent to the model — no rows left your browser.' : ' No network request was made.'}
           </p>
@@ -355,30 +398,36 @@ function useContainerWidth(): [React.RefObject<HTMLDivElement>, number] {
 function AnswerChart({ plan, result }: { plan: QueryPlan; result: AskResult }) {
   const [wrapRef, width] = useContainerWidth();
   const dimKey = result.columns[0];
-  const measureKey = result.columns[result.columns.length - 1];
+  // Dimensions come first in result.columns; everything after is a measure.
+  // Charts plot up to two measures (grouped bars / two lines); pie plots one.
+  const measureKeys = result.columns.slice(Math.max(1, plan.dimensions.length)).slice(0, 2);
+  const primaryKey = measureKeys[0] ?? result.columns[result.columns.length - 1];
 
-  let data = result.rows.slice(0, 20).map((r) => ({
-    name: String(r[dimKey] ?? '—'),
-    value: Number(r[measureKey] ?? 0),
-  }));
+  let data = result.rows.slice(0, 20).map((r) => {
+    const o: Record<string, string | number> = { name: String(r[dimKey] ?? '—') };
+    for (const k of measureKeys) o[k] = Number(r[k] ?? 0);
+    return o;
+  });
 
   const fmtTick = (v: number) =>
     Math.abs(v) >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M`
     : Math.abs(v) >= 1_000 ? `${(v / 1_000).toFixed(0)}k`
     : String(v);
-  const fmtTip = (v: number | string) => [Number(v).toLocaleString(), measureKey] as [string, string];
+  const fmtTip = (v: number | string, name?: string) =>
+    [Number(v).toLocaleString(), name ?? primaryKey] as [string, string];
+  const multi = measureKeys.length > 1;
 
   let chart: React.ReactNode = null;
   if (width > 0 && plan.chartType === 'pie') {
     // Cap slices so the pie stays readable; fold the tail into "Other".
     if (data.length > 8) {
       const head = data.slice(0, 7);
-      const other = data.slice(7).reduce((a, d) => a + d.value, 0);
-      data = [...head, { name: 'Other', value: other }];
+      const other = data.slice(7).reduce((a, d) => a + Number(d[primaryKey] ?? 0), 0);
+      data = [...head, { name: `Other (${result.rows.length - 7} more)`, [primaryKey]: other }];
     }
     chart = (
       <PieChart width={width} height={280}>
-        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={95} label={({ percent }: { percent?: number }) => `${((percent ?? 0) * 100).toFixed(0)}%`}>
+        <Pie data={data} dataKey={primaryKey} nameKey="name" cx="50%" cy="50%" outerRadius={95} label={({ percent }: { percent?: number }) => `${((percent ?? 0) * 100).toFixed(0)}%`}>
           {data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
         </Pie>
         <Tooltip formatter={fmtTip} />
@@ -392,7 +441,10 @@ function AnswerChart({ plan, result }: { plan: QueryPlan; result: AskResult }) {
         <XAxis dataKey="name" tick={{ fontSize: 11 }} />
         <YAxis tickFormatter={fmtTick} tick={{ fontSize: 11 }} width={48} />
         <Tooltip formatter={fmtTip} />
-        <Line type="monotone" dataKey="value" name={measureKey} stroke="#6366f1" strokeWidth={2.5} dot={{ r: 3 }} />
+        {multi && <Legend wrapperStyle={{ fontSize: 12 }} />}
+        {measureKeys.map((k, i) => (
+          <Line key={k} type="monotone" dataKey={k} name={k} stroke={CHART_COLORS[i]} strokeWidth={2.5} dot={{ r: 3 }} />
+        ))}
       </LineChart>
     );
   } else if (width > 0) {
@@ -403,9 +455,13 @@ function AnswerChart({ plan, result }: { plan: QueryPlan; result: AskResult }) {
         <XAxis dataKey="name" tick={{ fontSize: 11 }} />
         <YAxis tickFormatter={fmtTick} tick={{ fontSize: 11 }} width={48} />
         <Tooltip formatter={fmtTip} />
-        <Bar dataKey="value" name={measureKey} radius={[6, 6, 0, 0]}>
-          {data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
-        </Bar>
+        {multi && <Legend wrapperStyle={{ fontSize: 12 }} />}
+        {measureKeys.map((k, i) => (
+          <Bar key={k} dataKey={k} name={k} radius={[6, 6, 0, 0]} fill={CHART_COLORS[i]}>
+            {/* Per-category colors only for a single series; grouped bars keep one color per series. */}
+            {!multi && data.map((_, j) => <Cell key={j} fill={CHART_COLORS[j % CHART_COLORS.length]} />)}
+          </Bar>
+        ))}
       </BarChart>
     );
   }

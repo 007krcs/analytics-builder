@@ -12,6 +12,16 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Row } from '@gridstorm/analytix-core';
 import { connectSSE, connectWebSocket } from '@gridstorm/analytix-data-connector';
+import { liveFeed } from './liveFeed.js';
+
+/** Human-readable failure text; browser fetch/SSE errors are usually CORS. */
+function describeFetchError(e: unknown): string {
+  if (e instanceof TypeError) {
+    return 'Request failed — most likely CORS: the endpoint must send Access-Control-Allow-Origin for this site. '
+      + 'Point at a CORS-enabled endpoint or your own server; browsers block everything else before it leaves the page.';
+  }
+  return String(e);
+}
 
 type Mode = 'ws' | 'sse' | 'poll';
 type Status = 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -41,6 +51,7 @@ export function ConnectPanel() {
 
   function ingest(batch: Row[]) {
     setRows((prev) => [...batch, ...prev].slice(0, 200));
+    liveFeed.publish(batch); // Sentinel can watch this feed
   }
 
   function disconnect() {
@@ -69,7 +80,7 @@ export function ConnectPanel() {
           batchSize: 1, flushIntervalMs: 250,
           onOpen: () => setStatus('connected'),
           onBatch: ingest,
-          onError: () => { setStatus('error'); setError('SSE error — EventSource will retry.'); },
+          onError: () => { setStatus('error'); setError('SSE error — often CORS (the endpoint must allow this origin) or a non-event-stream response. EventSource will retry.'); },
         });
         handleRef.current = c;
         setStatus('connected');
@@ -87,7 +98,7 @@ export function ConnectPanel() {
             ingest(batch);
           } catch (e) {
             setStatus('error');
-            setError(String(e));
+            setError(describeFetchError(e));
           }
         };
         void poll();
@@ -130,9 +141,9 @@ export function ConnectPanel() {
           </div>
 
           <Field label="Endpoint URL" hint={
-            mode === 'ws' ? 'A ws:// or wss:// WebSocket URL streaming JSON messages.'
-            : mode === 'sse' ? 'An http(s) endpoint that streams text/event-stream.'
-            : 'An HTTP endpoint returning JSON. Polled on a fixed interval.'
+            mode === 'ws' ? 'A ws:// or wss:// WebSocket URL streaming JSON messages. (WebSockets are not subject to CORS.)'
+            : mode === 'sse' ? 'An http(s) endpoint that streams text/event-stream. Must allow this origin via CORS (Access-Control-Allow-Origin).'
+            : 'An HTTP endpoint returning JSON, polled on a fixed interval. Must allow this origin via CORS (Access-Control-Allow-Origin).'
           }>
             <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder={
               mode === 'ws' ? 'wss://example.com/feed' : 'https://example.com/api/stream'

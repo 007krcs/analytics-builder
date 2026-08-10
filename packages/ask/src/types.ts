@@ -52,6 +52,8 @@ export interface QueryPlan {
   limit?: number;
   /** Suggested visualization. */
   chartType: ChartType;
+  /** For trend intents: how the time dimension is bucketed at execution. */
+  timeGranularity?: 'day' | 'month' | 'year';
   /** Plain-English restatement of how the question was interpreted. */
   explanation: string;
   /** 0–1 confidence that the interpretation is correct. */

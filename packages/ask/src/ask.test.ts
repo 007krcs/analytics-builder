@@ -159,6 +159,87 @@ describe('summarize() — narration', () => {
   });
 });
 
+describe('trend time-bucketing + chronological order', () => {
+  // 8 months of SHUFFLED daily rows — the old code produced one group per raw
+  // date in insertion order; bucketing must give ascending month buckets.
+  const shuffled = buildDataset('ts', 'TS', [
+    { day: '2024-06-10', revenue: 60 },
+    { day: '2024-01-05', revenue: 10 },
+    { day: '2024-08-20', revenue: 80 },
+    { day: '2024-03-15', revenue: 30 },
+    { day: '2024-01-25', revenue: 11 },
+    { day: '2024-08-02', revenue: 81 },
+    { day: '2024-03-01', revenue: 31 },
+    { day: '2024-06-30', revenue: 61 },
+  ]);
+
+  it('buckets daily data by month and sorts chronologically', () => {
+    const p = ask('revenue trend over time', shuffled);
+    const r = executePlan(p, shuffled);
+    const labels = r.rows.map((x) => x[r.columns[0]]);
+    expect(labels).toEqual(['2024-01', '2024-03', '2024-06', '2024-08']);
+    // Both January days aggregated into one bucket.
+    expect(r.rows[0][r.columns[1]]).toBe(21);
+  });
+
+  it('short spans keep day buckets, still chronologically sorted', () => {
+    const p = ask('revenue over time', ds); // ds spans Jan–Mar (≤62 days → day)
+    const r = executePlan(p, ds);
+    const labels = r.rows.map((x) => String(x[r.columns[0]]));
+    const sorted = [...labels].sort();
+    expect(labels).toEqual(sorted);
+    expect(labels[0]).toBe('2024-01-15');
+  });
+});
+
+describe('year-vs-year comparison', () => {
+  const yoy = buildDataset('yoy', 'YoY', [
+    { date: '2022-05-01', revenue: 5 },
+    { date: '2023-02-01', revenue: 100 },
+    { date: '2023-09-10', revenue: 150 },
+    { date: '2024-03-03', revenue: 300 },
+    { date: '2024-11-20', revenue: 100 },
+  ]);
+
+  it('"revenue 2023 vs 2024" → two year buckets, 2022 excluded, bar chart', () => {
+    const p = ask('revenue 2023 vs 2024', yoy);
+    expect(p.timeGranularity).toBe('year');
+    expect(p.chartType).toBe('bar');
+    expect(p.filters).toContainEqual({ columnId: 'date', operator: 'in', value: ['2023', '2024'] });
+    const r = executePlan(p, yoy);
+    expect(r.rows).toEqual([
+      { [r.columns[0]]: '2023', [r.columns[1]]: 250 },
+      { [r.columns[0]]: '2024', [r.columns[1]]: 400 },
+    ]);
+  });
+});
+
+describe('follow-up refinement via context', () => {
+  it('"now just europe" reuses the previous plan with a region filter', () => {
+    const p1 = ask('total revenue by product', ds);
+    const p2 = ask('now just europe', ds, { context: p1 });
+    expect(p2.dimensions).toEqual(['product']);
+    expect(p2.measures).toEqual(p1.measures);
+    expect(p2.filters).toContainEqual({ columnId: 'region', operator: 'eq', value: 'Europe' });
+    const r = executePlan(p2, ds);
+    expect(r.matchedRows).toBe(2); // only the two Europe rows
+  });
+
+  it('a refinement filter replaces an earlier filter on the same column', () => {
+    const p1 = ask('total revenue by product in north america', ds);
+    const p2 = ask('now just europe', ds, { context: p1 });
+    const regionFilters = p2.filters.filter((f) => f.columnId === 'region');
+    expect(regionFilters).toEqual([{ columnId: 'region', operator: 'eq', value: 'Europe' }]);
+  });
+
+  it('a standalone question ignores the context', () => {
+    const p1 = ask('total revenue by product', ds);
+    const p2 = ask('average units by region', ds, { context: p1 });
+    expect(p2.dimensions).toEqual(['region']);
+    expect(p2.measures[0]).toMatchObject({ columnId: 'units', aggregation: 'avg' });
+  });
+});
+
 describe('unresolved tokens — no generic filler leaks into the hint', () => {
   it('"how many records are there" resolves cleanly (count query, no leftovers)', () => {
     const p = ask('how many records are there', ds);

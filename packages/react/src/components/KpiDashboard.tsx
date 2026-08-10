@@ -10,6 +10,7 @@ import {
   DndContext,
   closestCenter,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -86,7 +87,9 @@ export function KpiDashboard({
   className,
 }: KpiDashboardProps) {
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    // Touch needs a hold-delay so card drags don't hijack page scrolling.
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
   );
 
   const configMap = new Map(kpiConfigs.map((c) => [c.id, c]));

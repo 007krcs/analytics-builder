@@ -17,5 +17,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Tests are type-checked by vitest at run time; keeping them out of `tsc -b`
+  // means the Render production build doesn't need vitest's types installed.
+  "exclude": ["src/**/__tests__/**", "src/**/*.test.ts", "src/**/*.test.tsx"]
 }
