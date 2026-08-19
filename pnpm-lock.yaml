@@ -125,6 +125,61 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
+  packages/analytix:
+    dependencies:
+      '@gridstorm/analytix-ask':
+        specifier: workspace:*
+        version: link:../ask
+      '@gridstorm/analytix-canvas-layout':
+        specifier: workspace:*
+        version: link:../canvas-layout
+      '@gridstorm/analytix-chart-engine':
+        specifier: workspace:*
+        version: link:../chart-engine
+      '@gridstorm/analytix-core':
+        specifier: workspace:*
+        version: link:../core
+      '@gridstorm/analytix-crossfilter':
+        specifier: workspace:*
+        version: link:../crossfilter
+      '@gridstorm/analytix-data-connector':
+        specifier: workspace:*
+        version: link:../data-connector
+      '@gridstorm/analytix-insight-engine':
+        specifier: workspace:*
+        version: link:../insight-engine
+      '@gridstorm/analytix-kpi-engine':
+        specifier: workspace:*
+        version: link:../kpi-engine
+      '@gridstorm/analytix-monitor':
+        specifier: workspace:*
+        version: link:../monitor
+      '@gridstorm/analytix-pivot-engine':
+        specifier: workspace:*
+        version: link:../pivot-engine
+      '@gridstorm/analytix-react':
+        specifier: workspace:*
+        version: link:../react
+      '@gridstorm/analytix-report-builder':
+        specifier: workspace:*
+        version: link:../report-builder
+      '@gridstorm/analytix-sql-connector':
+        specifier: workspace:*
+        version: link:../sql-connector
+      react:
+        specifier: ^18.0.0 || ^19.0.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.0.0 || ^19.0.0
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(postcss@8.5.8)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
   packages/ask:
     dependencies:
       '@gridstorm/analytix-core':

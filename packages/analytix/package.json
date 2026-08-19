@@ -1,0 +1,138 @@
+{
+  "name": "@gridstorm/analytix",
+  "version": "0.1.0",
+  "description": "The complete Analytics Builder platform in one install — engine, pivot, charts, KPIs, insights, crossfilter, connectors, SQL, reports, canvas, natural-language ask, streaming monitor, and the React UI. Each area is also importable via subpath (@gridstorm/analytix/ask) or as its own standalone @gridstorm/analytix-* package.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
+    },
+    "./pivot": {
+      "types": "./dist/pivot.d.ts",
+      "import": "./dist/pivot.js",
+      "require": "./dist/pivot.cjs"
+    },
+    "./charts": {
+      "types": "./dist/charts.d.ts",
+      "import": "./dist/charts.js",
+      "require": "./dist/charts.cjs"
+    },
+    "./kpi": {
+      "types": "./dist/kpi.d.ts",
+      "import": "./dist/kpi.js",
+      "require": "./dist/kpi.cjs"
+    },
+    "./insights": {
+      "types": "./dist/insights.d.ts",
+      "import": "./dist/insights.js",
+      "require": "./dist/insights.cjs"
+    },
+    "./crossfilter": {
+      "types": "./dist/crossfilter.d.ts",
+      "import": "./dist/crossfilter.js",
+      "require": "./dist/crossfilter.cjs"
+    },
+    "./connectors": {
+      "types": "./dist/connectors.d.ts",
+      "import": "./dist/connectors.js",
+      "require": "./dist/connectors.cjs"
+    },
+    "./sql": {
+      "types": "./dist/sql.d.ts",
+      "import": "./dist/sql.js",
+      "require": "./dist/sql.cjs"
+    },
+    "./reports": {
+      "types": "./dist/reports.d.ts",
+      "import": "./dist/reports.js",
+      "require": "./dist/reports.cjs"
+    },
+    "./canvas": {
+      "types": "./dist/canvas.d.ts",
+      "import": "./dist/canvas.js",
+      "require": "./dist/canvas.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js",
+      "require": "./dist/react.cjs"
+    },
+    "./ask": {
+      "types": "./dist/ask.d.ts",
+      "import": "./dist/ask.js",
+      "require": "./dist/ask.cjs"
+    },
+    "./monitor": {
+      "types": "./dist/monitor.d.ts",
+      "import": "./dist/monitor.js",
+      "require": "./dist/monitor.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/007krcs/analytics-builder.git",
+    "directory": "packages/analytix"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts src/core.ts src/pivot.ts src/charts.ts src/kpi.ts src/insights.ts src/crossfilter.ts src/connectors.ts src/sql.ts src/reports.ts src/canvas.ts src/react.ts src/ask.ts src/monitor.ts --format esm,cjs --dts",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "analytics",
+    "business intelligence",
+    "pivot table",
+    "charts",
+    "dashboard",
+    "kpi",
+    "natural language analytics",
+    "anomaly detection",
+    "react analytics",
+    "embedded analytics"
+  ],
+  "dependencies": {
+    "@gridstorm/analytix-core": "workspace:*",
+    "@gridstorm/analytix-pivot-engine": "workspace:*",
+    "@gridstorm/analytix-chart-engine": "workspace:*",
+    "@gridstorm/analytix-kpi-engine": "workspace:*",
+    "@gridstorm/analytix-insight-engine": "workspace:*",
+    "@gridstorm/analytix-crossfilter": "workspace:*",
+    "@gridstorm/analytix-data-connector": "workspace:*",
+    "@gridstorm/analytix-sql-connector": "workspace:*",
+    "@gridstorm/analytix-report-builder": "workspace:*",
+    "@gridstorm/analytix-canvas-layout": "workspace:*",
+    "@gridstorm/analytix-react": "workspace:*",
+    "@gridstorm/analytix-ask": "workspace:*",
+    "@gridstorm/analytix-monitor": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  }
+}
