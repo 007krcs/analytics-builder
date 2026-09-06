@@ -1,0 +1,42 @@
+# Publishes the built demo (analytics.tekivex.com app) to the `build` branch so
+# the tekivex marketing site can vendor it into dist/analytics/ and serve it
+# at https://www.tekivex.com/analytics — one domain, no subdomain.
+name: Publish static build
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build with base /analytics
+        env:
+          SITE_BASE: /analytics
+        run: pnpm build
+      - name: Publish examples/demo/dist to the build branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: build
+          publish_dir: examples/demo/dist
+          force_orphan: true
+          commit_message: 'build: ${{ github.sha }}'

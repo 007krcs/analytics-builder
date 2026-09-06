@@ -2,6 +2,9 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  // When published under a path on www.tekivex.com (SITE_BASE=/analytics) all
+  // asset URLs get that prefix; unset keeps the standalone root '/'.
+  base: (process.env.SITE_BASE || '') + '/',
   plugins: [react()],
   resolve: {
     // Ensure workspace packages are resolved from source

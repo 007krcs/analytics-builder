@@ -1,4 +1,4 @@
-# robots.txt — analytics.tekivex.com
+# robots.txt — www.tekivex.com/analytics
 # Goal: maximum discoverability by every search engine AND AI/LLM crawler.
 # We explicitly WELCOME both training and citation/search AI bots so the
 # product can be indexed, learned, and cited in AI answers.
@@ -97,4 +97,4 @@ User-agent: YouBot
 Allow: /
 
 # ── Sitemap ────────────────────────────────────────────────────────────────
-Sitemap: https://analytics.tekivex.com/sitemap.xml
+Sitemap: https://www.tekivex.com/analytics/sitemap.xml

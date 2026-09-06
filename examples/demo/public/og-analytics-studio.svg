@@ -90,7 +90,7 @@
   <text x="366" y="518" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="600" fill="#6ee7b7">In-browser SQL</text>
 
   <!-- Domain -->
-  <text x="600" y="590" text-anchor="middle" font-family="Inter,sans-serif" font-size="18" font-weight="500" fill="#475569" letter-spacing="1">analytics.tekivex.com</text>
+  <text x="600" y="590" text-anchor="middle" font-family="Inter,sans-serif" font-size="18" font-weight="500" fill="#475569" letter-spacing="1">www.tekivex.com/analytics</text>
 
   <!-- Bottom accent -->
   <rect x="0" y="626" width="1200" height="4" fill="url(#accent)" opacity="0.5"/>

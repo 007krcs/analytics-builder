@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Sitemap for analytics.tekivex.com
+  Sitemap for www.tekivex.com/analytics
   Hash routes (#demo, #/charts …) are NOT separate crawlable URLs — search
   engines and AI crawlers ignore the fragment. The site is a single indexable
   page, so we list only the canonical root URL.
@@ -9,12 +9,12 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
   <url>
-    <loc>https://analytics.tekivex.com/</loc>
+    <loc>https://www.tekivex.com/analytics/</loc>
     <lastmod>2026-05-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://analytics.tekivex.com/og-analytics-studio.png</image:loc>
+      <image:loc>https://www.tekivex.com/analytics/og-analytics-studio.png</image:loc>
       <image:title>Analytics Studio — drag-and-drop BI and analytics platform</image:title>
     </image:image>
   </url>

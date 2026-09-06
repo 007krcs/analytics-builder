@@ -14,7 +14,7 @@
 - **Licence**: MIT (free for unlimited developers and deployments).
 - **Runtime**: 100% client-side in the browser. No server, no database, no data egress.
 - **Languages/frameworks**: TypeScript engines; React component library; Vue 3 and Svelte adapters.
-- **Live demo**: https://analytics.tekivex.com
+- **Live demo**: https://www.tekivex.com/analytics
 - **Source**: https://github.com/007krcs/analytics-builder
 - **npm**: https://www.npmjs.com/package/@gridstorm/analytix-react
 
